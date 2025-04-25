@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء هدف{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء هدف جديد</h2>
+            <p class="form-subtitle">تعيين هدف تطوير جديد للموظف</p>
+        </div>
+
+        <form method="post" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">معلومات الهدف</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.employee.id_for_label }}">الموظف</label>
+                        {{ form.employee }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.skill.id_for_label }}">المهارة</label>
+                        {{ form.skill }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.progress.id_for_label }}">التقدم</label>
+                        {{ form.progress }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">إنشاء هدف</button>
+                <a href="{% url 'goals_list' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

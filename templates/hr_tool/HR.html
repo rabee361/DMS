@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة تحكم الموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">إدارة الموارد البشرية</h1>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Absences Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-calendar-x"></i>
+        </div>
+        <div class="card-content">
+            <h3>إدارة الغيابات</h3>
+            <p>تتبع وإدارة غيابات وإجازات الموظفين.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_absences }}</span>
+                    <span class="stat-label">الإجمالي</span>
+                </div>
+            </div>
+            <a href="{% url 'absences_list' %}" class="card-action">الذهاب إلى الغيابات</a>
+        </div>
+    </div>
+
+    <!-- Holiday Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-calendar-check"></i>
+        </div>
+        <div class="card-content">
+            <h3>إدارة العطلات</h3>
+            <p>إدارة وتخصيص العطلات للموظفين.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_holidays }}</span>
+                    <span class="stat-label">العطلات</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ approved_holidays }}</span>
+                    <span class="stat-label">المقبولة</span>
+                </div>
+            </div>
+            <a href="{% url 'holidays_list' %}" class="card-action">الذهاب إلى العطلات</a>
+        </div>
+    </div>
+
+    <!-- Employee Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <div class="card-content">
+            <h3>إدارة الموظفين</h3>
+            <p>إنشاء وإدارة ملفات الموظفين.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_employees }}</span>
+                    <span class="stat-label">الموظفين</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ active_employees }}</span>
+                    <span class="stat-label">النشطين</span>
+                </div>
+            </div>
+            <a href="{% url 'employee_list' %}" class="card-action">الذهاب إلى الموظفين</a>
+        </div>
+    </div>
+
+    <!-- Recruitment Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-person-plus"></i>
+        </div>
+        <div class="card-content">
+            <h3>التوظيف</h3>
+            <p>إدارة عملية التوظيف والمقابلات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_candidates }}</span>
+                    <span class="stat-label">المرشحين</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ open_positions }}</span>
+                    <span class="stat-label">الوظائف المفتوحة</span>
+                </div>
+            </div>
+            <a href="{% url 'recruiters_list' %}" class="card-action">الذهاب إلى التوظيف</a>
+        </div>
+    </div>
+
+    <!-- Skills Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-trophy"></i>
+        </div>
+        <div class="card-content">
+            <h3>المهارات والأهداف</h3>
+            <p>تتبع مهارات الموظفين وتقدم الأهداف.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_goals }}</span>
+                    <span class="stat-label">الأهداف</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ completed_goals }}</span>
+                    <span class="stat-label">المكتملة</span>
+                </div>
+            </div>
+            <a href="{% url 'goals_skills' %}" class="card-action">الذهاب إلى الأهداف</a>
+        </div>
+    </div>
+
+    <!-- Departments Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-building"></i>
+        </div>
+        <div class="card-content">
+            <h3>الأقسام</h3>
+            <p>إدارة الأقسام.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_departments }}</span>
+                    <span class="stat-label">القسم</span>
+                </div>
+            </div>
+            <a href="{% url 'departments' %}" class="card-action">الذهاب إلى القسم</a>
+        </div>
+    </div>
+
+    <!-- Positions Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-person-badge"></i>
+        </div>
+        <div class="card-content">
+            <h3>المناصب</h3>
+            <p>إدارة المناصب.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_positions }}</span>
+                    <span class="stat-label">المنصب</span>
+                </div>
+            </div>
+            <a href="{% url 'positions' %}" class="card-action">الذهاب إلى المنصب</a>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}
