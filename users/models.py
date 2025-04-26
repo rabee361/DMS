@@ -48,7 +48,7 @@ class User(AbstractUser):
         help_text='Specific permissions for this user.',
         related_query_name='custom_user_permissions',
     )
-    upload_limit = models.IntegerField(validators=[MinValueValidator(10)])
+    upload_limit = models.IntegerField(validators=[MinValueValidator(10)], default=10)
 
     @property
     def activate(self):
