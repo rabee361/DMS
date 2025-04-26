@@ -21,16 +21,16 @@ from django.conf.urls.static import static
 from .views import DashboardView
 
 urlpatterns = [
-    path('dashboard/', DashboardView.as_view(), name='dashboard'),
-    path('supersecureadmin/', admin.site.urls),
-    path('admin/', include('fake_admin.urls')),  # Fake admin page
-    path('secureadmin/', include('fake_admin.urls')),  # Fake admin page
-    path('users/', include('users.urls')),
-    path('documents/', include('documents.urls')),
-    path('tasks/', include('tasks.urls')),
-    path('hr/', include('hr_tool.urls')),
-    path('form-builder/', include('form_builder.urls')),
-    path('stats/', include('stats.urls')),
+    path('dms/dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('dms/supersecureadmin/', admin.site.urls),
+    path('dms/admin/', include('fake_admin.urls')),  # Fake admin page
+    path('dms/secureadmin/', include('fake_admin.urls')),  # Fake admin page
+    path('dms/users/', include('users.urls')),
+    path('dms/documents/', include('documents.urls')),
+    path('dms/tasks/', include('tasks.urls')),
+    path('dms/hr/', include('hr_tool.urls')),
+    path('dms/form-builder/', include('form_builder.urls')),
+    path('dms/stats/', include('stats.urls')),
     # path('error/' , )
 ]
 
