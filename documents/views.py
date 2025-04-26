@@ -9,11 +9,15 @@ from .forms import DocumentUploadForm, DocumentEditForm
 import mimetypes
 import json
 from django.views import generic
+from django.contrib.auth.decorators import user_passes_test
 from utility.mixins import documents_criteria_add_perm, documents_criteria_edit_perm, documents_criteria_delete_perm
 
+add_perm_decorator = user_passes_test(documents_criteria_add_perm)
+edit_perm_decorator = user_passes_test(documents_criteria_edit_perm)
+delete_perm_decorator = user_passes_test(documents_criteria_delete_perm)
 
 
-@method_decorator(documents_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, add_perm_decorator], name='dispatch')
 class DocumentPageView(View):
     def get(self,request):
         total_documents = Document.objects.count()
@@ -22,21 +26,21 @@ class DocumentPageView(View):
 
 
 
-@method_decorator(documents_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class ListGroupsView(generic.ListView):
     model = DocumentGroup
     template_name = 'group/groups.html'
     context_object_name = 'groups'
 
 
-@method_decorator(documents_criteria_delete_perm, name='dispatch')
+@method_decorator([login_required, delete_perm_decorator], name='dispatch')
 class DeleteGroupView(generic.DeleteView):
     model = DocumentGroup
     template_name = 'group/delete_group.html'
     success_url = '/documents/groups/'
 
 
-@method_decorator(documents_criteria_add_perm, name='dispatch')
+@method_decorator([login_required, add_perm_decorator], name='dispatch')
 class CreateGroupView(generic.CreateView):
     model = DocumentGroup
     fields = ['name','description']
@@ -44,7 +48,7 @@ class CreateGroupView(generic.CreateView):
     success_url = '/documents/groups/'
 
 
-@method_decorator(documents_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class UpdateGroupView(generic.UpdateView):
     model = DocumentGroup
     fields = ['name']
@@ -52,7 +56,7 @@ class UpdateGroupView(generic.UpdateView):
     success_url = '/documents/groups/'
 
 
-@method_decorator(documents_criteria_delete_perm, name='dispatch')  
+@method_decorator([login_required, delete_perm_decorator], name='dispatch')  
 class GroupActionView(generic.View):
     def post(self,request):
         selected_ids = json.loads(request.POST.get('selected_ids'))
@@ -63,7 +67,7 @@ class GroupActionView(generic.View):
 
 
 
-@method_decorator(documents_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class DocumentListView(generic.ListView):
     model = Document
     paginate_by = 10
@@ -73,7 +77,7 @@ class DocumentListView(generic.ListView):
 
 
 
-@method_decorator(documents_criteria_add_perm, name='dispatch')
+@method_decorator([login_required, add_perm_decorator], name='dispatch')
 class UploadDocumentView(View):
     def get(self, request):
         form = DocumentUploadForm()
@@ -90,7 +94,7 @@ class UploadDocumentView(View):
     
 
 
-@method_decorator(documents_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class DocumentEditView(generic.UpdateView):
     model = Document
     form_class = DocumentEditForm
@@ -99,7 +103,7 @@ class DocumentEditView(generic.UpdateView):
 
 
 
-@method_decorator(documents_criteria_delete_perm, name='dispatch')
+@method_decorator([login_required, delete_perm_decorator], name='dispatch')
 class DeleteDocumentView(generic.DeleteView):
     model = Document
     template_name = 'documents/delete_document.html'
@@ -114,7 +118,7 @@ class DeleteDocumentView(generic.DeleteView):
 
 
 
-@method_decorator(documents_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class DownloadDocumentView(View):
     def get(self, request, document_id):
         document = get_object_or_404(Document, id=document_id)
@@ -133,7 +137,7 @@ class DownloadDocumentView(View):
 
 
 
-@method_decorator(documents_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class PerformActionView(View):
     def post(self,request):
 

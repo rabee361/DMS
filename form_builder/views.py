@@ -12,15 +12,21 @@ from django.views import generic
 from .form_utils import create_dynamic_form
 from django.db import connection
 from utility.mixins import form_criteria_add_perm, form_criteria_edit_perm, form_criteria_delete_perm
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required
+
+add_perm_decorator = user_passes_test(form_criteria_add_perm)
+edit_perm_decorator = user_passes_test(form_criteria_edit_perm)
+delete_perm_decorator = user_passes_test(form_criteria_delete_perm)
 
 
-@method_decorator(form_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class ListForms(generic.ListView):
     model = CustomForm
     context_object_name = 'forms'
     template_name = "form_builder/forms.html"
 
-@method_decorator(form_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class FormDetailView(View):
     def get(self, request, pk):
         try:
@@ -51,7 +57,7 @@ class FormDetailView(View):
             return redirect('form_builder')  # Redirect to forms list if form not found
 
 
-@method_decorator(form_criteria_add_perm, name='dispatch')
+@method_decorator([login_required, add_perm_decorator], name='dispatch')
 class CreateFormView(View):
     def get(self, request):
         return render(request, 'form_builder/create_form.html')
@@ -100,7 +106,7 @@ class CreateFormView(View):
             })
                 
 
-@method_decorator(form_criteria_add_perm, name='dispatch')
+@method_decorator([login_required, add_perm_decorator], name='dispatch')
 class CreateRecordView(View):
     def get(self, request, pk):
         try:
@@ -160,7 +166,7 @@ class CreateRecordView(View):
             })
 
 
-@method_decorator(form_criteria_delete_perm, name='dispatch')
+@method_decorator([login_required, delete_perm_decorator], name='dispatch')
 class DeleteRecordView(View):
     def get(self, request, pk, record_id):
         form_name = CustomForm.objects.get(id=pk).name
@@ -168,14 +174,14 @@ class DeleteRecordView(View):
         return redirect(f'/form-builder/forms/{pk}/')
 
 
-@method_decorator(form_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class UpdateRecordView(View):
     def get(self, request, pk):
         form_name = CustomForm.objects.get(id=pk).name
         return render(request, 'form_builder/update_record.html')
 
 
-@method_decorator(form_criteria_delete_perm, name='dispatch')
+@method_decorator([login_required, delete_perm_decorator], name='dispatch')
 class FormsActionView(View):
     def post(self, request):
         data = json.loads(request.body)
@@ -191,7 +197,7 @@ class FormsActionView(View):
         
 
 
-@method_decorator(form_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class ExportFormPdfView(View):
     def get(self, request, pk):
         try:
@@ -207,7 +213,7 @@ class ExportFormPdfView(View):
                 'error': str(e)
             })
 
-@method_decorator(form_criteria_edit_perm, name='dispatch')
+@method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class ExportFormExcelView(View):
     def get(self, request, pk):
         try:
