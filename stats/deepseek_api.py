@@ -14,11 +14,15 @@ from django.http import JsonResponse
 import logging
 
 logger = logging.getLogger(__name__)
+import environ
+
+env = environ.Env()
+environ.Env.read_env()
 
 #api_key="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",
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
-    api_key="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",
+    api_key=env("api_key"),
 )
 
 

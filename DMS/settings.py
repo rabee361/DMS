@@ -74,7 +74,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'DMS.urls'
-LOGIN_URL = '/users/login/'
+LOGIN_URL = '/dms/users/login/'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
