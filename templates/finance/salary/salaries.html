@@ -5,9 +5,7 @@
 {% block content %}
 <div style="display: flex; flex-direction: row; justify-content: space-between;">
     <h1>All Salaries</h1>
-    {% if request.user.role == 'Moderator' or 'Admin' %}
     <h6 style="align-self: center;"><a href="{% url 'create_salary' %}">Enter Salary</a></h6>
-    {% endif %}
 </div>
 
 <div>

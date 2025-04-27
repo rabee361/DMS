@@ -34,7 +34,7 @@ def add_form(form_name, fields, form_language):
             
             form_name = f"form_builder_{form_name}"
             cursor.execute(
-                "INSERT INTO form_builder_customform (name, language) VALUES (%s, %s) RETURNING id",
+                "INSERT INTO form_builder_customform (name, language, created_at) VALUES (%s, %s, CURRENT_TIMESTAMP) RETURNING id",
                 [form_name, form_language]
             )
             form_id = cursor.fetchone()[0]
@@ -105,6 +105,14 @@ def get_form(form_name):
             f"SELECT * FROM {form_name}"
         )
         return cursor.fetchall()
+
+
+
+def delete_form(form_name):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"DROP TABLE {form_name}"
+        )
 
 
 def insert_record_with_fields(table_name, fields, values):

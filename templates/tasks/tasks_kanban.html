@@ -26,7 +26,8 @@
                     <div class="kanban-card" 
                          draggable="true"
                          data-task-id="{{ task.id }}"
-                         data-status="Pending">
+                         data-status="Pending"
+                         dir="rtl">
                         <div class="card-header">
                             <h4>{{ task.title }}</h4>
                             <div class="priority-wrapper">
@@ -229,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to update task status via AJAX
     function updateTaskStatus(taskId, newStatus) {
         // Create a fetch request to update status
-        fetch(`/tasks/${taskId}/update-status/`, {
+        fetch(`/dms/tasks/${taskId}/update-status/`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

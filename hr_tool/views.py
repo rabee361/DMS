@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import get_user_model
 import datetime
 from django.http import HttpResponse
+from django.urls import reverse_lazy
 from .resources import EmployeeResource, HolidayResource, AbsenceResource, RecruitmentResource
 from utility.mixins import hr_criteria_add_perm, hr_criteria_delete_perm, hr_criteria_edit_perm
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView
@@ -72,7 +73,7 @@ class CreateEmployeeView(CreateView):
     model = Employee
     form_class = EmployeeRegistrationForm
     template_name = 'hr_tool/employee/create_employee.html'
-    success_url = '/hr/employees/'
+    success_url = '/dms/hr/employees/'
 
     def form_invalid(self, form):
         # Print form errors for debugging
@@ -85,7 +86,7 @@ class DeleteEmployeeView(DeleteView):
     model = Employee
     template_name = 'hr_tool/employee/delete_employee.html'
     context_object_name = 'employee'
-    success_url = '/hr/employees/'
+    success_url = reverse_lazy('employee_list')
 
 
 @method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
@@ -93,7 +94,7 @@ class UpdateEmployeeView(UpdateView):
     model = Employee
     template_name = 'hr_tool/employee/employee_profile.html'
     form_class = EmployeeUpdateForm
-    success_url = '/hr/employees/'
+    success_url = reverse_lazy('employee_list')
 
     # add extra data for each employee in the context
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -148,7 +149,7 @@ class CreateHolidayView(View):
 @method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
 class ListHolidaysView(ListView):
     model = Holiday
-    template_name = 'hr_tool/holiday/holidays.html'
+    template_name = 'dms/hr/holiday/holidays.html'
     context_object_name = 'holidays'
     paginate_by = 10
 
@@ -206,7 +207,7 @@ class DeleteHolidayView(DeleteView):
     model = Holiday
     template_name = 'hr_tool/holiday/delete_holiday.html'
     context_object_name = 'holiday'
-    success_url = '/hr/holidays/'
+    success_url = reverse_lazy('holidays_list')
 
 
 @method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
@@ -214,7 +215,7 @@ class CreateAbsenceView(CreateView):
     model = Absence
     form_class = AbsenceForm
     template_name = 'hr_tool/absence/create_absence.html'
-    success_url = '/hr/absences/'
+    success_url = reverse_lazy('absences_list')
 
 
 @method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
@@ -262,7 +263,7 @@ class UpdateAbsenceView(UpdateView):
     model = Absence
     form_class = AbsenceForm
     template_name = 'hr_tool/absence/absence_info.html'
-    success_url = '/hr/absences/'
+    success_url = reverse_lazy('absences_list')
     context_object_name = 'absence'
 
 
@@ -270,7 +271,7 @@ class UpdateAbsenceView(UpdateView):
 class DeleteAbsenceView(DeleteView):
     model = Absence
     template_name = 'hr_tool/absence/list_absences.html'
-    success_url = '/hr/absences/'
+    success_url = reverse_lazy('absences_list')
     context_object_name = 'absence'
 
 
@@ -320,7 +321,7 @@ class RecruitersActionView(View):
 class RecruiterProfileView(UpdateView):
     model = Recruitment
     template_name = 'hr_tool/recruitment/recruiter_profile.html'
-    success_url = '/hr/recruiters/'
+    success_url = reverse_lazy('recruiters_list')
     context_object_name = 'recruiter'
 
 
@@ -328,7 +329,7 @@ class RecruiterProfileView(UpdateView):
 class DeleteRecruiterView(DeleteView):
     model = Recruitment
     template_name = 'hr_tool/recruitment/delete_recruite.html'
-    success_url = '/hr/recruiters/'
+    success_url = reverse_lazy('recruiters_list')
     context_object_name = 'recruiter'
 
 
@@ -358,7 +359,7 @@ class GoalsSkillsView(View):
 class CreateGoalView(CreateView):
     model = WorkGoal
     template_name = 'hr_tool/goals/create_goal.html'
-    success_url = '/hr/goals/'
+    success_url = reverse_lazy('goals_skills')
     form_class = WorkGoalForm
 
 
@@ -373,7 +374,7 @@ class GoalDetailView(UpdateView):
 class DeleteGoalView(DeleteView):
     model = WorkGoal
     template_name = 'hr_tool/goals/delete_goal.html'
-    success_url = '/hr/goals/'
+    success_url = reverse_lazy('goals_list')
     context_object_name = 'goal'
 
 
@@ -411,7 +412,7 @@ class CreateSkillView(CreateView):
     model = Skill
     fields = ['name']
     template_name = 'hr_tool/goals/create_skill.html'
-    success_url = '/hr/skills/'
+    success_url = reverse_lazy('skills_list')
 
 
 @method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
@@ -425,7 +426,7 @@ class SkillDetailView(UpdateView):
 class DeleteSkillView(DeleteView):
     model = Skill
     template_name = 'hr_tool/goals/delete_skill.html'
-    success_url = '/hr/skills/'
+    success_url = reverse_lazy('skills_list')
     context_object_name = 'skill'
 
 
@@ -465,7 +466,7 @@ class ListDepartmentsView(ListView):
 class CreateDepartmentView(CreateView):
     model = Department
     template_name = 'hr_tool/departments/create_department.html'
-    success_url = '/hr/departments/'
+    success_url = reverse_lazy('departments')
     fields = ['name', 'description']
 
 @method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
@@ -474,13 +475,13 @@ class DepartmentDetailView(UpdateView):
     fields = ['name', 'description']
     template_name = 'hr_tool/departments/department_info.html'
     context_object_name = 'department'
-    success_url = '/hr/departments/'
+    success_url = reverse_lazy('departments')
 
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
 class DeleteDepartmentView(DeleteView):
     model = Department
     template_name = 'hr_tool/departments/delete_department.html'
-    success_url = '/hr/departments/'
+    success_url = reverse_lazy('departments')
     context_object_name = 'department'
 
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
@@ -504,7 +505,7 @@ class ListPositionsView(ListView):
 class CreatePositionView(CreateView):
     model = Position
     template_name = 'hr_tool/positions/create_position.html'
-    success_url = '/hr/positions/'
+    success_url = reverse_lazy('positions')
     fields = ['name', 'description']
 
 @method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
@@ -513,13 +514,13 @@ class PositionDetailView(UpdateView):
     fields = ['name', 'description']
     template_name = 'hr_tool/positions/position_info.html'
     context_object_name = 'position'
-    success_url = '/hr/positions/'
+    success_url = reverse_lazy('positions')
 
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
 class DeletePositionView(DeleteView):
     model = Position
     template_name = 'hr_tool/positions/delete_position.html'
-    success_url = '/hr/positions/'
+    success_url = reverse_lazy('positions')
     context_object_name = 'position'
 
 

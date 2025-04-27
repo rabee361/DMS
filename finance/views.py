@@ -5,7 +5,7 @@ from django.views.generic import ListView , DeleteView , CreateView , UpdateView
 from .models import Salary
 from django.db.models.query import QuerySet
 from typing import Any
-
+from django.urls import reverse_lazy
 # Create your views here.
 
 
@@ -14,7 +14,7 @@ class CreateSalaryView(CreateView):
     model = Salary
     fields = '__all__'
     template_name = 'hr_tool/salary/create_salary.html'
-    success_url = '/hr/salaries/'
+    success_url = reverse_lazy('salary_list')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -39,7 +39,7 @@ class UpdateSalaryView(UpdateView):
     model = Salary
     fields = '__all__'
     template_name = 'hr_tool/salary/salary_info.html'
-    success_url = '/hr/salaries/'
+    success_url = reverse_lazy('salary_list')
 
 
 @method_decorator(login_required, name='dispatch')
@@ -47,4 +47,4 @@ class DeleteSalaryView(DeleteView):
     model = Salary
     template_name = 'hr_tool/salary/delete_salary.html'
     context_object_name = 'salary'
-    success_url = '/hr/salaries/'
+    success_url = reverse_lazy('salary_list')

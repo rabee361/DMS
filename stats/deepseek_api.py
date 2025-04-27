@@ -18,8 +18,8 @@ import environ
 
 env = environ.Env()
 environ.Env.read_env()
+print(env("api_key"))
 
-#api_key="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",
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=env("api_key"),

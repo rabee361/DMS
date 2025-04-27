@@ -6,15 +6,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-# class EmployeeRegistrationForm(forms.Form):
-#     username = forms.CharField(required=True)
-#     email = forms.CharField(required=True)
-#     password1 = forms.CharField(required=True,widget=PasswordInput)
-#     password2 = forms.CharField(required=True,widget=PasswordInput)
-#     position = forms.CharField(required=True)
-#     department = forms.CharField(required=True)
-
-
     
 class EmployeeRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)

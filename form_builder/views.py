@@ -1,19 +1,19 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.decorators.http import require_http_methods
 import json
 from django.shortcuts import redirect
-from .cursor_db import add_form, get_form, add_record, remove_record, update_record, get_form_fields, insert_record_with_fields
+from .cursor_db import add_form, get_form, delete_form, add_record, remove_record, update_record, get_form_fields, insert_record_with_fields
 from django.views import View
 from django.utils.decorators import method_decorator
 from .models import *
+from django.urls import reverse_lazy
 from django.views import generic
 from .form_utils import create_dynamic_form
 from django.db import connection
 from utility.mixins import form_criteria_add_perm, form_criteria_edit_perm, form_criteria_delete_perm
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 add_perm_decorator = user_passes_test(form_criteria_add_perm)
 edit_perm_decorator = user_passes_test(form_criteria_edit_perm)
@@ -25,6 +25,8 @@ class ListForms(generic.ListView):
     model = CustomForm
     context_object_name = 'forms'
     template_name = "form_builder/forms.html"
+    paginate_by = 10
+
 
 @method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class FormDetailView(View):
@@ -47,10 +49,22 @@ class FormDetailView(View):
                     if i < len(record):
                         record_dict[field] = record[i]
                 records.append(record_dict)
+
+            # Pagination
+            page = request.GET.get('page', 1)
+            paginator = Paginator(records, 10)  # Show 10 records per page
+            try:
+                page_obj = paginator.page(page)
+            except PageNotAnInteger:
+                page_obj = paginator.page(1)
+            except EmptyPage:
+                page_obj = paginator.page(paginator.num_pages)
+
             context = {
                 'form_id': form.id,
-                'records': records,
-                'fields': ['ID', 'Created At'] + form_fields  # Include default columns
+                'records': page_obj.object_list,
+                'fields': ['ID', 'Created At'] + form_fields,  # Include default columns
+                'page_obj': page_obj,
             }
             return render(request, 'form_builder/form_detail.html', context)
         except CustomForm.DoesNotExist:
@@ -87,7 +101,7 @@ class CreateFormView(View):
             if result['success']:
                 return JsonResponse({
                     'success': True,
-                    'redirect_url': f'/form-builder/forms/{result["form_id"]}'
+                    'redirect_url': f'/dms/form-builder/forms/{result["form_id"]}'
                 })
             else:
                 return JsonResponse({
@@ -147,7 +161,7 @@ class CreateRecordView(View):
                 # Insert the record using our utility function
                 insert_record_with_fields(form_name, fields, values)
                 
-                return redirect(f'/form-builder/forms/{pk}/')
+                return redirect('form_detail',pk)
             else:
                 # If form is invalid, show errors
                 context = {
@@ -171,7 +185,7 @@ class DeleteRecordView(View):
     def get(self, request, pk, record_id):
         form_name = CustomForm.objects.get(id=pk).name
         remove_record(form_name, record_id)
-        return redirect(f'/form-builder/forms/{pk}/')
+        return redirect('form_detail',pk)
 
 
 @method_decorator([login_required, edit_perm_decorator], name='dispatch')
@@ -179,6 +193,21 @@ class UpdateRecordView(View):
     def get(self, request, pk):
         form_name = CustomForm.objects.get(id=pk).name
         return render(request, 'form_builder/update_record.html')
+
+
+@method_decorator([login_required, delete_perm_decorator], name='dispatch')
+class DeleteFormView(View):
+    def get(self, request, pk):
+        form_name = CustomForm.objects.get(id=pk)
+        return render(request , 'form_builder/delete_form.html', {'form_name':form_name})
+    
+    def post(self,request,pk):
+        form = CustomForm.objects.get(id=pk)
+        form_name = form.name
+        delete_form(form_name)
+        form.delete()
+        return redirect('/dms/form-builder/')
+
 
 
 @method_decorator([login_required, delete_perm_decorator], name='dispatch')

@@ -37,7 +37,7 @@ class ListGroupsView(generic.ListView):
 class DeleteGroupView(generic.DeleteView):
     model = DocumentGroup
     template_name = 'group/delete_group.html'
-    success_url = '/documents/groups/'
+    success_url = '/dms/documents/groups/'
 
 
 @method_decorator([login_required, add_perm_decorator], name='dispatch')
@@ -45,7 +45,7 @@ class CreateGroupView(generic.CreateView):
     model = DocumentGroup
     fields = ['name','description']
     template_name = 'group/create_group.html'
-    success_url = '/documents/groups/'
+    success_url = '/dms/documents/groups/'
 
 
 @method_decorator([login_required, edit_perm_decorator], name='dispatch')
@@ -53,7 +53,7 @@ class UpdateGroupView(generic.UpdateView):
     model = DocumentGroup
     fields = ['name']
     template_name = 'group/group_form.html'
-    success_url = '/documents/groups/'
+    success_url = '/dms/documents/groups/'
 
 
 @method_decorator([login_required, delete_perm_decorator], name='dispatch')  
@@ -74,6 +74,7 @@ class DocumentListView(generic.ListView):
     fields = ['id' ,'group', 'file' , 'type' , 'uploaded_by' , 'upload_date']
     template_name = 'documents/documents_list.html'
     context_object_name = 'documents'
+    paginate_by = 10
 
 
 
