@@ -1,0 +1,40 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+        <th>المعرف</th>
+        <th>اسم المستخدم</th>
+        <th>الدور</th>
+        <th>القسم</th>
+        <th>المنصب</th>
+        <th>الحالة</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+<tbody>
+    {% for employee in employees %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'employee_profile' employee.id %}">
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ employee.id }}">
+        </td>
+        <td>{{ employee.id }}</td>
+        <td>{{ employee.username }}</td>
+        <td><span class="role-badge">{{ employee.role.name }}</span></td>
+        <td>{{ employee.department.name }}</td>
+        <td>{{ employee.position.name }}</td>
+        <td>
+            {% if employee.is_active %}
+                <span class="status-badge active"><i class="bi bi-check-circle"></i> نشط</span>
+            {% else %}
+                <span class="status-badge inactive"><i class="bi bi-x-circle"></i> غير نشط</span>
+            {% endif %}
+        </td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_employee' employee.id %}" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

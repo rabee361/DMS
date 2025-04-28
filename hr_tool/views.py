@@ -58,14 +58,14 @@ class ListEmployeesView(ListView):
     context_object_name = 'employees'
     paginate_by = 10
 
-    def get_queryset(self) -> QuerySet[Any]:
-        queryset = super().get_queryset()
-        q = self.request.GET.get('q', None)
-        if q:
-            queryset = queryset.filter(
-                username__startswith=q
-            )
-        return queryset
+    def get_queryset(self):
+        q = self.request.GET.get('q', '')
+        if self.request.htmx:
+            self.template_name = 'partials/employees_partial.html'
+            if q:
+                return super().get_queryset().filter(username__icontains=q)
+        else:
+            return super().get_queryset()
 
 
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
@@ -109,7 +109,7 @@ class UpdateEmployeeView(UpdateView):
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
 class EmployeesActionView(View):
     def post(self, request):
-        selected_items = request.POST.getlist('selected_items')
+        selected_items = json.loads(request.POST.get('selected_ids', '[]'))
         employees = Employee.objects.filter(id__in=selected_items)
 
         if request.POST.get('action') == 'delete':
@@ -132,7 +132,7 @@ class EmployeesActionView(View):
             response['Content-Disposition'] = f'attachment; filename="employees_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
             return response
 
-        return redirect('employees_list')
+        return redirect('employee_list')
 
 
 @method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')

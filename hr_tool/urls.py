@@ -8,8 +8,8 @@ urlpatterns = [
     path('employees/' , views.ListEmployeesView.as_view() , name="employee_list"),
     path('employees/add' , views.CreateEmployeeView.as_view() , name="create_employee"),
     path('employees/<str:pk>' , views.UpdateEmployeeView.as_view() , name="employee_profile"),
-    path('employees/action' , views.EmployeesActionView.as_view() , name="employees_action"),
-    path('employees/<str:pk>/delete' , views.DeleteEmployeeView.as_view() , name="delete_employee"),
+    path('employees/action/' , views.EmployeesActionView.as_view() , name="employees_action"),
+    path('employees/<str:pk>/delete/' , views.DeleteEmployeeView.as_view() , name="delete_employee"),
 
     # holidays allocated by admin to employees
     path('holidays/' , views.ListHolidaysView.as_view() , name="holidays_list"),
