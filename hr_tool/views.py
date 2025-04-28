@@ -156,7 +156,7 @@ class CreateHolidayView(View):
 @method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
 class ListHolidaysView(ListView):
     model = Holiday
-    template_name = 'dms/hr/holiday/holidays.html'
+    template_name = 'hr_tool/holiday/holidays.html'
     context_object_name = 'holidays'
     paginate_by = 10
 
