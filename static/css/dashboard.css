@@ -966,7 +966,6 @@ input[type="checkbox"] {
 
 .search-controls::before {
     content: "\f002";
-    font-family: "Bootstrap Icons";
     position: absolute;
     left: 1rem;
     top: 50%;
@@ -1581,7 +1580,6 @@ input[type="checkbox"] {
 
 .search-controls::before {
     content: "\f002";
-    font-family: "Bootstrap Icons";
     position: absolute;
     left: 1rem;
     top: 50%;

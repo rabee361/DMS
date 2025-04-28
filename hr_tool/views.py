@@ -114,6 +114,13 @@ class EmployeesActionView(View):
 
         if request.POST.get('action') == 'delete':
             employees.delete()
+
+        if request.POST.get('action') == 'activate':
+            employees.update(is_active=True)
+
+        if request.POST.get('action') == 'deactivate':
+            employees.update(is_active=False)
+
         elif request.POST.get('action') == 'export_excel':
             employee_resource = EmployeeResource()
             dataset = employee_resource.export(employees)
