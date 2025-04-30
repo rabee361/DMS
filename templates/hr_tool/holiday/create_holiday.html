@@ -21,7 +21,6 @@
                         <label for="{{ form.employee.id_for_label }}">الموظف</label>
                         {{ form.employee }}
                     </div>
-                    
                     <div class="form-group">
                         <label for="{{ form.hours.id_for_label }}">الساعات</label>
                         {{ form.hours }}
@@ -30,8 +29,19 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="daterange">نطاق التاريخ</label>
-                        {{ form.daterange }}
+                        <label for="{{ form.start.id_for_label }}">تاريخ البدء</label>
+                        {{ form.start }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.end.id_for_label }}">تاريخ الانتهاء</label>
+                        {{ form.end }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.accepted.id_for_label }}">مقبول</label>
+                        {{ form.accepted }}
                     </div>
                 </div>
             </div>

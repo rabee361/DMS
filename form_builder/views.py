@@ -8,6 +8,7 @@ from django.utils.decorators import method_decorator
 from .models import *
 from django.urls import reverse_lazy
 from django.views import generic
+from .forms import CustomSurveyForm
 from .form_utils import create_dynamic_form
 from django.db import connection
 from utility.mixins import form_criteria_add_perm, form_criteria_edit_perm, form_criteria_delete_perm
@@ -71,10 +72,28 @@ class FormDetailView(View):
             return redirect('form_builder')  # Redirect to forms list if form not found
 
 
-@method_decorator([login_required, add_perm_decorator], name='dispatch')
+
+
 class CreateFormView(View):
+    template_name = 'form_builder/create_form.html'
+
     def get(self, request):
-        return render(request, 'form_builder/create_form.html')
+        form = CustomSurveyForm()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = CustomSurveyForm(request.POST)
+        if form.is_valid():
+            custom_form = form.save()
+            return redirect('add_form_fields', id=custom_form.id)
+        return render(request, self.template_name, {'form': form})
+
+
+
+@method_decorator([login_required, add_perm_decorator], name='dispatch')
+class CreateFormFieldsView(View):
+    def get(self, request):
+        return render(request, 'form_builder/create_form_fields.html')
         
     def post(self, request):
         try:
@@ -119,6 +138,14 @@ class CreateFormView(View):
                 'error': str(e)
             })
                 
+
+
+
+
+
+
+
+
 
 @method_decorator([login_required, add_perm_decorator], name='dispatch')
 class CreateRecordView(View):
@@ -208,6 +235,60 @@ class DeleteFormView(View):
         form.delete()
         return redirect('/dms/form-builder/')
 
+
+class FormView(View):
+    def get(self, request, pk):
+        custom_form = CustomForm.objects.get(id=pk)
+        form_name = custom_form.name
+        
+        # Create a dynamic form based on table structure
+        DynamicForm = create_dynamic_form(form_name)
+        form = DynamicForm()
+        context = {
+            'form': form,
+            'form_name': form_name,
+            'form_id': pk
+        }
+        
+        return render(request, 'form_builder/form_view.html', context)
+
+    def post(self, request, pk):
+        try:
+            custom_form = CustomForm.objects.get(id=pk)
+            form_name = custom_form.name
+            
+            # Create dynamic form and validate data
+            DynamicForm = create_dynamic_form(form_name)
+            form = DynamicForm(request.POST)
+            
+            if form.is_valid():
+                # Extract validated data
+                cleaned_data = form.cleaned_data
+                
+                # Get fields and values for insertion
+                fields = list(cleaned_data.keys())
+                values = [cleaned_data[field] for field in fields]
+                
+                # Insert the record using our utility function
+                insert_record_with_fields(form_name, fields, values)
+                
+                return redirect('form_detail',pk)
+            else:
+                # If form is invalid, show errors
+                context = {
+                    'form': form,
+                    'form_name': form_name,
+                    'form_id': pk
+                }
+                return render(request, 'form_builder/form_view.html', context)
+                
+        except CustomForm.DoesNotExist:
+            return redirect('form_builder')
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
 
 
 @method_decorator([login_required, delete_perm_decorator], name='dispatch')

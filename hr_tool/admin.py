@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Employee , Holiday , Absence , Recruitment , Skill , WorkGoal , Department , Position
+from .models import *
 
 # Register your models here.
 
@@ -11,3 +11,4 @@ admin.site.register(WorkGoal)
 admin.site.register(Recruitment)
 admin.site.register(Department)
 admin.site.register(Position)
+admin.site.register(EmployeeCertificate)

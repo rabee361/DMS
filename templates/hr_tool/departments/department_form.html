@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء قسم{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء قسم جديد</h2>
+            <p class="form-subtitle">أدخل تفاصيل القسم الجديد</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">معلومات القسم</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">اسم القسم</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="form-error">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.work_hours.id_for_label }}">ساعات العمل اليومية</label>
+                        {{ form.work_hours }}
+                        {% if form.work_hours.errors %}
+                            <div class="form-error">{{ form.work_hours.errors }}</div>
+                        {% endif %}
+                        <span class="help-text">عدد ساعات العمل في اليوم</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 class="section-title">أيام العمل</h3>
+                
+                <div class="work-days-grid">
+                    <div class="form-group work-day-checkbox">
+                        <label for="{{ form.work_day_sunday.id_for_label }}" class="checkbox-label">
+                            {{ form.work_day_sunday }}
+                            <span>الأحد</span>
+                        </label>
+                        {% if form.work_day_sunday.errors %}
+                            <div class="form-error">{{ form.work_day_sunday.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group work-day-checkbox">
+                        <label for="{{ form.work_day_monday.id_for_label }}" class="checkbox-label">
+                            {{ form.work_day_monday }}
+                            <span>الاثنين</span>
+                        </label>
+                        {% if form.work_day_monday.errors %}
+                            <div class="form-error">{{ form.work_day_monday.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group work-day-checkbox">
+                        <label for="{{ form.work_day_tuesday.id_for_label }}" class="checkbox-label">
+                            {{ form.work_day_tuesday }}
+                            <span>الثلاثاء</span>
+                        </label>
+                        {% if form.work_day_tuesday.errors %}
+                            <div class="form-error">{{ form.work_day_tuesday.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group work-day-checkbox">
+                        <label for="{{ form.work_day_wednesday.id_for_label }}" class="checkbox-label">
+                            {{ form.work_day_wednesday }}
+                            <span>الأربعاء</span>
+                        </label>
+                        {% if form.work_day_wednesday.errors %}
+                            <div class="form-error">{{ form.work_day_wednesday.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group work-day-checkbox">
+                        <label for="{{ form.work_day_thursday.id_for_label }}" class="checkbox-label">
+                            {{ form.work_day_thursday }}
+                            <span>الخميس</span>
+                        </label>
+                        {% if form.work_day_thursday.errors %}
+                            <div class="form-error">{{ form.work_day_thursday.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group work-day-checkbox">
+                        <label for="{{ form.work_day_friday.id_for_label }}" class="checkbox-label">
+                            {{ form.work_day_friday }}
+                            <span>الجمعة</span>
+                        </label>
+                        {% if form.work_day_friday.errors %}
+                            <div class="form-error">{{ form.work_day_friday.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group work-day-checkbox">
+                        <label for="{{ form.work_day_saturday.id_for_label }}" class="checkbox-label">
+                            {{ form.work_day_saturday }}
+                            <span>السبت</span>
+                        </label>
+                        {% if form.work_day_saturday.errors %}
+                            <div class="form-error">{{ form.work_day_saturday.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'departments' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

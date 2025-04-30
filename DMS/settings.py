@@ -95,6 +95,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'DMS.wsgi.application'
 ASGI_APPLICATION = 'DMS.asgi.application'
 
+handler404 = "DMS.views.handler404"
+handler500 = "DMS.views.handler500"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

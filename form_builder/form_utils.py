@@ -42,6 +42,9 @@ def create_dynamic_form(form_name):
                 max_length=255
             )
     
+    # Add a fields_count attribute to the dynamic class
+    form_fields['fields_count'] = len(fields)
+    
     # Create the form class dynamically
     DynamicForm = type(
         f"{form_name.title().replace('_', '')}Form",

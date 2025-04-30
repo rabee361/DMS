@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء استبيان{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء استبيان جديد</h2>
+            <p class="form-subtitle">أضف حقولًا لإنشاء استبيانك المخصص</p>
+        </div>
+
+        <form id="formBuilder" method="post">
+            {% csrf_token %}
+            <div class="form-section">
+                <h3 class="section-title">حقول الاستبيان</h3>
+                <div id="formFields">
+                    <!-- Dynamic fields will be added here -->
+                </div>
+
+                <button type="button" class="btn btn-secondary" onclick="addField()">
+                    <i class="bi bi-plus"></i> إضافة حقل
+                </button>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">إنشاء الاستبيان</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Field template moved outside the form -->
+<div class="field-template" style="display: none;">
+    <div class="field-row" data-field-id="__id__">
+        <div class="form-group">
+            <label>اسم الحقل</label>
+            <input type="text" name="fields[__id__][name]" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label>نوع الحقل</label>
+            <select name="fields[__id__][type]" class="form-control" required>
+                <option value="varchar">نص</option>
+                <option value="integer">رقم</option>
+                <option value="text">نص طويل</option>
+                <option value="date">تاريخ</option>
+                <option value="boolean">نعم/لا</option>
+                <option value="decimal">عشري</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>الحد الأقصى للطول</label>
+            <input type="number" name="fields[__id__][max_length]" class="form-control">
+        </div>
+        <div class="form-group">
+            <label>مطلوب</label>
+            <input type="checkbox" name="fields[__id__][required]" value="true">
+        </div>
+        <button type="button" class="btn btn-danger remove-field" onclick="removeField(this)">
+            <i class="bi bi-trash"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+.field-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    flex: 1;
+}
+
+.remove-field {
+    height: 38px;
+}
+</style>
+
+<script>
+let fieldCounter = 0;
+
+function addField() {
+    const template = document.querySelector('.field-template').innerHTML;
+    const newField = template.replace(/__id__/g, fieldCounter++);
+    const fieldsContainer = document.getElementById('formFields');
+    const div = document.createElement('div');
+    div.innerHTML = newField;
+    fieldsContainer.appendChild(div.firstElementChild);
+}
+
+function removeField(button) {
+    button.closest('.field-row').remove();
+}
+
+// Add initial field
+document.addEventListener('DOMContentLoaded', function() {
+    addField();
+});
+
+// Handle form submission
+document.getElementById('formBuilder').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Check if there are any fields
+    const fieldRows = document.querySelectorAll('#formFields .field-row');
+    if (fieldRows.length === 0) {
+        alert('الرجاء إضافة حقل واحد على الأقل إلى النموذج الخاص بك');
+        return;
+    }
+    
+    const formData = new FormData(this);
+    const csrfToken = formData.get('csrfmiddlewaretoken');
+    const formName = formData.get('form_name');
+    const formLanguage = formData.get('form_language');
+
+    
+    // Convert FormData to a more structured format
+    const data = {
+        form_name: formName,
+        form_language: formLanguage,
+        fields: []
+    };
+    
+    // Get all field rows
+    fieldRows.forEach((row) => {
+        const fieldId = row.dataset.fieldId;
+        const nameInput = row.querySelector(`input[name="fields[${fieldId}][name]"]`);
+        const typeSelect = row.querySelector(`select[name="fields[${fieldId}][type]"]`);
+        const maxLengthInput = row.querySelector(`input[name="fields[${fieldId}][max_length]"]`);
+        const requiredCheckbox = row.querySelector(`input[name="fields[${fieldId}][required]"]`);
+        
+        if (nameInput && typeSelect) {
+            data.fields.push({
+                name: nameInput.value,
+                type: typeSelect.value,
+                max_length: maxLengthInput ? maxLengthInput.value : null,
+                required: requiredCheckbox ? requiredCheckbox.checked : false
+            });
+        }
+    });
+    
+    // Validate fields
+    if (data.fields.length === 0) {
+        alert('الرجاء إضافة حقل واحد على الأقل إلى النموذج الخاص بك');
+        return;
+    }
+    
+    // Show loading indicator
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'جاري الإنشاء...';
+    submitBtn.disabled = true;
+
+    // Send the data using fetch
+    fetch('{% url "add_form_fields" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('استجابة الشبكة غير صحيحة');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        } else {
+            alert(data.error || 'حدث خطأ');
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('خطأ:', error);
+        alert('حدث خطأ أثناء إنشاء النموذج');
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+</script>
+{% endblock %}

@@ -5,6 +5,7 @@ from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
+from .forms import *
 # from users.models import User
 from .forms import EmployeeRegistrationForm , EmployeeUpdateForm , HolidayForm , WorkGoalForm , HRSettingsForm , AbsenceForm
 from django.contrib.auth.decorators import login_required
@@ -472,15 +473,15 @@ class ListDepartmentsView(ListView):
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
 class CreateDepartmentView(CreateView):
     model = Department
-    template_name = 'hr_tool/departments/create_department.html'
+    form_class = DepartmentForm
+    template_name = 'hr_tool/departments/department_form.html'
     success_url = reverse_lazy('departments')
-    fields = ['name', 'description']
 
 @method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
 class DepartmentDetailView(UpdateView):
     model = Department
-    fields = ['name', 'description']
-    template_name = 'hr_tool/departments/department_info.html'
+    form_class = DepartmentForm
+    template_name = 'hr_tool/departments/department_form.html'
     context_object_name = 'department'
     success_url = reverse_lazy('departments')
 
@@ -511,15 +512,15 @@ class ListPositionsView(ListView):
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
 class CreatePositionView(CreateView):
     model = Position
-    template_name = 'hr_tool/positions/create_position.html'
+    form_class = PositionForm
+    template_name = 'hr_tool/positions/position_form.html'
     success_url = reverse_lazy('positions')
-    fields = ['name', 'description']
 
 @method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
 class PositionDetailView(UpdateView):
     model = Position
-    fields = ['name', 'description']
-    template_name = 'hr_tool/positions/position_info.html'
+    form_class = PositionForm
+    template_name = 'hr_tool/positions/position_form.html'
     context_object_name = 'position'
     success_url = reverse_lazy('positions')
 

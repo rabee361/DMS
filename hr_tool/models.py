@@ -10,7 +10,14 @@ User = get_user_model()
 
 class Department(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    work_hours = models.FloatField()
+    work_day_friday = models.BooleanField(default=False)
+    work_day_tuesday = models.BooleanField(default=False)
+    work_day_thursday = models.BooleanField(default=False)
+    work_day_wednesday = models.BooleanField(default=False)
+    work_day_monday = models.BooleanField(default=False)
+    work_day_sunday = models.BooleanField(default=False)
+    work_day_saturday = models.BooleanField(default=False)
     created = models.DateField(auto_now_add=True)
 
     def __str__(self) -> str:
@@ -19,17 +26,22 @@ class Department(models.Model):
 
 class Position(models.Model):
     name = models.CharField(max_length=100)
-    description = models.TextField()
+    default_salary = models.FloatField()
     created = models.DateField(auto_now_add=True)
 
     def __str__(self) -> str:
         return self.name
 
 
+
+
+
+
 class Employee(User):
     position = models.ForeignKey(Position , on_delete=models.CASCADE , blank=True , null=True)
     department = models.ForeignKey(Department , on_delete=models.CASCADE , blank=True , null=True)
     address = models.CharField(max_length=100)
+    base_salary = models.FloatField(validators=[MinValueValidator(0)])
     social_status = models.CharField(max_length=50,choices=SocialStatus)
     start_date = models.DateField(null=True , blank=True)
     class Meta:
@@ -41,11 +53,23 @@ class Employee(User):
     
 
 
+
+class EmployeeCertificate(models.Model):
+    employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
+    grade = models.CharField(max_length=100)
+    university = models.CharField(max_length=100)
+    created = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f'{self.employee.username} - {self.university}'
+
+
+
+
 class Holiday(models.Model):
     employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
     hours = models.CharField(choices=Holiday, max_length=40)
     start = models.DateField()
-    end = models.DateField()
     accepted = models.BooleanField(default=False)
 
     def __str__(self) -> str:

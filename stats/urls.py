@@ -24,13 +24,13 @@ urlpatterns = [
 
 
     #views for analysis page
-    path('forms/', ListForms.as_view(), name='forms'),
-    path('forms/<int:pk>/', FormDetailView.as_view(), name='form_detail'),
-    path('forms/create/', CreateFormView.as_view(), name='create_form'),
-    path('forms/<int:pk>/add-record/', CreateRecordView.as_view(), name='add_record'),
-    path('forms/<int:pk>/delete-record/', DeleteRecordView.as_view(), name='delete_record'),
-    path('forms/<int:pk>/update-record/', UpdateRecordView.as_view(), name='update_record'),
-    path('forms/action/', FormsActionView.as_view(), name='forms_action'),
+    # path('forms/', ListForms.as_view(), name='forms'),
+    # path('forms/<int:pk>/', FormDetailView.as_view(), name='form_detail'),
+    # path('forms/create/', CreateFormView.as_view(), name='create_form'),
+    # path('forms/<int:pk>/add-record/', CreateRecordView.as_view(), name='add_record'),
+    # path('forms/<int:pk>/delete-record/', DeleteRecordView.as_view(), name='delete_record'),
+    # path('forms/<int:pk>/update-record/', UpdateRecordView.as_view(), name='update_record'),
+    # path('forms/action/', FormsActionView.as_view(), name='forms_action'),
     
     # New URL for analysis
     path('', AnalysisView.as_view(), name='analysis'),

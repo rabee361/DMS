@@ -1,6 +1,5 @@
-from .models import Employee , Holiday , Skill , WorkGoal , HRSettings , Absence
+from .models import *
 from django import forms
-from django.forms.widgets import TextInput
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -30,6 +29,17 @@ class EmployeeUpdateForm(forms.ModelForm):
         model = Employee
         exclude = ['last_login','date_joined','password','is_superuser','is_staff','groups','user_permissions']
 
+
+class PositionForm(forms.ModelForm):
+    class Meta:
+        model = Position
+        fields = '__all__'
+
+
+class DepartmentForm(forms.ModelForm):
+    class Meta:
+        model = Department
+        fields = '__all__'
 
 
 class HolidayForm(forms.ModelForm):

@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}إنشاء قسم{% endblock %}
+{% block title %}إنشاء منصب{% endblock %}
 
 {% block content %}
 <div class="form-container">
     <div class="styled-form">
         <div class="form-header">
-            <h2>إنشاء قسم جديد</h2>
-            <p class="form-subtitle">أدخل تفاصيل القسم الجديد</p>
+            <h2>إنشاء منصب جديد</h2>
+            <p class="form-subtitle">أدخل تفاصيل المنصب الجديد</p>
         </div>
 
         <form method="post" enctype="multipart/form-data" class="user-profile-form">
             {% csrf_token %}
             
             <div class="form-section">
-                <h3 class="section-title">معلومات القسم</h3>
+                <h3 class="section-title">معلومات المنصب</h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="{{ form.name.id_for_label }}">اسم القسم</label>
+                        <label for="{{ form.name.id_for_label }}">اسم المنصب</label>
                         {{ form.name }}
                         {% if form.name.errors %}
                             <div class="form-error">{{ form.name.errors }}</div>
@@ -25,20 +25,19 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="{{ form.description.id_for_label }}">الوصف</label>
-                        {{ form.description }}
-                        {% if form.description.errors %}
-                            <div class="form-error">{{ form.description.errors }}</div>
+                        <label for="{{ form.default_salary.id_for_label }}">الراتب الافتراضي</label>
+                        {{ form.default_salary }}
+                        {% if form.default_salary.errors %}
+                            <div class="form-error">{{ form.default_salary.errors }}</div>
                         {% endif %}
+                        <span class="help-text">الراتب الافتراضي للمنصب</span>
                     </div>
-                    
                 </div>
-
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">إنشاء قسم</button>
-                <a href="{% url 'departments' %}" class="btn btn-secondary">
+                <button type="submit" class="btn btn-primary">إنشاء منصب</button>
+                <a href="{% url 'positions' %}" class="btn btn-secondary">
                     إلغاء
                 </a>
             </div>

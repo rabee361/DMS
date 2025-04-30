@@ -32,7 +32,7 @@
                 <th><input type="checkbox" id="select-all"></th>
                 <th>الرقم التعريفي</th>
                 <th>اسم القسم</th>
-                <th>الوصف</th>
+                <th>ساعات الدوام</th>
                 <th>الإجراءات</th>
             </tr>
         </thead>
@@ -44,7 +44,7 @@
                 </td>
                 <td>{{ department.id }}</td>
                 <td>{{ department.name }}</td>
-                <td>{{ department.description }}</td>
+                <td>{{ department.work_hours }}</td>
                 <td onclick="event.stopPropagation();">
                     <div class="action-buttons">
                         <a href="{% url 'delete_department' department.id %}" class="delete-btn">

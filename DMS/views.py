@@ -24,3 +24,11 @@ class DashboardView(View):
         return render(request , 'dashboard.html', {'total_documents': total_documents, 'total_groups': total_groups, 'total_users': total_users, 'active_users': active_users, 'total_forms': total_forms, 'total_tasks': total_tasks, 'total_finished_tasks': total_finished_tasks, 'total_employees': total_employees})
 
 
+
+class handler404(View):
+    def get(self, request):
+        return render(request, '404.html')
+
+class handler500(View):
+    def get(self, request):
+        return render(request, '500.html')
