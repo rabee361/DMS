@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 import json
 from django.shortcuts import redirect
-from .cursor_db import add_form, get_form, delete_form, add_record, remove_record, update_record, get_form_fields, insert_record_with_fields
+from .cursor_db import create_form_table, get_form, delete_form, add_record, remove_record, update_record, get_form_fields, insert_record_with_fields, add_fields_to_form
 from django.views import View
 from django.utils.decorators import method_decorator
 from .models import *
@@ -35,9 +35,9 @@ class FormDetailView(View):
         try:
             form = CustomForm.objects.get(id=pk)
             form_name = form.name
+            print(form_name)
             form_data = get_form(form_name)
             form_fields = get_form_fields(form_name)
-            
             # Transform the raw data tuples into dictionaries
             records = []
             for record in form_data:
@@ -85,21 +85,23 @@ class CreateFormView(View):
         form = CustomSurveyForm(request.POST)
         if form.is_valid():
             custom_form = form.save()
-            return redirect('add_form_fields')
+            create_form_table(custom_form.name)
+            return redirect('add_form_fields', id=custom_form.id)
         return render(request, self.template_name, {'form': form})
 
 
 
 @method_decorator([login_required, add_perm_decorator], name='dispatch')
 class CreateFormFieldsView(View):
-    def get(self, request):
-        return render(request, 'form_builder/create_form_fields.html')
+    def get(self, request, id):
+        return render(request, 'form_builder/create_form_fields.html', {'form_id': id})
         
-    def post(self, request):
+    def post(self, request, id):
         try:
+            form = CustomForm.objects.get(id=id)
             data = json.loads(request.body)
-            form_name = data.get('form_name')
-            form_language = data.get('form_language')
+            form_name = form.name
+            form_language = form.language
             fields = data.get('fields', [])
                 
             if not fields:
@@ -109,12 +111,12 @@ class CreateFormFieldsView(View):
                 })
             
             # Create the form and its table
-            result = add_form(form_name, fields)
+            result = add_fields_to_form(id, fields)
             
             if result['success']:
                 return JsonResponse({
                     'success': True,
-                    'redirect_url': f'/dms/form-builder/forms/{result["form_id"]}'
+                    'redirect_url': f'/dms/form-builder/'
                 })
             else:
                 return JsonResponse({
@@ -228,116 +230,6 @@ class DeleteFormView(View):
         delete_form(form_name)
         form.delete()
         return redirect('/dms/form-builder/')
-
-
-class FormView(View):
-    def get(self, request, pk):
-        custom_form = CustomForm.objects.get(id=pk)
-        form_name = custom_form.name
-        
-        # Create a dynamic form based on table structure
-        DynamicForm = create_dynamic_form(form_name)
-        form = DynamicForm()
-        context = {
-            'form': form,
-            'form_name': form_name,
-            'form_id': pk
-        }
-        
-        return render(request, 'form_builder/form_view2.html', context)
-
-    def post(self, request, pk):
-        try:
-            custom_form = CustomForm.objects.get(id=pk)
-            form_name = custom_form.name
-            
-            # Create dynamic form and validate data
-            DynamicForm = create_dynamic_form(form_name)
-            form = DynamicForm(request.POST)
-            
-            if form.is_valid():
-                # Extract validated data
-                cleaned_data = form.cleaned_data
-                
-                # Get fields and values for insertion
-                fields = list(cleaned_data.keys())
-                values = [cleaned_data[field] for field in fields]
-                
-                # Insert the record using our utility function
-                insert_record_with_fields(form_name, fields, values)
-                
-                return redirect('form_detail',pk)
-            else:
-                # If form is invalid, show errors
-                context = {
-                    'form': form,
-                    'form_name': form_name,
-                    'form_id': pk
-                }
-                return render(request, 'form_builder/form_view2.html', context)
-                
-        except CustomForm.DoesNotExist:
-            return redirect('form_builder')
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
-
-
-class FormView2(View):
-    def get(self, request, pk):
-        custom_form = CustomForm.objects.get(id=pk)
-        form_name = custom_form.name
-        
-        # Create a dynamic form based on table structure
-        DynamicForm = create_dynamic_form(form_name)
-        form = DynamicForm()
-        context = {
-            'form': form,
-            'form_name': form_name,
-            'form_id': pk
-        }
-        
-        return render(request, 'form_builder/form_view2.html', context)
-
-    def post(self, request, pk):
-        try:
-            custom_form = CustomForm.objects.get(id=pk)
-            form_name = custom_form.name
-            
-            # Create dynamic form and validate data
-            DynamicForm = create_dynamic_form(form_name)
-            form = DynamicForm(request.POST)
-            
-            if form.is_valid():
-                # Extract validated data
-                cleaned_data = form.cleaned_data
-                
-                # Get fields and values for insertion
-                fields = list(cleaned_data.keys())
-                values = [cleaned_data[field] for field in fields]
-                
-                # Insert the record using our utility function
-                insert_record_with_fields(form_name, fields, values)
-                
-                return redirect('form_detail',pk)
-            else:
-                # If form is invalid, show errors
-                context = {
-                    'form': form,
-                    'form_name': form_name,
-                    'form_id': pk
-                }
-                return render(request, 'form_builder/form_view2.html', context)
-                
-        except CustomForm.DoesNotExist:
-            return redirect('form_builder')
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
 
 
 @method_decorator([login_required, delete_perm_decorator], name='dispatch')

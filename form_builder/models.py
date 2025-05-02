@@ -14,6 +14,7 @@ class CustomForm(models.Model):
         ('3', 'Template 3'),
     ]
     name = models.CharField(max_length=100)
+    logo = models.ImageField(upload_to='form_builder/logo',blank=True,null=True)
     title = models.CharField(max_length=100,default='test')
     welcome = models.CharField(max_length=200,default='test')
     language = models.CharField(default="en", max_length=100, choices=LANGUAGE_CHOICES)

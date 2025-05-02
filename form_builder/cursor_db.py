@@ -1,5 +1,6 @@
 from django.db import connection
 import json
+from .models import CustomForm
 
 
 
@@ -26,25 +27,49 @@ def get_form_fields(form_name):
 
 
 
-def add_form(form_name, fields):
+def create_form_table(form_name):
+    """
+    Create a new form table in the database with only id and created_at columns.
+    """
     with connection.cursor() as cursor:
         try:
-            # Insert the form metadata with autocommit=False
             connection.set_autocommit(False)
-            
-            # Create the dynamic form table
             create_table_sql = f"""
                 CREATE TABLE {form_name} (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
             """
-            
-            # Add fields dynamically based on the fields parameter
-            field_definitions = []
+            cursor.execute(create_table_sql)
+            connection.commit()
+            return {
+                'success': True,
+                'table_name': form_name
+            }
+        except Exception as e:
+            connection.rollback()
+            print(e)
+            raise e
+        finally:
+            connection.set_autocommit(True)
+
+
+
+def add_fields_to_form(form_id, fields):
+    """
+    Add fields to an existing form table by form_id.
+    """
+    with connection.cursor() as cursor:
+        try:
+            connection.set_autocommit(False)
+            # Get the form name from the form_id
+            form = CustomForm.objects.get(id=form_id)
+            form_name = form.name
+
             for field in fields:
                 field_name = field['name'].lower().replace(' ', '_')
                 field_type = field['type'].upper()
-                
+
                 if field_type == 'VARCHAR':
                     max_length = field.get('max_length', 255)
                     field_def = f"{field_name} VARCHAR({max_length})"
@@ -60,35 +85,24 @@ def add_form(form_name, fields):
                     field_def = f"{field_name} DECIMAL(10,2)"
                 else:
                     continue  # Skip unknown field types
-                    
+
                 if field.get('required', False):
                     field_def += " NOT NULL"
-                    
-                field_definitions.append(field_def)
-            
-            # Add all field definitions to the CREATE TABLE statement
-            create_table_sql += ",\n".join(field_definitions)
-            create_table_sql += "\n)"
-            
-            # Create the actual table
-            cursor.execute(create_table_sql)
-            
-            # If we get here, commit the transaction
+
+                alter_sql = f"ALTER TABLE {form_name} ADD COLUMN {field_def}"
+                cursor.execute(alter_sql)
+
             connection.commit()
-            
             return {
                 'success': True,
                 'table_name': form_name
             }
-            
         except Exception as e:
-            # If any error occurs, rollback the transaction
             connection.rollback()
+            print(e)
             raise e
         finally:
-            # Reset autocommit to True
             connection.set_autocommit(True)
-
 
 
 def get_form(form_name):

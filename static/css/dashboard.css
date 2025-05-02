@@ -1158,7 +1158,23 @@ input[type="checkbox"] {
 }
 
 .dashboard-card:nth-child(5) .card-icon {
-    background: linear-gradient(45deg, #f44336, #d32f2f);
+    background: linear-gradient(45deg, #f44336, #d32f2f); /* Red */
+}
+
+.dashboard-card:nth-child(6) .card-icon {
+    background: linear-gradient(45deg, #00bcd4, #00838f); /* Cyan */
+}
+
+.dashboard-card:nth-child(7) .card-icon {
+    background: linear-gradient(45deg, #ffeb3b, #fbc02d); /* Yellow */
+}
+
+.dashboard-card:nth-child(8) .card-icon {
+    background: linear-gradient(45deg, #607d8b, #455a64); /* Blue Grey */
+}
+
+.dashboard-card:nth-child(9) .card-icon {
+    background: linear-gradient(45deg, #795548, #4e342e); /* Brown */
 }
 
 /* Ensure proper spacing in stats for smaller cards */
@@ -2424,4 +2440,213 @@ input[type="checkbox"] {
     .work-days-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* Template Selection Styles */
+.template-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+}
+
+.template-option {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Hide the actual radio button */
+.template-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.template-preview {
+    border: 3px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.template-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+/* Styles for hover state */
+.template-option:hover .template-preview {
+    border-color: #3498db;
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.template-option:hover .template-preview img {
+    transform: scale(1.02);
+}
+
+/* Styles for selected state */
+.template-option input[type="radio"]:checked + .template-preview {
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px #3498db, 0 8px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+}
+
+.template-option input[type="radio"]:checked + .template-preview::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background-color: #3498db;
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 12 10 16 18 8'%3E%3C/polyline%3E%3C/svg%3E");
+    background-size: 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 10;
+}
+
+.template-label {
+    margin-top: 0.75rem;
+    font-weight: 500;
+    color: #2c3e50;
+    display: block;
+    text-align: center;
+}
+
+.template-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-align: center;
+    display: block;
+}
+
+/* Focus state for accessibility */
+.template-option input[type="radio"]:focus-visible + .template-preview {
+    outline: 2px solid #3498db;
+    outline-offset: 2px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .template-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* File Input Styling */
+.form-control-file {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    border: 1px dashed #dee2e6;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.form-control-file:hover {
+    border-color: #3498db;
+    background-color: #e3f2fd;
+}
+
+.form-control-file:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+/* Customize file input button */
+.form-control-file::-webkit-file-upload-button {
+    background-color: #3498db;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    margin-left: 12px;
+    margin-right: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-control-file::-webkit-file-upload-button:hover {
+    background-color: #2980b9;
+}
+
+/* Firefox custom styling */
+.form-control-file::file-selector-button {
+    background-color: #3498db;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    margin-left: 12px;
+    margin-right: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-control-file::file-selector-button:hover {
+    background-color: #2980b9;
+}
+
+/* File upload preview container */
+.file-preview {
+    margin-top: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: #e3f2fd;
+    border-radius: 6px;
+    border: 1px solid #3498db;
+}
+
+.file-preview img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.file-info {
+    flex: 1;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #2c3e50;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.file-size {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.file-remove {
+    background: none;
+    border: none;
+    color: #dc3545;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.file-remove:hover {
+    background-color: #ffebee;
 }

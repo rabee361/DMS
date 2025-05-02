@@ -158,7 +158,7 @@ document.getElementById('formBuilder').addEventListener('submit', function(e) {
     submitBtn.disabled = true;
 
     // Send the data using fetch
-    fetch('{% url "add_form_fields" %}', {
+    fetch(`{% url "add_form_fields" form_id %}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -114,6 +114,46 @@
         </div>
     </div>
 
+    <!-- Salary Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-cash-stack"></i>
+        </div>
+        <div class="card-content">
+            <h3>الرواتب</h3>
+            <p>إدارة رواتب الموظفين ومراجعة المدفوعات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_salaries }}</span>
+                    <span class="stat-label">الرواتب المسجلة</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ pending_salaries }}</span>
+                    <span class="stat-label">قيد الدفع</span>
+                </div>
+            </div>
+            <a href="#" class="card-action">الذهاب إلى الرواتب</a>
+        </div>
+    </div>
+
+    <!-- Currencies Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-currency-exchange"></i>
+        </div>
+        <div class="card-content">
+            <h3>العملات</h3>
+            <p>إدارة العملات وأسعار الصرف.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_currencies }}</span>
+                    <span class="stat-label">عدد العملات</span>
+                </div>
+            </div>
+            <a href="#" class="card-action">الذهاب إلى العملات</a>
+        </div>
+    </div>
+
     <!-- Departments Management Card -->
     <div class="dashboard-card">
         <div class="card-icon">

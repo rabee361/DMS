@@ -154,6 +154,125 @@
     });
   }
 
+  // Initialize form template selection
+  const initializeTemplateSelection = () => {
+    const templateOptions = document.querySelectorAll('.template-option');
+    
+    templateOptions.forEach(option => {
+      const radioInput = option.querySelector('input[type="radio"]');
+      const preview = option.querySelector('.template-preview');
+      
+      if (preview && radioInput) {
+        // Make the template preview clickable
+        preview.addEventListener('click', () => {
+          // Check the radio button
+          radioInput.checked = true;
+          
+          // Trigger change event to ensure form validation works
+          const changeEvent = new Event('change', { bubbles: true });
+          radioInput.dispatchEvent(changeEvent);
+        });
+        
+        // Add keyboard accessibility
+        preview.setAttribute('tabindex', '0');
+        preview.addEventListener('keydown', (e) => {
+          // Select with Enter or Space key
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            radioInput.checked = true;
+            
+            // Trigger change event
+            const changeEvent = new Event('change', { bubbles: true });
+            radioInput.dispatchEvent(changeEvent);
+          }
+        });
+      }
+    });
+  }
+
+  // Initialize file input enhancement
+  const initializeFileInputs = () => {
+    const fileInputs = document.querySelectorAll('.form-control-file');
+    
+    fileInputs.forEach(input => {
+      // Create a container for the file preview
+      const previewContainer = document.createElement('div');
+      previewContainer.className = 'file-preview';
+      previewContainer.style.display = 'none';
+      
+      // Set up the preview content
+      previewContainer.innerHTML = `
+        <img src="" alt="File Preview">
+        <div class="file-info">
+          <div class="file-name"></div>
+          <div class="file-size"></div>
+        </div>
+        <button type="button" class="file-remove" aria-label="Remove file">×</button>
+      `;
+      
+      // Insert the preview after the input
+      input.parentNode.insertBefore(previewContainer, input.nextSibling);
+      
+      // Add change event to the file input
+      input.addEventListener('change', function() {
+        const file = this.files[0];
+        const preview = this.parentNode.querySelector('.file-preview');
+        const previewImage = preview.querySelector('img');
+        const fileName = preview.querySelector('.file-name');
+        const fileSize = preview.querySelector('.file-size');
+        
+        if (file) {
+          // Show the preview
+          preview.style.display = 'flex';
+          
+          // Set file name and size
+          fileName.textContent = file.name;
+          fileSize.textContent = formatFileSize(file.size);
+          
+          // Create preview for image files
+          if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              previewImage.src = e.target.result;
+              previewImage.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+          } else {
+            // For non-image files, show a generic icon
+            previewImage.src = '/static/images/file-icon.png';
+            previewImage.style.display = 'block';
+          }
+        } else {
+          // Hide the preview if no file is selected
+          preview.style.display = 'none';
+        }
+      });
+      
+      // Add click event to the remove button
+      const removeButton = previewContainer.querySelector('.file-remove');
+      removeButton.addEventListener('click', function() {
+        const fileInput = this.closest('.form-group').querySelector('.form-control-file');
+        fileInput.value = '';
+        this.closest('.file-preview').style.display = 'none';
+        
+        // Trigger change event to ensure form validation works
+        const changeEvent = new Event('change', { bubbles: true });
+        fileInput.dispatchEvent(changeEvent);
+      });
+    });
+  }
+
+  // Helper function to format file size
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
   // Document ready handler
   document.addEventListener('DOMContentLoaded', function() {
     initializeChart();
@@ -161,6 +280,8 @@
     initializeSubmenus();
     setActiveNavItem();
     initializeNativeDatePickers();
+    initializeTemplateSelection();
+    initializeFileInputs();
     
     // Initialize jQuery-dependent features if jQuery is available
     if (typeof $ !== 'undefined') {

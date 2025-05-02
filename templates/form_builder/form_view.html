@@ -15,18 +15,16 @@
         <form class="google-form" method="POST" id="registrationForm" onsubmit="return handleSubmit(event)">
             {% csrf_token %}
             <input type="hidden" name="form_id" value="{{ request.session.session_key }}_{% now "U" %}">
+            <input type="hidden" id="success-flag" value="{% if success %}true{% else %}false{% endif %}">
             
             <div class="form-header">
                 <div class="header-content">
-                    <img src="{% static 'assets/img/alnoor2.png' %}" alt="Logo" class="header-logo">
+                    {% if logo %}
+                    <img src="{{ logo.url }}" alt="Logo" class="header-logo">
+                    {% endif %}
                     <div class="header-text">
                         <h1>{{ form_name }}</h1>
                         <p class="form-description">يرجى ملء هذه الاستمارة بالمعلومات المطلوبة</p>
-                        {% if success %}
-                            <p class="success-message" id="success-message">تم إرسال النموذج بنجاح!</p>
-                        {% elif form.errors %}
-                            <p class="header-error-message">يرجى التحقق من صحة البيانات المدخلة وإعادة المحاولة.</p>
-                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -51,7 +49,23 @@
                 <!-- Welcome tab content -->
                 <div class="tab-content {% if not active_tab or active_tab == '1' %}active{% endif %}" data-tab="1">
                     <div class="form-section">
-                        <div class="welcome-text">
+                        <!-- Success message container (hidden by default) -->
+                        <div id="success-message-container" class="success-message-container" style="display: none;">
+                            <div class="success-icon"></div>
+                            <h3>تم إرسال النموذج بنجاح!</h3>
+                            <p>شكراً لك على تقديم المعلومات. تم استلام البيانات بنجاح.</p>
+                        </div>
+                        
+                        <!-- Error message container -->
+                        {% if form.non_field_errors %}
+                        <div class="error-message-container">
+                            <h3>حدث خطأ أثناء معالجة النموذج</h3>
+                            <p>{{ form.non_field_errors }}</p>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Welcome text -->
+                        <div id="welcome-text" class="welcome-text">
                             <h2>مرحباً بكم</h2>
                             <p>يرجى تعبئة البيانات المطلوبة في النموذج</p>
                             <p>ملاحظات هامة:</p>
@@ -117,6 +131,9 @@
             const nextBtns = document.querySelectorAll('[data-next]');
             const prevBtns = document.querySelectorAll('[data-prev]');
             const submitBtn = document.querySelector('button[type="submit"]');
+            const successMessage = document.getElementById('success-message-container');
+            const welcomeText = document.getElementById('welcome-text');
+            const successFlag = document.getElementById('success-flag').value === 'true';
             let currentTab = parseInt('{{ active_tab|default:1 }}');
 
             // Add hidden input for active tab
@@ -175,17 +192,6 @@
                 });
             });
 
-            // Success message auto-hide
-            const successMessage = document.getElementById('success-message');
-            if (successMessage) {
-                setTimeout(function() {
-                    successMessage.style.opacity = '0';
-                    setTimeout(function() {
-                        successMessage.style.display = 'none';
-                    }, 300);
-                }, 8000);
-            }
-
             // Form submission handling
             window.handleSubmit = function(event) {
                 // Check if form was already submitted
@@ -235,6 +241,29 @@
                         submitBtn.classList.add('disabled-btn');
                     }
                 }
+            }
+            
+            // Handle success message display
+            if (successFlag) {
+                // Show success message and hide welcome text
+                if (successMessage && welcomeText) {
+                    welcomeText.style.display = 'none';
+                    successMessage.style.display = 'block';
+                    
+                    // After 8 seconds, hide success message and show welcome text
+                    setTimeout(function() {
+                        successMessage.style.animation = 'fadeOut 0.5s ease-in-out forwards';
+                        
+                        setTimeout(function() {
+                            successMessage.style.display = 'none';
+                            welcomeText.style.display = 'block';
+                            welcomeText.style.animation = 'fadeIn 0.5s ease-in-out';
+                        }, 500);
+                    }, 8000);
+                }
+                
+                // Ensure we're on the first tab
+                showTab(1);
             }
         });
     </script>
