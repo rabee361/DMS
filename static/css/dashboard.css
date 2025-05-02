@@ -109,10 +109,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 body {
-  font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.5;
   color: #333;
 }
@@ -776,18 +776,6 @@ input[type="checkbox"] {
     margin-right: 0.5rem;
 }
 
-/* Action Button Styles */
-.action-buttons a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 4px;
-    color: #6c757d;
-    transition: all 0.2s;
-}
-
 .action-buttons .view-btn:hover {
     background: #e3f2fd;
     color: #1976d2;
@@ -798,6 +786,13 @@ input[type="checkbox"] {
 .action-buttons .delete-btn:hover {
     background: #fce4ec;
     color: #c2185b;
+}
+
+.action-buttons .copy-btn:hover {
+    background: #abe2f3;
+    color: #8d88d8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 /* Document Detail Styles */
@@ -862,15 +857,610 @@ input[type="checkbox"] {
     font-size: 1rem;
 }
 
-.document-detail .action-buttons .btn-primary {
-    background-color: #0d6efd;
+.document-detail .action-buttons .btn-danger {
+    background-color: #dc3545;
     color: white;
 }
 
-.document-detail .action-buttons .btn-primary:hover {
-    background-color: #0b5ed7;
+.document-detail .action-buttons .btn-danger:hover {
+    background-color: #bb2d3b;
     transform: translateY(-1px);
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-secondary:hover {
+    background-color: #5c636a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* Checkbox Styles */
+.select-all-checkbox,
+.row-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    border: 2px solid #ddd;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.select-all-checkbox:checked,
+.row-checkbox:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Table Row Hover */
+.data-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Delete Button */
+#deleteBtn {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+#deleteBtn:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+}
+
+/* Table Controls Update */
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.search-controls {
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding-left: 2.5rem;
+}
+
+.search-controls::before {
+    content: "\f002";
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+}
+
+.action-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.action-controls select {
+    min-width: 200px;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.action-controls select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.action-controls .btn {
+    padding: 0.5rem 1.5rem;
+}
+
+.action-controls .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Dashboard Grid Layout */
+.dashboard-header {
+    margin-bottom: 2rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    padding: 0.75rem;
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card-icon {
+    background: linear-gradient(45deg, #2196f3, #1976d2);
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+.card-icon i {
+    font-size: 1.5rem;
+}
+
+.card-content {
+    padding: 1rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content h3 {
+    margin: 0 0 0.5rem 0;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.card-content p {
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* Card Statistics */
+.card-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 0.75rem 0;
+    padding: 0.75rem 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #2196f3;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #666;
+}
+
+/* Card Action Button */
+.card-action {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background-color: #2196f3;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    transition: background-color 0.2s;
+    margin-top: auto;
+    font-size: 0.9rem;
+}
+
+.card-action:hover {
+    background-color: #1976d2;
+    color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1400px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1100px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* HR-specific card styles */
+.dashboard-card .bi-calendar-x,
+.dashboard-card .bi-calendar-check {
+    color: #fff;
+}
+
+.dashboard-card .card-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+}
+
+/* Color variations for different HR cards */
+.dashboard-card:nth-child(1) .card-icon {
+    background: linear-gradient(45deg, #2196f3, #1976d2);
+}
+
+.dashboard-card:nth-child(2) .card-icon {
+    background: linear-gradient(45deg, #4caf50, #388e3c);
+}
+
+.dashboard-card:nth-child(3) .card-icon {
+    background: linear-gradient(45deg, #ff9800, #f57c00);
+}
+
+.dashboard-card:nth-child(4) .card-icon {
+    background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+}
+
+.dashboard-card:nth-child(5) .card-icon {
+    background: linear-gradient(45deg, #f44336, #d32f2f); /* Red */
+}
+
+.dashboard-card:nth-child(6) .card-icon {
+    background: linear-gradient(45deg, #00bcd4, #00838f); /* Cyan */
+}
+
+.dashboard-card:nth-child(7) .card-icon {
+    background: linear-gradient(45deg, #ffeb3b, #fbc02d); /* Yellow */
+}
+
+.dashboard-card:nth-child(8) .card-icon {
+    background: linear-gradient(45deg, #607d8b, #455a64); /* Blue Grey */
+}
+
+.dashboard-card:nth-child(9) .card-icon {
+    background: linear-gradient(45deg, #795548, #4e342e); /* Brown */
+}
+
+/* Ensure proper spacing in stats for smaller cards */
+.card-stats {
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+}
+
+/* Additional responsive breakpoints for 4-column layout */
+@media (max-width: 1400px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1100px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Upload form specific styles */
+.file-upload-wrapper {
+    margin: 1.5rem 0;
+}
+
+.upload-form input[type="file"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.upload-form input[type="file"]:hover {
+    border-color: #2196f3;
+}
+
+.upload-form .form-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Card icon for upload */
+.dashboard-card .bi-cloud-upload {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+/* Upload card specific gradient */
+.dashboard-card .card-icon {
+    background: linear-gradient(45deg, #2196f3, #1976d2);
+}
+
+/* Form Container and Header Styles */
+.form-header {
+    margin-bottom: 2rem;
+    text-align: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.form-header h2 {
+    color: #2c3e50;
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-subtitle {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+/* User Create Form Specific Styles */
+.user-create-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.form-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.section-title {
+    color: #2c3e50;
+    font-size: 1.1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #eee;
+}
+
+/* Form Input Styles */
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #dce4ec;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-color: #fff;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    outline: none;
+}
+
+/* Help Text Styles */
+.help-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Form Error Styles */
+.form-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 1.5rem;
+    margin-top: 2rem;
+    border-top: 1px solid #e9ecef;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #e9ecef;
+    color: #495057;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background-color: #dee2e6;
+    color: #212529;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Role Select Styling */
+.form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+    padding-right: 2.5rem;
+}
+
+/* Password Requirements List */
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0;
+}
+
+.password-requirements li {
+    color: #6c757d;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.password-requirements li::before {
+    content: "•";
+    color: #3498db;
+    margin-right: 0.5rem;
+}
+
+/* Document Detail Styles */
+.document-detail {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.detail-section {
+    margin-bottom: 2rem;
+}
+
+.detail-section h3 {
+    color: #2c3e50;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.detail-row {
+    display: flex;
+    margin-bottom: 1rem;
+    align-items: center;
+}
+
+.detail-row .label {
+    width: 120px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.detail-row .value {
+    flex: 1;
+}
+
+/* Document Detail Action Buttons */
+.document-detail .action-buttons {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.document-detail .action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.document-detail .action-buttons .btn i {
+    font-size: 1rem;
 }
 
 .document-detail .action-buttons .btn-danger {
@@ -1885,14 +2475,14 @@ input[type="checkbox"] {
 @media (max-width: 768px) {
     .settings-form {
         padding: 1.5rem;
-    }
-    
+}
+
     .settings-form .form-actions {
         flex-direction: column;
-    }
-    
+}
+
     .settings-form .btn {
-        width: 100%;
+    width: 100%;
         margin-bottom: 0.5rem;
     }
 }
@@ -2219,7 +2809,7 @@ input[type="checkbox"] {
   right: 0;
   height: 60px;
   background-color: #2c3e50;
-  color: white;
+    color: white;
   padding: 0 1rem;
   z-index: 1000;
   align-items: center;
@@ -2235,7 +2825,7 @@ input[type="checkbox"] {
   border: none;
   color: white;
   font-size: 1.5rem;
-  cursor: pointer;
+    cursor: pointer;
   padding: 0.5rem;
   margin-right: 1rem;
   display: none;
@@ -2272,7 +2862,7 @@ input[type="checkbox"] {
   padding: 1.5rem;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 1rem;
+    margin-bottom: 1rem;
 }
 
 .logo-img {
@@ -2650,3 +3240,121 @@ input[type="checkbox"] {
 .file-remove:hover {
     background-color: #ffebee;
 }
+
+/* Kanban Filter Navbar Styles */
+.kanban-filter-navbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+    align-items: center;
+}
+
+.filter-section {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.filter-section label {
+    font-weight: 500;
+    color: #495057;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+.filter-select {
+    min-width: 120px;
+    padding: 0.5rem 1rem;
+    border: 1px solid #dce4ec;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 0.8em;
+    padding-left: 0.75rem;
+    padding-right: 2rem;
+}
+
+.filter-select:hover {
+    border-color: #3498db;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.kanban-filter-navbar .search-input {
+    min-width: 200px;
+    padding: 0.5rem 1rem;
+    border: 1px solid #dce4ec;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.kanban-filter-navbar .search-input:hover {
+    border-color: #3498db;
+}
+
+.kanban-filter-navbar .search-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.kanban-filter-navbar .btn-secondary {
+    padding: 0.5rem 1rem;
+    border: none;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.kanban-filter-navbar .btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Hide filtered cards */
+.kanban-card.filtered-out {
+    display: none;
+}
+
+/* Responsive design for filter navbar */
+@media (max-width: 992px) {
+    .kanban-filter-navbar {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .filter-section {
+        margin-bottom: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .kanban-filter-navbar {
+    flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filter-section {
+        width: 100%;
+    }
+    
+    .filter-select, 
+    .kanban-filter-navbar .search-input {
+        width: 100%;
+    }
+}
+

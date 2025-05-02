@@ -1,7 +1,6 @@
 from django.db import models
 from utility.helper import generate_slug    
-# Create your models here.
-
+from django.urls import reverse
 
 class CustomForm(models.Model):
     LANGUAGE_CHOICES = [
@@ -21,6 +20,10 @@ class CustomForm(models.Model):
     slug = models.SlugField(max_length=100, default=generate_slug)
     template = models.CharField(max_length=100,choices=TemplateChoice,default='1')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def get_absolute_url(self):
+        return f'145.223.80.125/dms/form/{self.slug}'
 
     def __str__(self):
         return self.name

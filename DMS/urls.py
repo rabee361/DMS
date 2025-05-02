@@ -19,6 +19,7 @@ urlpatterns = [
     path('dms/404/', TemplateView.as_view(template_name='404.html'), name='404'),
     path('dms/500/', TemplateView.as_view(template_name='500.html'), name='500'),
     path('dms/form/<slug:slug>/', FormView.as_view(), name='form'),
+    path('dms/api/', include('api.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -14,148 +14,49 @@
     </div>
 </div>
 
-<div class="kanban-board">
-    <div class="kanban-column">
-        <div class="column-header pending">
-            <h3>قيد الانتظار</h3>
-            <span class="task-count">{{ tasks|count_by_status:"Pending" }}</span>
-        </div>
-        <div class="column-content" data-status="Pending">
-            {% for task in tasks %}
-                {% if task.status == 'Pending' %}
-                    <div class="kanban-card" 
-                         draggable="true"
-                         data-task-id="{{ task.id }}"
-                         data-status="Pending"
-                         dir="rtl">
-                        <div class="card-header">
-                            <h4>{{ task.title }}</h4>
-                            <div class="priority-wrapper">
-                                <span class="label">الأولوية:</span>
-                                <span class="priority-badge">{{ task.priority }}</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="info-row">
-                                <span class="label">الوصف:</span>
-                                <p>{{ task.description }}</p>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">مُسند إلى:</span>
-                                <span>{{ task.user.username}}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">تاريخ الاستحقاق:</span>
-                                <span>{{ task.due_date|date:"M d, Y" }}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <a href="{% url 'task-update' task.id %}" class="card-action edit">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="{% url 'task-delete' task.id %}" class="card-action delete">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+<!-- Kanban Filter Navbar -->
+<div class="kanban-filter-navbar" hx-target="#kanban-board-container" hx-swap="innerHTML">
+    <div class="filter-section">
+        <label for="priority-filter">الأولوية:</label>
+        <select id="priority-filter" class="filter-select" name="priority" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="all" {% if filters.priority == 'all' %}selected{% endif %}>الكل</option>
+            <option value="Low" {% if filters.priority == 'Low' %}selected{% endif %}>منخفضة</option>
+            <option value="Medium" {% if filters.priority == 'Medium' %}selected{% endif %}>متوسطة</option>
+            <option value="High" {% if filters.priority == 'High' %}selected{% endif %}>عالية</option>
+        </select>
     </div>
+    <div class="filter-section">
+        <label for="user-filter">المستخدم:</label>
+        <select id="user-filter" class="filter-select" name="user" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="all" {% if filters.user == 'all' %}selected{% endif %}>الكل</option>
+            {% for username in tasks|extract_unique_users %}
+                <option value="{{ username }}" {% if filters.user == username %}selected{% endif %}>{{ username }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-section">
+        <label for="sort-by">ترتيب حسب:</label>
+        <select id="sort-by" class="filter-select" name="sort_by" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="title" {% if filters.sort_by == 'title' %}selected{% endif %}>العنوان</option>
+            <option value="priority" {% if filters.sort_by == 'priority' %}selected{% endif %}>الأولوية</option>
+            <option value="user" {% if filters.sort_by == 'user' %}selected{% endif %}>المستخدم</option>
+            <option value="due_date" {% if filters.sort_by == 'due_date' %}selected{% endif %}>تاريخ الاستحقاق</option>
+        </select>
+    </div>
+    <div class="filter-section">
+        <label for="sort-direction">الترتيب:</label>
+        <select id="sort-direction" class="filter-select" name="sort_direction" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="asc" {% if filters.sort_direction == 'asc' %}selected{% endif %}>تصاعدي</option>
+            <option value="desc" {% if filters.sort_direction == 'desc' %}selected{% endif %}>تنازلي</option>
+        </select>
+    </div>
+    <div class="filter-section">
+        <button class="btn btn-secondary" hx-get="{% url 'task-kanban' %}" hx-include="none">إعادة ضبط</button>
+    </div>
+</div>
 
-    <div class="kanban-column">
-        <div class="column-header in-progress">
-            <h3>قيد التنفيذ</h3>
-            <span class="task-count">{{ tasks|count_by_status:"In Progress" }}</span>
-        </div>
-        <div class="column-content" data-status="In Progress">
-            {% for task in tasks %}
-                {% if task.status == 'In Progress' %}
-                    <div class="kanban-card"
-                         draggable="true"
-                         data-task-id="{{ task.id }}"
-                         data-status="In Progress">
-                        <div class="card-header">
-                            <h4>{{ task.title }}</h4>
-                            <div class="priority-wrapper">
-                                <span class="label">الأولوية:</span>
-                                <span class="priority-badge">{{ task.priority }}</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="info-row">
-                                <span class="label">الوصف:</span>
-                                <p>{{ task.description }}</p>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">مُسند إلى:</span>
-                                <span>{{ task.user.username }}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">تاريخ الاستحقاق:</span>
-                                <span>{{ task.due_date|date:"M d, Y" }}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <a href="{% url 'task-update' task.id %}" class="card-action edit">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="{% url 'task-delete' task.id %}" class="card-action delete">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-
-    <div class="kanban-column">
-        <div class="column-header completed">
-            <h3>مكتمل</h3>
-            <span class="task-count">{{ tasks|count_by_status:"Completed" }}</span>
-        </div>
-        <div class="column-content" data-status="Completed">
-            {% for task in tasks %}
-                {% if task.status == 'Completed' %}
-                    <div class="kanban-card"
-                         draggable="true"
-                         data-task-id="{{ task.id }}"
-                         data-status="Completed">
-                        <div class="card-header">
-                            <h4>{{ task.title }}</h4>
-                            <div class="priority-wrapper">
-                                <span class="label">الأولوية:</span>
-                                <span class="priority-badge">{{ task.priority }}</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="info-row">
-                                <span class="label">الوصف:</span>
-                                <p>{{ task.description }}</p>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">مُسند إلى:</span>
-                                <span>{{ task.user.username }}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="label">تاريخ الاستحقاق:</span>
-                                <span>{{ task.due_date|date:"M d, Y" }}</span>
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <a href="{% url 'task-update' task.id %}" class="card-action edit">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="{% url 'task-delete' task.id %}" class="card-action delete">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
+<div id="kanban-board-container">
+    {% include "partials/tasks_kanban_partial.html" %}
 </div>
 
 {% endblock %}
@@ -164,29 +65,32 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Get all kanban cards and columns
-    const cards = document.querySelectorAll('.kanban-card');
     const columns = document.querySelectorAll('.column-content');
     
     let draggedItem = null;
     
-    // Add event listeners to cards
-    cards.forEach(card => {
-        // When drag starts
-        card.addEventListener('dragstart', function(e) {
-            draggedItem = card;
-            setTimeout(() => {
-                card.style.opacity = '0.5';
-            }, 0);
-        });
+    function setupDragAndDrop() {
+        const cards = document.querySelectorAll('.kanban-card');
         
-        // When drag ends
-        card.addEventListener('dragend', function() {
-            setTimeout(() => {
-                card.style.opacity = '1';
-                draggedItem = null;
-            }, 0);
+        // Add event listeners to cards
+        cards.forEach(card => {
+            // When drag starts
+            card.addEventListener('dragstart', function(e) {
+                draggedItem = card;
+                setTimeout(() => {
+                    card.style.opacity = '0.5';
+                }, 0);
+            });
+            
+            // When drag ends
+            card.addEventListener('dragend', function() {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    draggedItem = null;
+                }, 0);
+            });
         });
-    });
+    }
     
     // Add event listeners to columns
     columns.forEach(column => {
@@ -265,6 +169,17 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('.column-header.in-progress .task-count').textContent = counts['In Progress'];
         document.querySelector('.column-header.completed .task-count').textContent = counts['Completed'];
     }
+
+    // Initialize drag and drop
+    setupDragAndDrop();
+    
+    // Setup event listener for HTMX after swap
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+        if (e.detail.target.id === 'kanban-board-container') {
+            setupDragAndDrop();
+            updateTaskCounts();
+        }
+    });
 });
 </script>
 {% endblock %}

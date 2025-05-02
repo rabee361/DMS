@@ -29,6 +29,7 @@ class ListForms(generic.ListView):
     paginate_by = 10
 
 
+
 @method_decorator([login_required, edit_perm_decorator], name='dispatch')
 class FormDetailView(View):
     def get(self, request, pk):

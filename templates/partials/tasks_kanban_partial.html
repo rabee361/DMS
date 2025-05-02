@@ -1,0 +1,157 @@
+{% load task_filters %}
+
+<div class="kanban-board">
+    <div class="kanban-column">
+        <div class="column-header pending">
+            <h3>قيد الانتظار</h3>
+            <span class="task-count">{{ tasks|count_by_status:"Pending" }}</span>
+        </div>
+        <div class="column-content" data-status="Pending">
+            {% for task in tasks %}
+                {% if task.status == 'Pending' %}
+                    <div class="kanban-card" 
+                         draggable="true"
+                         data-task-id="{{ task.id }}"
+                         data-status="Pending"
+                         data-title="{{ task.title }}"
+                         data-priority="{{ task.priority }}"
+                         data-user="{{ task.user.username }}"
+                         data-due-date="{{ task.due_date|date:'Y-m-d' }}"
+                         dir="rtl">
+                        <div class="card-header">
+                            <h4>{{ task.title }}</h4>
+                            <div class="priority-wrapper">
+                                <span class="label">الأولوية:</span>
+                                <span class="priority-badge">{{ task.priority }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="label">الوصف:</span>
+                                <p>{{ task.description }}</p>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">مُسند إلى:</span>
+                                <span>{{ task.user.username}}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">تاريخ الاستحقاق:</span>
+                                <span>{{ task.due_date|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="{% url 'task-update' task.id %}" class="card-action edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'task-delete' task.id %}" class="card-action delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="kanban-column">
+        <div class="column-header in-progress">
+            <h3>قيد التنفيذ</h3>
+            <span class="task-count">{{ tasks|count_by_status:"In Progress" }}</span>
+        </div>
+        <div class="column-content" data-status="In Progress">
+            {% for task in tasks %}
+                {% if task.status == 'In Progress' %}
+                    <div class="kanban-card"
+                         draggable="true"
+                         data-task-id="{{ task.id }}"
+                         data-status="In Progress"
+                         data-title="{{ task.title }}"
+                         data-priority="{{ task.priority }}"
+                         data-user="{{ task.user.username }}"
+                         data-due-date="{{ task.due_date|date:'Y-m-d' }}">
+                        <div class="card-header">
+                            <h4>{{ task.title }}</h4>
+                            <div class="priority-wrapper">
+                                <span class="label">الأولوية:</span>
+                                <span class="priority-badge">{{ task.priority }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="label">الوصف:</span>
+                                <p>{{ task.description }}</p>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">مُسند إلى:</span>
+                                <span>{{ task.user.username }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">تاريخ الاستحقاق:</span>
+                                <span>{{ task.due_date|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="{% url 'task-update' task.id %}" class="card-action edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'task-delete' task.id %}" class="card-action delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="kanban-column">
+        <div class="column-header completed">
+            <h3>مكتمل</h3>
+            <span class="task-count">{{ tasks|count_by_status:"Completed" }}</span>
+        </div>
+        <div class="column-content" data-status="Completed">
+            {% for task in tasks %}
+                {% if task.status == 'Completed' %}
+                    <div class="kanban-card"
+                         draggable="true"
+                         data-task-id="{{ task.id }}"
+                         data-status="Completed"
+                         data-title="{{ task.title }}"
+                         data-priority="{{ task.priority }}"
+                         data-user="{{ task.user.username }}"
+                         data-due-date="{{ task.due_date|date:'Y-m-d' }}">
+                        <div class="card-header">
+                            <h4>{{ task.title }}</h4>
+                            <div class="priority-wrapper">
+                                <span class="label">الأولوية:</span>
+                                <span class="priority-badge">{{ task.priority }}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="label">الوصف:</span>
+                                <p>{{ task.description }}</p>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">مُسند إلى:</span>
+                                <span>{{ task.user.username }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">تاريخ الاستحقاق:</span>
+                                <span>{{ task.due_date|date:"M d, Y" }}</span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <a href="{% url 'task-update' task.id %}" class="card-action edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'task-delete' task.id %}" class="card-action delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>

@@ -17,8 +17,10 @@
             <div class="action-controls">
                 <select id="bulkAction" name="action" class="action-select">
                     <option value="" selected disabled>اختر إجراء</option>
-                    <option value="delete">حذف السجلات المحددة</option>
+                    <option value="delete">حذف السجلات </option>
                     <option value="export_excel">تصدير إلى إكسل</option>
+                    <option value="accept">موافقة</option>
+                    <option value="reject">رفض</option>
                 </select>
                 <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
             </div>
@@ -37,10 +39,11 @@
                     <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
                     <th>الرقم</th>
                     <th>اسم المستخدم</th>
+                    <th>تاريخ البدء</th>
                     <th>الساعات</th>
-                    <th>من</th>
-                    <th>إلى</th>
+                    <th>الأيام</th>
                     <th>الحالة</th>
+                    <th>مدفوعة</th>
                     <th>الإجراءات</th>
                 </tr>
             </thead>
@@ -52,14 +55,21 @@
                     </td>
                     <td>{{ holiday.id }}</td>
                     <td>{{ holiday.employee.username }}</td>
-                    <td>{{ holiday.hours }}</td>
                     <td>{{ holiday.start }}</td>
-                    <td>{{ holiday.end }}</td>
+                    <td>{{ holiday.hours }}</td>
+                    <td>{{ holiday.days }}</td>
                     <td>
                         {% if holiday.accepted %}
                             <span class="status-badge active"><i class="bi bi-check-circle"></i> تمت الموافقة</span>
                         {% else %}
                             <span class="status-badge inactive"><i class="bi bi-clock"></i> قيد الانتظار</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if holiday.paid %}
+                            <span class="status-badge active"><i class="bi bi-check-circle"></i> مدفوعة</span>
+                        {% else %}
+                            <span class="status-badge inactive"><i class="bi bi-x-circle"></i> غير مدفوعة</span>
                         {% endif %}
                     </td>
                     <td onclick="event.stopPropagation();">

@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.filter
 def count_by_status(tasks, status):
-    return tasks.filter(status=status).count()
+    return len([task for task in tasks if task.status == status])
 
 @register.filter
 def get_item(obj, key):
@@ -27,3 +27,12 @@ def get_item(obj, key):
     except (TypeError, AttributeError):
         # Return empty string if access fails
         return ''
+
+@register.filter
+def extract_unique_users(tasks):
+    """Extract unique usernames from a queryset of tasks."""
+    users = set()
+    for task in tasks:
+        if task.user and task.user.username:
+            users.add(task.user.username)
+    return list(users)

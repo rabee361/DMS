@@ -70,7 +70,7 @@ class Position(models.Model):
 
 
 
-class Employee(User):
+class   Employee(User):
     position = models.ForeignKey(Position , on_delete=models.CASCADE , blank=True , null=True)
     department = models.ForeignKey(Department , on_delete=models.CASCADE , blank=True , null=True)
     address = models.CharField(max_length=100)
@@ -101,12 +101,17 @@ class EmployeeCertificate(models.Model):
 
 class Holiday(models.Model):
     employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
-    hours = models.CharField(choices=Holiday, max_length=40)
+    days = models.FloatField(validators=[MinValueValidator(0)])
     start = models.DateField()
+    paid = models.BooleanField(default=False)
     accepted = models.BooleanField(default=False)
 
+    @property
+    def hours(self):
+        return self.days * self.employee.department.work_hours
+
     def __str__(self) -> str:
-        return f'{self.employee.username} - {self.hours}'
+        return f'{self.employee.username}'
 
 
 

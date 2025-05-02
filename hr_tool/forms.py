@@ -46,12 +46,9 @@ class HolidayForm(forms.ModelForm):
     start = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
     )
-    end = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
-    )
     class Meta:
         model = Holiday
-        fields = ['employee', 'hours', 'start', 'end', 'accepted']
+        fields = ['employee', 'days', 'start', 'accepted', 'paid']
 
 
 

@@ -351,4 +351,40 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 
+// Separate the handler function
+async function copyButtonHandler(e) {
+  e.preventDefault(); // Prevent the default link behavior
+  e.stopPropagation(); // Prevent row click event
+  const url = this.getAttribute('data-url');
+  
+  try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+          showToast('تم نسخ الرابط بنجاح');
+      } else {
+          // Fallback for older browsers and non-HTTPS contexts
+          const textArea = document.createElement('textarea');
+          textArea.value = url;
+          textArea.style.position = 'fixed';
+          textArea.style.left = '-999999px';
+          textArea.style.top = '-999999px';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
 
+          try {
+              document.execCommand('copy');
+              textArea.remove();
+              showToast('تم نسخ الرابط بنجاح');
+          } catch (err) {
+              textArea.remove();
+              showToast('حدث خطأ أثناء نسخ الرابط - الرجاء النسخ يدوياً');
+              showSelectableUrl(url);
+          }
+      }
+  } catch (err) {
+      showToast('حدث خطأ أثناء نسخ الرابط - الرجاء النسخ يدوياً');
+      showSelectableUrl(url);
+  }
+}

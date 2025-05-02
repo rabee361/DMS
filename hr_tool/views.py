@@ -140,15 +140,12 @@ class EmployeesActionView(View):
 class CreateHolidayView(View):
     def get(self, request):
         form = HolidayForm()
-        return render(request, 'hr_tool/holiday/create_holiday.html', {'form': form})
+        return render(request, 'hr_tool/holiday/holiday_form.html', {'form': form})
 
     def post(self, request):
         form = HolidayForm(request.POST)
         if form.is_valid():
             holiday = form.save(commit=False)
-            start_date, end_date = form.cleaned_data['daterange'].split('-')
-            holiday.start = change_format(start_date)
-            holiday.end = change_format(end_date)
             holiday.save()
             return redirect('holidays_list')
         return redirect('create_holiday')
@@ -156,19 +153,14 @@ class CreateHolidayView(View):
 
 @method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
 class ListHolidaysView(ListView):
-    model = Holiday
-    template_name = 'hr_tool/holiday/holidays.html'
-    context_object_name = 'holidays'
-    paginate_by = 10
+    def get(self, request):
+        holidays = Holiday.objects.all()
+        context = {
+            'holidays': holidays
+        }
+        return render(request, 'hr_tool/holiday/holidays.html', context)
 
-    def get_queryset(self) -> QuerySet[Any]:
-        queryset = super().get_queryset()
-        q = self.request.GET.get('q', None)
-        if q:
-            queryset = queryset.filter(
-                employee__username__startswith=q
-            )
-        return queryset
+
 
 
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
@@ -180,6 +172,12 @@ class HolidaysActionView(View):
         # perform DB operation depending on the chosen action
         if request.POST.get('action') == 'delete':
             holidays.delete()
+
+        if request.POST.get('action') == 'accept':
+            holidays.update(accepted=True)
+
+        if request.POST.get('action') == 'reject':
+            holidays.update(accepted=False)
 
         elif request.POST.get('action') == 'export_excel':
             holiday_resource = HolidayResource()
@@ -200,7 +198,11 @@ class UpdateHolidayView(View):
     def get(self, request, pk):
         holiday = Holiday.objects.get(id=pk)
         form = HolidayForm(instance=holiday)
-        return render(request, 'hr_tool/holiday/holiday_info.html', {'form': form})
+        context = {
+            'form': form,
+            'hours': holiday.hours
+        }
+        return render(request, 'hr_tool/holiday/holiday_form.html', context)
 
     def post(self, request, pk):
         form = HolidayForm(request.POST, instance=Holiday.objects.get(id=pk))
