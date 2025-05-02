@@ -40,7 +40,17 @@ class UserRolesView(ListView):
 class UserRoleInfoView(View):
     def get(self, request, pk):
         user_role = UserRole.objects.get(id=pk)
-        return render(request, 'users/roles/user_role_form.html', {'user_role': user_role})
+        criteria = Criteria.objects.all()
+        form = UserRoleForm(instance=user_role)
+        return render(request, 'users/roles/user_role_form.html', {'user_role': user_role, 'criteria': criteria, 'form': form})
+    
+    def post(self, request, pk):
+        user_role = UserRole.objects.get(id=pk)
+        form = UserRoleForm(request.POST, instance=user_role)
+        if form.is_valid():
+            form.save()
+            return redirect('user_roles')
+        return render(request, 'users/roles/user_role_form.html', {'form': form})
 
 @method_decorator([login_required, add_perm_decorator], name='dispatch')
 class CreateUserRoleView(View):

@@ -21,7 +21,19 @@
                         {% if form.name.errors %}
                             <div class="form-error">{{ form.name.errors }}</div>
                         {% endif %}
+                    </div>
+                </div>
 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_criteria">الصلاحيات</label>
+                        <div class="checkbox-group">
+                            {{ form.criteria }}
+                        </div>
+                        {% if form.criteria.errors %}
+                            <div class="form-error">{{ form.criteria.errors }}</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
@@ -32,4 +44,37 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get all checkbox labels and assign data-type attribute based on content
+        const checkboxItems = document.querySelectorAll('.checkbox-group ul li');
+        const checkboxUl = document.querySelector('.checkbox-group ul');
+        let currentCategory = '';
+        
+        // Process each checkbox item
+        checkboxItems.forEach(item => {
+            const labelText = item.querySelector('label').textContent.trim();
+            const categoryName = labelText.split(' - ')[0];
+            
+            // Set the data-type attribute based on the operation type
+            if (labelText.includes('إضافة')) {
+                item.setAttribute('data-type', 'add');
+            } else if (labelText.includes('تعديل')) {
+                item.setAttribute('data-type', 'edit');
+            } else if (labelText.includes('حذف')) {
+                item.setAttribute('data-type', 'delete');
+            }
+            
+            // Add category headers
+            if (categoryName !== currentCategory) {
+                currentCategory = categoryName;
+                const categoryHeader = document.createElement('div');
+                categoryHeader.className = 'criteria-category';
+                categoryHeader.textContent = categoryName;
+                item.parentNode.insertBefore(categoryHeader, item);
+            }
+        });
+    });
+</script>
 {% endblock %}

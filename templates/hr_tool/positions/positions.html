@@ -32,6 +32,7 @@
                 <th>الرقم التعريفي</th>
                 <th>اسم المنصب</th>
                 <th>الراتب الافتراضي</th>
+                <th>العملة</th>
                 <th>الإجراءات</th>
             </tr>
         </thead>
@@ -44,6 +45,7 @@
                 <td>{{ position.id }}</td>
                 <td>{{ position.name }}</td>
                 <td>{{ position.default_salary }}</td>
+                <td>{{ position.currency.name }}</td>
                 <td onclick="event.stopPropagation();">
                     <div class="action-buttons">
                         <a href="{% url 'delete_position' position.id %}" class="delete-btn">

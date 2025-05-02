@@ -85,7 +85,7 @@ class CreateFormView(View):
         form = CustomSurveyForm(request.POST)
         if form.is_valid():
             custom_form = form.save()
-            return redirect('add_form_fields', id=custom_form.id)
+            return redirect('add_form_fields')
         return render(request, self.template_name, {'form': form})
 
 
@@ -101,12 +101,6 @@ class CreateFormFieldsView(View):
             form_name = data.get('form_name')
             form_language = data.get('form_language')
             fields = data.get('fields', [])
-            
-            if not form_name:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Form name is required'
-                })
                 
             if not fields:
                 return JsonResponse({
@@ -115,7 +109,7 @@ class CreateFormFieldsView(View):
                 })
             
             # Create the form and its table
-            result = add_form(form_name, fields, form_language)
+            result = add_form(form_name, fields)
             
             if result['success']:
                 return JsonResponse({
@@ -250,7 +244,7 @@ class FormView(View):
             'form_id': pk
         }
         
-        return render(request, 'form_builder/form_view.html', context)
+        return render(request, 'form_builder/form_view2.html', context)
 
     def post(self, request, pk):
         try:
@@ -280,7 +274,62 @@ class FormView(View):
                     'form_name': form_name,
                     'form_id': pk
                 }
-                return render(request, 'form_builder/form_view.html', context)
+                return render(request, 'form_builder/form_view2.html', context)
+                
+        except CustomForm.DoesNotExist:
+            return redirect('form_builder')
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            })
+
+
+class FormView2(View):
+    def get(self, request, pk):
+        custom_form = CustomForm.objects.get(id=pk)
+        form_name = custom_form.name
+        
+        # Create a dynamic form based on table structure
+        DynamicForm = create_dynamic_form(form_name)
+        form = DynamicForm()
+        context = {
+            'form': form,
+            'form_name': form_name,
+            'form_id': pk
+        }
+        
+        return render(request, 'form_builder/form_view2.html', context)
+
+    def post(self, request, pk):
+        try:
+            custom_form = CustomForm.objects.get(id=pk)
+            form_name = custom_form.name
+            
+            # Create dynamic form and validate data
+            DynamicForm = create_dynamic_form(form_name)
+            form = DynamicForm(request.POST)
+            
+            if form.is_valid():
+                # Extract validated data
+                cleaned_data = form.cleaned_data
+                
+                # Get fields and values for insertion
+                fields = list(cleaned_data.keys())
+                values = [cleaned_data[field] for field in fields]
+                
+                # Insert the record using our utility function
+                insert_record_with_fields(form_name, fields, values)
+                
+                return redirect('form_detail',pk)
+            else:
+                # If form is invalid, show errors
+                context = {
+                    'form': form,
+                    'form_name': form_name,
+                    'form_id': pk
+                }
+                return render(request, 'form_builder/form_view2.html', context)
                 
         except CustomForm.DoesNotExist:
             return redirect('form_builder')

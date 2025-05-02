@@ -11,6 +11,7 @@ urlpatterns = [
     path('forms/<int:pk>/update/<int:record_id>', views.UpdateRecordView.as_view(), name='update_record'),
     path('forms/<int:pk>/delete', views.DeleteFormView.as_view(), name='delete_form'),
     path('forms/view/<int:pk>/', views.FormView.as_view(), name='view_form'),
+    path('forms/view2/<int:pk>/', views.FormView2.as_view(), name='view_form2'),
     path('forms/<int:pk>/', views.FormDetailView.as_view(), name='form_detail'),
     path('forms/action', views.FormsActionView.as_view(), name='forms_action'),
     path('forms/export/pdf/<int:pk>/', views.ExportFormPdfView.as_view(), name='export_form_pdf'),

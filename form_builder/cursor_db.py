@@ -26,18 +26,11 @@ def get_form_fields(form_name):
 
 
 
-def add_form(form_name, fields, form_language):
+def add_form(form_name, fields):
     with connection.cursor() as cursor:
         try:
             # Insert the form metadata with autocommit=False
             connection.set_autocommit(False)
-            
-            form_name = f"form_builder_{form_name}"
-            cursor.execute(
-                "INSERT INTO form_builder_customform (name, language, created_at) VALUES (%s, %s, CURRENT_TIMESTAMP) RETURNING id",
-                [form_name, form_language]
-            )
-            form_id = cursor.fetchone()[0]
             
             # Create the dynamic form table
             create_table_sql = f"""
@@ -85,7 +78,6 @@ def add_form(form_name, fields, form_language):
             
             return {
                 'success': True,
-                'form_id': form_id,
                 'table_name': form_name
             }
             

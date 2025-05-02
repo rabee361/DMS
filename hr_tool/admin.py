@@ -12,3 +12,7 @@ admin.site.register(Recruitment)
 admin.site.register(Department)
 admin.site.register(Position)
 admin.site.register(EmployeeCertificate)
+admin.site.register(Currency)
+admin.site.register(ExchangePrice)
+admin.site.register(Payroll)
+

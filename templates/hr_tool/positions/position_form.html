@@ -32,6 +32,13 @@
                         {% endif %}
                         <span class="help-text">الراتب الافتراضي للمنصب</span>
                     </div>
+                    <div class="form-group">
+                        <label for="{{ form.currency.id_for_label }}">العملة</label>
+                        {{ form.currency }}
+                        {% if form.currency.errors %}
+                            <div class="form-error">{{ form.currency.errors }}</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 
