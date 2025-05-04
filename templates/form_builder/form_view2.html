@@ -1,4 +1,5 @@
 {% load static %}
+{% load form_filters %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -30,16 +31,14 @@
                 </a>
                 
                 <!-- Create tab buttons dynamically -->
-                {% with total_fields=form.visible_fields|length %}
-                    {% with tab_count=total_fields|add:7|divisibleby:8 %}
-                        {% for i in "123456"|slice:":tab_count" %}
-                            <a href="#" class="nav-item {% if active_tab == forloop.counter|add:1|stringformat:'s' %}active{% endif %}" data-tab="{{ forloop.counter|add:1 }}">
-                                <span class="nav-number">{{ forloop.counter|add:1 }}</span>
-                                <span class="nav-text">الصفحة {{ forloop.counter }}</span>
-                            </a>
-                        {% endfor %}
-                    {% endwith %}
-                {% endwith %}
+                
+                {% for i in form_tab_count|range_filter %}
+                    <a href="#" class="nav-item {% if active_tab == forloop.counter|add:1|stringformat:'s' %}active{% endif %}" data-tab="{{ forloop.counter|add:1 }}">
+                        <span class="nav-number">{{ forloop.counter|add:1 }}</span>
+                        <span class="nav-text">الصفحة {{ forloop.counter }}</span>
+                    </a>
+                {% endfor %}
+
             </div>
             <div class="sidebar-footer">
                 <p>جميع الحقوق محفوظة &copy; {{ 'now'|date:'Y' }}</p>

@@ -21,3 +21,29 @@ def get_item(obj, key):
     except (TypeError, AttributeError):
         # Return empty string if access fails
         return '' 
+
+@register.filter
+def intdiv(value, arg):
+    """
+    Integer division filter
+    
+    Usage in templates:
+    {{ value|intdiv:arg }}
+    
+    Example:
+    {{ 10|intdiv:3 }} will return 3
+    """
+    try:
+        return int(int(value) / int(arg))
+    except (ValueError, ZeroDivisionError):
+        return 0 
+    
+
+
+@register.filter
+def range_filter(number):
+    """
+    Returns a list containing range made from given number
+    Usage: {% for i in number|range_filter %}
+    """
+    return range(int(number))

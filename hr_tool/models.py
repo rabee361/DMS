@@ -3,29 +3,11 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator , MaxValueValidator
 from utility.types import *
 from django.core.validators import RegexValidator
+from finance.models import Currency
 User = get_user_model()
 
 
 
-
-class Currency(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    symbol = models.CharField(max_length=50, null=True, blank=True)
-    parts = models.CharField(max_length=50, null=True, blank=True)
-    parts_relation = models.FloatField(null=True, blank=True)
-
-    def __str__(self):
-        return self.name
-    
-
-class ExchangePrice(models.Model):
-    first_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, related_name='first_currency')
-    second_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, related_name='second_currency')
-    price = models.FloatField()
-    date = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f'{self.first_currency.name}-{self.second_currency.name}-{self.price}'
 
 
 class Payroll(models.Model):
@@ -59,7 +41,7 @@ class Department(models.Model):
 class Position(models.Model):
     name = models.CharField(max_length=100)
     default_salary = models.FloatField()
-    currency = models.ForeignKey('Currency', on_delete=models.CASCADE, related_name='position_currency',null=True,blank=True)
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE, related_name='position_currency',null=True,blank=True)
     created = models.DateField(auto_now_add=True)
 
     def __str__(self) -> str:
@@ -70,11 +52,12 @@ class Position(models.Model):
 
 
 
-class   Employee(User):
+class Employee(User):
     position = models.ForeignKey(Position , on_delete=models.CASCADE , blank=True , null=True)
     department = models.ForeignKey(Department , on_delete=models.CASCADE , blank=True , null=True)
     address = models.CharField(max_length=100)
     base_salary = models.FloatField(validators=[MinValueValidator(0)])
+    salary_currency = models.ForeignKey(Currency , on_delete=models.CASCADE , blank=True , null=True)
     social_status = models.CharField(max_length=50,choices=SocialStatus)
     start_date = models.DateField(null=True , blank=True)
     class Meta:

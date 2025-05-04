@@ -1,0 +1,28 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+        <th>المعرف</th>
+        <th>اسم العملة</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+<tbody>
+    {% for currency in currencies %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'currency_profile' currency.id %}">
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ currency.id }}">
+        </td>
+        <td>{{ currency.id }}</td>
+        <td>{{ currency.name }}</td>
+        <td>{{ currency.symbol }}</td>
+        <td>{{ currency.parts }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_currency' currency.id %}" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

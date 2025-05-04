@@ -1,12 +1,11 @@
 {% load static %}
+{% load form_filters %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ form_name }}</title>
-    <link rel="icon" type="image/png" href="{% static '/assets/img/alnoor.png' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/form_view.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
@@ -16,6 +15,7 @@
             {% csrf_token %}
             <input type="hidden" name="form_id" value="{{ request.session.session_key }}_{% now "U" %}">
             <input type="hidden" id="success-flag" value="{% if success %}true{% else %}false{% endif %}">
+            <input type="hidden" id="fields-count" value="{{ form.fields_count }}">
             
             <div class="form-header">
                 <div class="header-content">
@@ -31,19 +31,18 @@
 
             <div class="tabs-container">
                 <div class="tabs-header">
-                    <!-- Welcome tab button -->
+                    <!-- Welcome tab button (always first) -->
                     <button type="button" class="tab-btn {% if not active_tab or active_tab == '1' %}active{% endif %}" data-tab="1">مرحباً بكم</button>
                     
-                    <!-- Create tab buttons dynamically -->
-                    {% with total_fields=form.visible_fields|length %}
-                        {% with tab_count=total_fields|add:7|divisibleby:8 %}
-                            {% for i in "123456"|slice:":tab_count" %}
-                                <button type="button" class="tab-btn {% if active_tab == forloop.counter|add:1|stringformat:'s' %}active{% endif %}" data-tab="{{ forloop.counter|add:1 }}">
-                                    الصفحة {{ forloop.counter }}
-                                </button>
-                            {% endfor %}
-                        {% endwith %}
-                    {% endwith %}
+                    <!-- Calculate number of tabs needed (8 fields per tab) -->
+                 
+                    <!-- Generate tab buttons for each data tab (not including welcome tab) -->
+                    {% for i in form_tab_count|range_filter %}
+                        <button type="button" class="tab-btn {% if active_tab == forloop.counter|add:1|stringformat:'s' %}active{% endif %}" data-tab="{{ forloop.counter|add:1 }}">
+                            الصفحة {{ forloop.counter }}
+                        </button>
+                    {% endfor %}
+
                 </div>
 
                 <!-- Welcome tab content -->
@@ -66,7 +65,7 @@
                         
                         <!-- Welcome text -->
                         <div id="welcome-text" class="welcome-text">
-                            <h2>مرحباً بكم</h2>
+                            <h2>{{ welcome_text }}</h2>
                             <p>يرجى تعبئة البيانات المطلوبة في النموذج</p>
                             <p>ملاحظات هامة:</p>
                             <ul>
@@ -80,12 +79,12 @@
                     </div>
                 </div>
 
-                <!-- Form fields divided into tabs -->
+                <!-- Form fields divided into tabs (8 fields per tab) -->
                 {% with fields_list=form.visible_fields %}
                     {% for field in fields_list %}
-                        {% with tab_num=forloop.counter0|divisibleby:8|add:2 %}
+                        {% with tab_index=forloop.counter0|intdiv:8|add:2 %}
                             {% if forloop.counter0|divisibleby:8 %}
-                                <div class="tab-content {% if active_tab == tab_num|stringformat:'s' %}active{% endif %}" data-tab="{{ tab_num }}">
+                                <div class="tab-content {% if active_tab == tab_index|stringformat:'s' %}active{% endif %}" data-tab="{{ tab_index }}">
                                     <div class="form-section">
                             {% endif %}
                             
@@ -99,13 +98,18 @@
                             
                             {% if forloop.counter|divisibleby:8 or forloop.last %}
                                         <div class="form-footer">
-                                            <button type="button" class="prev-btn" data-prev="1">السابق</button>
+                                            <button type="button" class="prev-btn" data-prev="{{ tab_index|add:-1 }}">السابق</button>
                                             
-                                            {% if forloop.last %}
-                                                <button type="submit" class="submit-btn">إرسال</button>
-                                            {% else %}
-                                                <button type="button" class="next-btn" data-next="{{ tab_num|add:1 }}">التالي</button>
-                                            {% endif %}
+                                            <!-- Calculate if this is the last data tab -->
+                                            {% with data_tabs_needed=form.fields_count|add:7|intdiv:8 %}
+                                                {% with last_tab=data_tabs_needed|add:1 %}
+                                                    {% if tab_index == last_tab or forloop.last %}
+                                                        <button type="submit" class="submit-btn">إرسال</button>
+                                                    {% else %}
+                                                        <button type="button" class="next-btn" data-next="{{ tab_index|add:1 }}">التالي</button>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endwith %}
                                         </div>
                                     </div>
                                 </div>
@@ -118,7 +122,7 @@
         <!-- Footer -->
         <footer class="footer">
             <div class="container">
-                <p class="footer-text">جميع الحقوق محفوظة &copy; {{ 'now'|date:'Y' }}</p>
+                <p class="footer-text">جميع الحقوق محفوظة &copy; {% now "Y" %}</p>
             </div>
         </footer>
     </div>
@@ -134,7 +138,13 @@
             const successMessage = document.getElementById('success-message-container');
             const welcomeText = document.getElementById('welcome-text');
             const successFlag = document.getElementById('success-flag').value === 'true';
+            const fieldsCount = parseInt(document.getElementById('fields-count').value);
             let currentTab = parseInt('{{ active_tab|default:1 }}');
+
+            // Calculate the total number of tabs (welcome tab + data tabs)
+            const fieldsPerTab = 8;
+            const dataTabs = Math.ceil(fieldsCount / fieldsPerTab);
+            const totalTabs = dataTabs + 1; // +1 for welcome tab
 
             // Add hidden input for active tab
             const activeTabInput = document.createElement('input');
@@ -144,19 +154,30 @@
             form.appendChild(activeTabInput);
 
             function showTab(tabNumber) {
-                tabContents.forEach(content => content.classList.remove('active'));
-                tabBtns.forEach(btn => btn.classList.remove('active'));
-
-                const targetTab = document.querySelector(`.tab-content[data-tab="${tabNumber}"]`);
-                const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabNumber}"]`);
-                
-                if (targetTab && targetBtn) {
-                    targetTab.classList.add('active');
-                    targetBtn.classList.add('active');
-                    currentTab = parseInt(tabNumber);
-                    activeTabInput.value = currentTab; // Update hidden input value
-                    window.scrollTo(0, 0); // Scroll to top when changing tabs
+                // Transition animation
+                const currentTabContent = document.querySelector(`.tab-content[data-tab="${currentTab}"]`);
+                if (currentTabContent) {
+                    currentTabContent.style.animation = 'fadeOut 0.3s forwards';
                 }
+                
+                // Update tab visibility after animation
+                setTimeout(() => {
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    tabBtns.forEach(btn => btn.classList.remove('active'));
+
+                    const targetTab = document.querySelector(`.tab-content[data-tab="${tabNumber}"]`);
+                    const targetBtn = document.querySelector(`.tab-btn[data-tab="${tabNumber}"]`);
+                    
+                    if (targetTab && targetBtn) {
+                        targetTab.classList.add('active');
+                        targetBtn.classList.add('active');
+                        targetTab.style.animation = 'fadeIn 0.3s forwards';
+                        
+                        currentTab = parseInt(tabNumber);
+                        activeTabInput.value = currentTab; // Update hidden input value
+                        window.scrollTo(0, 0); // Scroll to top when changing tabs
+                    }
+                }, 300);
             }
 
             // Add click event listeners to tab buttons
@@ -170,31 +191,51 @@
             // Add click event listeners to navigation buttons
             nextBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    showTab(this.dataset.next);
+                    showTab(parseInt(this.dataset.next));
                 });
             });
 
             prevBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    showTab(this.dataset.prev);
+                    showTab(parseInt(this.dataset.prev));
                 });
             });
 
             // Add input event listeners to all form fields
-            const formFields = form.querySelectorAll('input[required], select[required]');
+            const formFields = form.querySelectorAll('input, select, textarea');
             formFields.forEach(field => {
+                // Remove invalid class on input
                 field.addEventListener('input', function() {
-                    validateForm();
+                    this.classList.remove('invalid-field');
                 });
 
                 field.addEventListener('change', function() {
-                    validateForm();
+                    this.classList.remove('invalid-field');
                 });
             });
 
             // Form submission handling
             window.handleSubmit = function(event) {
-                // Check if form was already submitted
+                // Validate required fields only on submit
+                const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('invalid-field');
+                    } else {
+                        field.classList.remove('invalid-field');
+                    }
+                });
+                
+                if (!isValid) {
+                    // Highlight invalid fields but still allow submission
+                    // No need to prevent submission here
+                    // Let the server handle validation and error messages
+                }
+                
+                // Check if form was already submitted to prevent double submission
                 if (form.getAttribute('data-submitted') === 'true') {
                     event.preventDefault();
                     return false;
@@ -222,26 +263,6 @@
 
             // Add reset event listener
             form.addEventListener('reset', resetFormState);
-
-            function validateForm() {
-                const requiredInputs = form.querySelectorAll('input[required], select[required]');
-                let isValid = true;
-
-                requiredInputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        isValid = false;
-                    }
-                });
-
-                if (submitBtn) {
-                    submitBtn.disabled = !isValid;
-                    if (isValid) {
-                        submitBtn.classList.remove('disabled-btn');
-                    } else {
-                        submitBtn.classList.add('disabled-btn');
-                    }
-                }
-            }
             
             // Handle success message display
             if (successFlag) {

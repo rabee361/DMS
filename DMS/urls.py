@@ -15,6 +15,7 @@ urlpatterns = [
     path('dms/tasks/', include('tasks.urls')),
     path('dms/hr/', include('hr_tool.urls')),
     path('dms/form-builder/', include('form_builder.urls')),
+    path('dms/finance/', include('finance.urls')),
     path('dms/stats/', include('stats.urls')),
     path('dms/404/', TemplateView.as_view(template_name='404.html'), name='404'),
     path('dms/500/', TemplateView.as_view(template_name='500.html'), name='500'),

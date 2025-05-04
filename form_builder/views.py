@@ -36,7 +36,6 @@ class FormDetailView(View):
         try:
             form = CustomForm.objects.get(id=pk)
             form_name = form.name
-            print(form_name)
             form_data = get_form(form_name)
             form_fields = get_form_fields(form_name)
             # Transform the raw data tuples into dictionaries
@@ -166,42 +165,38 @@ class CreateRecordView(View):
             return redirect('form_builder')
     
     def post(self, request, pk):
-        try:
-            custom_form = CustomForm.objects.get(id=pk)
-            form_name = custom_form.name
+        # try:
+        custom_form = CustomForm.objects.get(id=pk)
+        form_name = custom_form.name
+        
+        # Create dynamic form and validate data
+        DynamicForm = create_dynamic_form(form_name)
+        form = DynamicForm(request.POST)
+        
+        if form.is_valid():
+            # Extract validated data
+            cleaned_data = form.cleaned_data
             
-            # Create dynamic form and validate data
-            DynamicForm = create_dynamic_form(form_name)
-            form = DynamicForm(request.POST)
+            # Get fields and values for insertion
+            fields = list(cleaned_data.keys())
+            values = [cleaned_data[field] for field in fields]
             
-            if form.is_valid():
-                # Extract validated data
-                cleaned_data = form.cleaned_data
+            # Insert the record using our utility function
+            insert_record_with_fields(form_name, fields, values)
+            
+            return redirect('form_detail',pk)
+        else:
+            # If form is invalid, show errors
+            context = {
+                'form': form,
+                'form_name': form_name,
+                'form_id': pk
+            }
+            return render(request, 'form_builder/add_record.html', context)
                 
-                # Get fields and values for insertion
-                fields = list(cleaned_data.keys())
-                values = [cleaned_data[field] for field in fields]
-                
-                # Insert the record using our utility function
-                insert_record_with_fields(form_name, fields, values)
-                
-                return redirect('form_detail',pk)
-            else:
-                # If form is invalid, show errors
-                context = {
-                    'form': form,
-                    'form_name': form_name,
-                    'form_id': pk
-                }
-                return render(request, 'form_builder/add_record.html', context)
-                
-        except CustomForm.DoesNotExist:
-            return redirect('form_builder')
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'error': str(e)
-            })
+        # except CustomForm.DoesNotExist:
+        #     return redirect('form_builder')
+
 
 
 @method_decorator([login_required, delete_perm_decorator], name='dispatch')
@@ -226,12 +221,14 @@ class DeleteFormView(View):
         return render(request , 'form_builder/delete_form.html', {'form_name':form_name})
     
     def post(self,request,pk):
-        form = CustomForm.objects.get(id=pk)
-        form_name = form.name
-        delete_form(form_name)
-        form.delete()
-        return redirect('/dms/form-builder/')
-
+        try:
+            form = CustomForm.objects.get(id=pk)
+            form_name = form.name
+            delete_form(form_name)
+            form.delete()
+            return redirect('/dms/form-builder/')
+        except CustomForm.DoesNotExist:
+            return redirect('form_builder')
 
 @method_decorator([login_required, delete_perm_decorator], name='dispatch')
 class FormsActionView(View):

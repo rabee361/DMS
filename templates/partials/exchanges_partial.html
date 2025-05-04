@@ -1,0 +1,30 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+        <th>المعرف</th>
+        <th>العملة الأولى</th>
+        <th>العملة الثانية</th>
+        <th>السعر</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+<tbody>
+    {% for exchange in exchanges %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'exchange_profile' exchange.id %}">
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ exchange.id }}">
+        </td>
+        <td>{{ exchange.id }}</td>
+        <td>{{ exchange.first_currency.name }}</td>
+        <td>{{ exchange.second_currency.name }}</td>
+        <td>{{ exchange.price }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_exchange' exchange.id %}" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

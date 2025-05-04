@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'hr_tool',
     'finance',
     'stats',
+    'warehouses',
     'form_builder',
     'tasks',
     'silk',

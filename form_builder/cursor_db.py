@@ -18,7 +18,7 @@ def get_form_fields(form_name):
         form_id = cursor.fetchone()[0]
 
         # Get the column names using PRAGMA table_info
-        cursor.execute(f"PRAGMA table_info({form_name})")
+        cursor.execute(f"PRAGMA table_info(`{form_name}`)")
         columns = cursor.fetchall()
         print(columns)
         
@@ -35,7 +35,7 @@ def create_form_table(form_name):
         try:
             connection.set_autocommit(False)
             create_table_sql = f"""
-                CREATE TABLE {form_name} (
+                CREATE TABLE `{form_name}` (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
@@ -89,7 +89,7 @@ def add_fields_to_form(form_id, fields):
                 if field.get('required', False):
                     field_def += " NOT NULL"
 
-                alter_sql = f"ALTER TABLE {form_name} ADD COLUMN {field_def}"
+                alter_sql = f"ALTER TABLE `{form_name}` ADD COLUMN {field_def}"
                 cursor.execute(alter_sql)
 
             connection.commit()
@@ -108,7 +108,7 @@ def add_fields_to_form(form_id, fields):
 def get_form(form_name):
     with connection.cursor() as cursor:
         cursor.execute(
-            f"SELECT * FROM {form_name}"
+            f"SELECT * FROM `{form_name}`"
         )
         return cursor.fetchall()
 
@@ -117,7 +117,7 @@ def get_form(form_name):
 def delete_form(form_name):
     with connection.cursor() as cursor:
         cursor.execute(
-            f"DROP TABLE {form_name}"
+            f"DROP TABLE IF EXISTS `{form_name}`"
         )
 
 
@@ -134,7 +134,7 @@ def insert_record_with_fields(table_name, fields, values):
         fields_str = ', '.join(fields)
         placeholders = ', '.join(['%s'] * len(fields))
         
-        sql = f"INSERT INTO {table_name} ({fields_str}) VALUES ({placeholders})"
+        sql = f"INSERT INTO `{table_name}` ({fields_str}) VALUES ({placeholders})"
         cursor.execute(sql, values)
         
         return True
@@ -143,7 +143,7 @@ def insert_record_with_fields(table_name, fields, values):
 def add_record(form_name, records: list):
     with connection.cursor() as cursor:
         cursor.execute(
-            f"INSERT INTO {form_name} (record) VALUES (%s)",
+            f"INSERT INTO `{form_name}` (record) VALUES (%s)",
             records
         )
 
@@ -151,7 +151,7 @@ def add_record(form_name, records: list):
 def remove_record(form_name, record_id):
     with connection.cursor() as cursor:
         cursor.execute(
-            f"DELETE FROM {form_name} WHERE id = %s",
+            f"DELETE FROM `{form_name}` WHERE id = %s",
             [record_id]
         )
 
@@ -159,7 +159,7 @@ def remove_record(form_name, record_id):
 def update_record(form_name, record_id, record):
     with connection.cursor() as cursor:
         cursor.execute(
-            f"UPDATE {form_name} SET record = %s WHERE id = %s",
+            f"UPDATE `{form_name}` SET record = %s WHERE id = %s",
             [record, record_id]
         )
 

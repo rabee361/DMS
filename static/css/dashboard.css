@@ -220,7 +220,6 @@ body {
     margin-left: 0;
     padding-top: 60px;
   }
-  
   .sidebar {
     transform: translateX(-100%);
     padding-top: 60px;
@@ -2859,10 +2858,9 @@ input[type="checkbox"] {
 
 /* Add logo styles */
 .sidebar-logo {
-  padding: 1.5rem;
+  padding: 1rem;
   text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 1rem;
 }
 
 .logo-img {
