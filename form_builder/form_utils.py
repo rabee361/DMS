@@ -67,7 +67,6 @@ def create_dynamic_model_form(form_name, model_class):
     form_attrs = {
         'Meta': Meta,
     }
-    
     DynamicModelForm = type(
         f"{form_name.title().replace('_', '')}ModelForm",
         (forms.ModelForm,),

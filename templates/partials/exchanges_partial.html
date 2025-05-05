@@ -5,12 +5,13 @@
         <th>العملة الأولى</th>
         <th>العملة الثانية</th>
         <th>السعر</th>
+        <th>التاريخ</th>
         <th>الإجراءات</th>
     </tr>
 </thead>
 <tbody>
     {% for exchange in exchanges %}
-    <tr onclick="clickHandler(event)" data-link="{% url 'exchange_profile' exchange.id %}">
+    <tr onclick="clickHandler(event)" data-link="{% url 'exchange_info' exchange.id %}">
         <td onclick="event.stopPropagation();">
             <input type="checkbox" class="item-checkbox" value="{{ exchange.id }}">
         </td>
@@ -18,6 +19,7 @@
         <td>{{ exchange.first_currency.name }}</td>
         <td>{{ exchange.second_currency.name }}</td>
         <td>{{ exchange.price }}</td>
+        <td>{{ exchange.date }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">
                 <a href="{% url 'delete_exchange' exchange.id %}" class="delete-btn">

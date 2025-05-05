@@ -388,3 +388,127 @@ async function copyButtonHandler(e) {
       showSelectableUrl(url);
   }
 }
+
+// Function to toggle tree items
+function toggleTreeItem(element) {
+  // Toggle expanded class
+  element.classList.toggle('expanded');
+  
+  // Find the content element
+  const content = element.nextElementSibling;
+  
+  // Toggle display
+  if (content.style.display === 'block') {
+    content.style.display = 'none';
+    // Rotate toggle icon back
+    const toggleIcon = element.querySelector('.tree-toggle');
+    if (toggleIcon) {
+      toggleIcon.style.transform = 'rotate(0deg)';
+    }
+  } else {
+    content.style.display = 'block';
+    // Rotate toggle icon
+    const toggleIcon = element.querySelector('.tree-toggle');
+    if (toggleIcon) {
+      toggleIcon.style.transform = 'rotate(90deg)';
+    }
+  }
+}
+
+// Initialize employee data tree
+document.addEventListener('DOMContentLoaded', function() {
+  // First initialize the tree - ensure all content sections are hidden initially
+  const treeContents = document.querySelectorAll('.tree-content');
+  treeContents.forEach(content => {
+    content.style.display = 'none';
+  });
+
+  // Handle select all for tree items
+  const selectAll = document.getElementById('select-all');
+  if (selectAll) {
+    selectAll.addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('.item-checkbox');
+      checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+    });
+  }
+  
+  // Handle form submission to collect checked items
+  const actionForm = document.getElementById('actionForm');
+  if (actionForm) {
+    actionForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked');
+      const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.value);
+      
+      if (selectedIds.length === 0) {
+        alert('الرجاء اختيار عنصر واحد على الأقل');
+        return;
+      }
+      
+      const action = this.querySelector('select[name="action"]').value;
+      if (!action) {
+        alert('الرجاء اختيار إجراء');
+        return;
+      }
+      
+      if (action === 'delete' && !confirm('هل أنت متأكد من حذف العناصر المحددة؟')) {
+        return;
+      }
+      
+      document.getElementById('selectedItems').value = JSON.stringify(selectedIds);
+      this.submit();
+    });
+  }
+  
+  // Filter tree items on search input
+  const searchInput = document.querySelector('.search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const treeItems = document.querySelectorAll('.tree-item');
+      
+      treeItems.forEach(item => {
+        const employeeName = item.querySelector('.tree-name').textContent.toLowerCase();
+        if (employeeName.includes(searchTerm)) {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  }
+
+  // Initialize progress bars for employee details
+  const progressBars = document.querySelectorAll('.progress-bar');
+  if (progressBars.length > 0) {
+    progressBars.forEach(bar => {
+      const percentage = bar.getAttribute('data-percentage');
+      if (percentage) {
+        bar.style.width = percentage + '%';
+      }
+    });
+  }
+});
+
+// Calculate total deductions and additions for employee
+function calculateEmployeeBalance(employeeId) {
+  const employeeItem = document.querySelector(`.tree-item[data-id="${employeeId}"]`);
+  if (!employeeItem) return;
+  
+  const additions = Array.from(employeeItem.querySelectorAll('.addition-amount')).reduce((sum, el) => {
+    return sum + parseFloat(el.getAttribute('data-amount') || 0);
+  }, 0);
+  
+  const deductions = Array.from(employeeItem.querySelectorAll('.deduction-amount')).reduce((sum, el) => {
+    return sum + parseFloat(el.getAttribute('data-amount') || 0);
+  }, 0);
+  
+  const baseSalary = parseFloat(employeeItem.getAttribute('data-salary') || 0);
+  const netSalary = baseSalary + additions - deductions;
+  
+  const netSalaryElement = employeeItem.querySelector('.net-salary-value');
+  if (netSalaryElement) {
+    netSalaryElement.textContent = netSalary.toFixed(2);
+  }
+}

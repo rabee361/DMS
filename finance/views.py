@@ -4,6 +4,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import *
 from django.shortcuts import render, redirect
+from .forms import *
 from django.views import View
 import json
 
@@ -40,14 +41,14 @@ class ListCurrenciesView(ListView):
 @method_decorator(login_required, name='dispatch')
 class CreateCurrencyView(CreateView):
     model = Currency
-    fields = '__all__'
+    form_class = CurrencyForm
     template_name = 'finance/currencies/currency_form.html'
     success_url = reverse_lazy('currencies')
 
 @method_decorator(login_required, name='dispatch')
 class UpdateCurrencyView(UpdateView):
     model = Currency
-    fields = '__all__'
+    form_class = CurrencyForm
     template_name = 'finance/currencies/currency_form.html'
     success_url = reverse_lazy('currencies')
 
@@ -79,21 +80,10 @@ class ListExchangesView(ListView):
     context_object_name = 'exchanges'
     paginate_by = 10
 
-    def get_queryset(self):
-        queryset = super().get_queryset().select_related('first_currency', 'second_currency')
-        q = self.request.GET.get('q', None)
-        if q:
-            queryset = queryset.filter(
-                first_currency__name__icontains=q
-            ) | queryset.filter(
-                second_currency__name__icontains=q
-            )
-        return queryset
-
 @method_decorator(login_required, name='dispatch')
 class CreateExchangeView(CreateView):
     model = ExchangePrice
-    fields = ['first_currency', 'second_currency', 'price']
+    form_class = ExchangePriceForm
     template_name = 'finance/exchanges/exchange_form.html'
     success_url = reverse_lazy('exchanges')
 
@@ -106,7 +96,7 @@ class CreateExchangeView(CreateView):
 @method_decorator(login_required, name='dispatch')
 class UpdateExchangeView(UpdateView):
     model = ExchangePrice
-    fields = ['first_currency', 'second_currency', 'price']
+    form_class = ExchangePriceForm
     template_name = 'finance/exchanges/exchange_form.html'
     success_url = reverse_lazy('exchanges')
 
@@ -183,3 +173,33 @@ class AccountActionView(View):
             accounts.delete()
 
         return redirect('accounts')
+
+
+
+# ------------------ Salary Views ------------------
+
+@method_decorator(login_required, name='dispatch')
+class ListSalariesView(ListView):
+    model = SalaryBlock
+    template_name = 'finance/salaries/salaries.html'
+    context_object_name = 'salaries'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q = self.request.GET.get('q', None)
+        if q:
+            queryset = queryset.filter(name__icontains=q)
+        return queryset
+
+@method_decorator(login_required, name='dispatch')
+class CreateSalaryView(View):
+    def post(self, request):
+        pass
+
+
+@method_decorator(login_required, name='dispatch')
+class CalculateSalaryView(View):
+    def get(self, request):
+        return render(request, 'finance/salaries/salaries.html')
+

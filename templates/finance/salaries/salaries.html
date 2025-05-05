@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+
+{% block title %}قائمة الرواتب{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">رواتب الموظفين</h1>
+    <a href="#" class="btn btn-primary">إضافة +</a>
+</div>
+
+<style>
+    .tree-container {
+        margin: 20px 0;
+        direction: rtl;
+    }
+    .tree-controls {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+    .search-controls {
+        flex: 1;
+        margin-left: 15px;
+    }
+    .search-input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+    .action-select {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        margin-left: 10px;
+    }
+    .do-action-btn {
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .tree {
+        list-style: none;
+        padding: 0;
+    }
+    .tree-item {
+        border: 1px solid #e0e0e0;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .tree-item-header {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .tree-item-header:hover {
+        background-color: #e9ecef;
+    }
+    .tree-item-header.selected {
+        background-color: #e7f1ff;
+    }
+    .tree-checkbox {
+        margin-left: 15px;
+    }
+    .tree-id {
+        width: 80px;
+        font-weight: bold;
+    }
+    .tree-name {
+        flex: 1;
+    }
+    .tree-salary {
+        width: 120px;
+        text-align: center;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .tree-actions {
+        width: 80px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .delete-btn {
+        color: #dc3545;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    .tree-content {
+        padding: 15px;
+        display: none;
+        border-top: 1px solid #e0e0e0;
+        background-color: #f8f9fa;
+    }
+    .tree-toggle {
+        margin-left: 10px;
+        transition: transform 0.3s;
+    }
+    .expanded .tree-toggle {
+        transform: rotate(90deg);
+    }
+    .pagination-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+    }
+    .pagination li {
+        margin: 0 5px;
+    }
+    .page-link {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: #007bff;
+        text-decoration: none;
+    }
+    .page-link.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    
+    /* Additional styles for employee details */
+    .employee-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    .detail-section {
+        background: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .detail-section h4 {
+        margin-top: 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        color: #333;
+    }
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #eee;
+    }
+    .detail-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .detail-label {
+        color: #666;
+    }
+    .detail-value {
+        font-weight: bold;
+    }
+    .addition-amount {
+        color: #28a745;
+    }
+    .deduction-amount {
+        color: #dc3545;
+    }
+    .salary-summary {
+        background: #343a40;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .summary-item {
+        text-align: center;
+    }
+    .summary-label {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+    .summary-value {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .progress-container {
+        margin-top: 5px;
+        background: #e9ecef;
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #007bff, #00c6ff);
+        transition: width 0.5s ease;
+    }
+</style>
+
+<div class="tree-container">
+    <div class="tree-controls">
+        <form method="post" action="#" class="action-form" id="actionForm">
+            <!-- No csrf token needed for fake data -->
+            <div class="search-controls">
+                <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
+            </div>
+            <select name="action" class="action-select">
+                <option value="">اختر إجراء</option>
+                <option value="delete">حذف الموظفين المحددين</option>
+                <option value="export_excel">تصدير إلى إكسل</option>
+            </select>
+            <button type="submit" class="do-action-btn">تنفيذ الإجراء</button>
+            <input type="hidden" name="selected_items" id="selectedItems">
+        </form>
+    </div>
+
+    <ul class="tree" id="departmentsTree">
+        <!-- Employee 1 -->
+        <li class="tree-item" data-id="1" data-salary="5000">
+            <div class="tree-item-header" onclick="toggleTreeItem(this)">
+                <i class="bi bi-chevron-right tree-toggle"></i>
+                <input type="checkbox" class="item-checkbox tree-checkbox" value="1" onclick="event.stopPropagation();">
+                <span class="tree-id">1</span>
+                <span class="tree-name">أحمد محمد</span>
+                <span class="tree-salary">5,000 ريال</span>
+                <div class="tree-actions" onclick="event.stopPropagation();">
+                    <a href="#" class="delete-btn">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="tree-content">
+                <div class="employee-details">
+                    <div class="detail-section">
+                        <h4>الإضافات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">عمل إضافي</span>
+                            <span class="detail-value addition-amount" data-amount="500">+ 500 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">بدل انتقال</span>
+                            <span class="detail-value addition-amount" data-amount="200">+ 200 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">حافز أداء</span>
+                            <span class="detail-value addition-amount" data-amount="300">+ 300 ريال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>الخصومات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">غياب</span>
+                            <span class="detail-value deduction-amount" data-amount="150">- 150 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">قرض</span>
+                            <span class="detail-value deduction-amount" data-amount="500">- 500 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">تأخير</span>
+                            <span class="detail-value deduction-amount" data-amount="100">- 100 ريال</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="salary-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">الراتب الأساسي</div>
+                        <div class="summary-value">5,000 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الإضافات</div>
+                        <div class="summary-value">1,000 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الخصومات</div>
+                        <div class="summary-value">750 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الصافي</div>
+                        <div class="summary-value net-salary-value">5,250 ريال</div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        
+        <!-- Employee 2 -->
+        <li class="tree-item" data-id="2" data-salary="7500">
+            <div class="tree-item-header" onclick="toggleTreeItem(this)">
+                <i class="bi bi-chevron-right tree-toggle"></i>
+                <input type="checkbox" class="item-checkbox tree-checkbox" value="2" onclick="event.stopPropagation();">
+                <span class="tree-id">2</span>
+                <span class="tree-name">سارة عبدالله</span>
+                <span class="tree-salary">7,500 ريال</span>
+                <div class="tree-actions" onclick="event.stopPropagation();">
+                    <a href="#" class="delete-btn">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="tree-content">
+                <div class="employee-details">
+                    <div class="detail-section">
+                        <h4>الإضافات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">عمل إضافي</span>
+                            <span class="detail-value addition-amount" data-amount="800">+ 800 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">بدل سكن</span>
+                            <span class="detail-value addition-amount" data-amount="1500">+ 1,500 ريال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>الخصومات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">قرض</span>
+                            <span class="detail-value deduction-amount" data-amount="1000">- 1,000 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">تأمين صحي</span>
+                            <span class="detail-value deduction-amount" data-amount="500">- 500 ريال</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="salary-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">الراتب الأساسي</div>
+                        <div class="summary-value">7,500 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الإضافات</div>
+                        <div class="summary-value">2,300 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الخصومات</div>
+                        <div class="summary-value">1,500 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الصافي</div>
+                        <div class="summary-value net-salary-value">8,300 ريال</div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        
+        <!-- Employee 3 -->
+        <li class="tree-item" data-id="3" data-salary="8200">
+            <div class="tree-item-header" onclick="toggleTreeItem(this)">
+                <i class="bi bi-chevron-right tree-toggle"></i>
+                <input type="checkbox" class="item-checkbox tree-checkbox" value="3" onclick="event.stopPropagation();">
+                <span class="tree-id">3</span>
+                <span class="tree-name">محمد عبدالرحمن</span>
+                <span class="tree-salary">8,200 ريال</span>
+                <div class="tree-actions" onclick="event.stopPropagation();">
+                    <a href="#" class="delete-btn">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="tree-content">
+                <div class="employee-details">
+                    <div class="detail-section">
+                        <h4>الإضافات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">مكافأة شهرية</span>
+                            <span class="detail-value addition-amount" data-amount="1200">+ 1,200 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">بدل تقنية</span>
+                            <span class="detail-value addition-amount" data-amount="500">+ 500 ريال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>الخصومات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">تأمينات اجتماعية</span>
+                            <span class="detail-value deduction-amount" data-amount="820">- 820 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">إجازة بدون راتب</span>
+                            <span class="detail-value deduction-amount" data-amount="400">- 400 ريال</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="salary-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">الراتب الأساسي</div>
+                        <div class="summary-value">8,200 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الإضافات</div>
+                        <div class="summary-value">1,700 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الخصومات</div>
+                        <div class="summary-value">1,220 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الصافي</div>
+                        <div class="summary-value net-salary-value">8,680 ريال</div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        
+        <!-- Employee 4 -->
+        <li class="tree-item" data-id="4" data-salary="6200">
+            <div class="tree-item-header" onclick="toggleTreeItem(this)">
+                <i class="bi bi-chevron-right tree-toggle"></i>
+                <input type="checkbox" class="item-checkbox tree-checkbox" value="4" onclick="event.stopPropagation();">
+                <span class="tree-id">4</span>
+                <span class="tree-name">فاطمة علي</span>
+                <span class="tree-salary">6,200 ريال</span>
+                <div class="tree-actions" onclick="event.stopPropagation();">
+                    <a href="#" class="delete-btn">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="tree-content">
+                <div class="employee-details">
+                    <div class="detail-section">
+                        <h4>الإضافات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">بدل نقل</span>
+                            <span class="detail-value addition-amount" data-amount="400">+ 400 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">حافز مبيعات</span>
+                            <span class="detail-value addition-amount" data-amount="950">+ 950 ريال</span>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>الخصومات</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">تأخير</span>
+                            <span class="detail-value deduction-amount" data-amount="120">- 120 ريال</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">سلفة</span>
+                            <span class="detail-value deduction-amount" data-amount="1500">- 1,500 ريال</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="salary-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">الراتب الأساسي</div>
+                        <div class="summary-value">6,200 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الإضافات</div>
+                        <div class="summary-value">1,350 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الخصومات</div>
+                        <div class="summary-value">1,620 ريال</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">الصافي</div>
+                        <div class="summary-value net-salary-value">5,930 ريال</div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="pagination-container">
+        <ul class="pagination">
+            <!-- Fake pagination for demonstration -->
+            <li><a href="#" class="page-link">السابق</a></li>
+            <li><a href="#" class="page-link">1</a></li>
+            <li><a href="#" class="page-link active">2</a></li>
+            <li><a href="#" class="page-link">3</a></li>
+            <li><a href="#" class="page-link">التالي</a></li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
