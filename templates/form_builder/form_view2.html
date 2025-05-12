@@ -16,8 +16,12 @@
         <!-- Sidebar -->
         <div class="form-sidebar">
             <div class="sidebar-header">
+                {% if logo %}
+                <img src="{{ logo.url }}" alt="Logo" class="sidebar-logo">
+                {% else %}
                 <img src="{% static 'assets/img/alnoor2.png' %}" alt="Logo" class="sidebar-logo">
-                <h2 class="form-number">{{ form.id|default:"111" }}</h2>
+                {% endif %}
+                <h2 class="form-number">{{ form_id }}</h2>
             </div>
             <div class="sidebar-description">
                 <p>يرجى ملء هذه الاستمارة بالمعلومات المطلوبة</p>
@@ -31,17 +35,15 @@
                 </a>
                 
                 <!-- Create tab buttons dynamically -->
-                
                 {% for i in form_tab_count|range_filter %}
                     <a href="#" class="nav-item {% if active_tab == forloop.counter|add:1|stringformat:'s' %}active{% endif %}" data-tab="{{ forloop.counter|add:1 }}">
                         <span class="nav-number">{{ forloop.counter|add:1 }}</span>
                         <span class="nav-text">الصفحة {{ forloop.counter }}</span>
                     </a>
                 {% endfor %}
-
             </div>
             <div class="sidebar-footer">
-                <p>جميع الحقوق محفوظة &copy; {{ 'now'|date:'Y' }}</p>
+                <p>جميع الحقوق محفوظة &copy; {% now "Y" %}</p>
             </div>
         </div>
 
@@ -50,28 +52,37 @@
             <form class="modern-form" method="POST" id="registrationForm" onsubmit="return handleSubmit(event)">
                 {% csrf_token %}
                 <input type="hidden" name="form_id" value="{{ request.session.session_key }}_{% now "U" %}">
-                
-                <!-- Status messages -->
-                <div class="form-status">
-                    {% if success %}
-                        <div class="success-message" id="success-message">تم إرسال النموذج بنجاح!</div>
-                    {% elif form.errors %}
-                        <div class="error-message">يرجى التحقق من صحة البيانات المدخلة وإعادة المحاولة.</div>
-                    {% endif %}
-                </div>
+                <input type="hidden" id="success-flag" value="{% if success %}true{% else %}false{% endif %}">
+                <input type="hidden" id="fields-count" value="{{ form.fields_count }}">
 
                 <!-- Welcome tab content -->
                 <div class="tab-content {% if not active_tab or active_tab == '1' %}active{% endif %}" data-tab="1">
                     <div class="welcome-section">
-                        <h2>مرحباً بكم</h2>
-                        <div class="welcome-card">
-                            <p>يرجى تعبئة البيانات المطلوبة في النموذج</p>
-                            <h3>ملاحظات هامة:</h3>
-                            <ul class="important-notes">
-                                <li>يرجى تعبئة جميع الحقول المطلوبة</li>
-                                <li>تأكد من صحة المعلومات المدخلة</li>
-                            </ul>
-                            <button type="button" class="start-btn" data-next="2">ابدأ التسجيل</button>
+                        <!-- Success message container (hidden by default) -->
+                        <div id="success-message-container" class="success-message-container" style="display: none;">
+                            <div class="success-icon"></div>
+                            <h3>تم إرسال النموذج بنجاح!</h3>
+                            <p>شكراً لك على تقديم المعلومات. تم استلام البيانات بنجاح.</p>
+                        </div>
+                        
+                        <!-- Error message container -->
+                        {% if form.non_field_errors %}
+                        <div class="error-message-container">
+                            <h3>حدث خطأ أثناء معالجة النموذج</h3>
+                            <p>{{ form.non_field_errors }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Welcome text -->
+                        <div id="welcome-text" class="welcome-text">
+                            <h2>{{ welcome_text }}</h2>
+                            <div class="welcome-card">
+                                <ul class="important-notes">
+                                    <li>يرجى تعبئة جميع الحقول المطلوبة</li>
+                                    <li>تأكد من صحة المعلومات المدخلة</li>
+                                </ul>
+                                <button type="button" class="start-btn" data-next="2">ابدأ التسجيل</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -79,11 +90,11 @@
                 <!-- Form fields divided into tabs -->
                 {% with fields_list=form.visible_fields %}
                     {% for field in fields_list %}
-                        {% with tab_num=forloop.counter0|divisibleby:8|add:2 %}
+                        {% with tab_index=forloop.counter0|intdiv:8|add:2 %}
                             {% if forloop.counter0|divisibleby:8 %}
-                                <div class="tab-content {% if active_tab == tab_num|stringformat:'s' %}active{% endif %}" data-tab="{{ tab_num }}">
+                                <div class="tab-content {% if active_tab == tab_index|stringformat:'s' %}active{% endif %}" data-tab="{{ tab_index }}">
                                     <div class="form-page">
-                                        <h2 class="page-title">الصفحة {{ tab_num|add:-1 }}</h2>
+                                        <h2 class="page-title">الصفحة {{ forloop.counter0|intdiv:8|add:1 }}</h2>
                             {% endif %}
                             
                             <div class="form-field">
@@ -96,13 +107,17 @@
                             
                             {% if forloop.counter|divisibleby:8 or forloop.last %}
                                         <div class="form-navigation">
-                                            <button type="button" class="nav-btn prev-btn" data-prev="{{ tab_num|add:-1 }}">السابق</button>
+                                            <button type="button" class="nav-btn prev-btn" data-prev="{{ tab_index|add:-1 }}">السابق</button>
                                             
-                                            {% if forloop.last %}
-                                                <button type="submit" class="nav-btn submit-btn">إرسال</button>
-                                            {% else %}
-                                                <button type="button" class="nav-btn next-btn" data-next="{{ tab_num|add:1 }}">التالي</button>
-                                            {% endif %}
+                                            {% with data_tabs_needed=form.fields_count|add:7|intdiv:8 %}
+                                                {% with last_tab=data_tabs_needed|add:1 %}
+                                                    {% if tab_index == last_tab or forloop.last %}
+                                                        <button type="submit" class="nav-btn submit-btn">إرسال</button>
+                                                    {% else %}
+                                                        <button type="button" class="nav-btn next-btn" data-next="{{ tab_index|add:1 }}">التالي</button>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endwith %}
                                         </div>
                                     </div>
                                 </div>
@@ -123,7 +138,16 @@
             const prevBtns = document.querySelectorAll('[data-prev]');
             const startBtn = document.querySelector('.start-btn');
             const submitBtn = document.querySelector('button[type="submit"]');
+            const successMessage = document.getElementById('success-message-container');
+            const welcomeText = document.getElementById('welcome-text');
+            const successFlag = document.getElementById('success-flag').value === 'true';
+            const fieldsCount = parseInt(document.getElementById('fields-count').value);
             let currentTab = parseInt('{{ active_tab|default:1 }}');
+
+            // Calculate the total number of tabs (welcome tab + data tabs)
+            const fieldsPerTab = 8;
+            const dataTabs = Math.ceil(fieldsCount / fieldsPerTab);
+            const totalTabs = dataTabs + 1; // +1 for welcome tab
 
             // Add hidden input for active tab
             const activeTabInput = document.createElement('input');
@@ -133,19 +157,30 @@
             form.appendChild(activeTabInput);
 
             function showTab(tabNumber) {
-                tabContents.forEach(content => content.classList.remove('active'));
-                navItems.forEach(item => item.classList.remove('active'));
-
-                const targetTab = document.querySelector(`.tab-content[data-tab="${tabNumber}"]`);
-                const targetNav = document.querySelector(`.nav-item[data-tab="${tabNumber}"]`);
-                
-                if (targetTab && targetNav) {
-                    targetTab.classList.add('active');
-                    targetNav.classList.add('active');
-                    currentTab = parseInt(tabNumber);
-                    activeTabInput.value = currentTab;
-                    window.scrollTo(0, 0);
+                // Transition animation
+                const currentTabContent = document.querySelector(`.tab-content[data-tab="${currentTab}"]`);
+                if (currentTabContent) {
+                    currentTabContent.style.animation = 'fadeOut 0.3s forwards';
                 }
+                
+                // Update tab visibility after animation
+                setTimeout(() => {
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    navItems.forEach(item => item.classList.remove('active'));
+
+                    const targetTab = document.querySelector(`.tab-content[data-tab="${tabNumber}"]`);
+                    const targetNav = document.querySelector(`.nav-item[data-tab="${tabNumber}"]`);
+                    
+                    if (targetTab && targetNav) {
+                        targetTab.classList.add('active');
+                        targetNav.classList.add('active');
+                        targetTab.style.animation = 'fadeIn 0.3s forwards';
+                        
+                        currentTab = parseInt(tabNumber);
+                        activeTabInput.value = currentTab;
+                        window.scrollTo(0, 0);
+                    }
+                }, 300);
             }
 
             // Navigation events
@@ -157,47 +192,46 @@
                 });
             });
 
-            // Next button events
+            // Next/Previous button events
             nextBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    showTab(this.dataset.next);
+                    showTab(parseInt(this.dataset.next));
                 });
             });
 
-            // Previous button events
             prevBtns.forEach(btn => {
                 btn.addEventListener('click', function() {
-                    showTab(this.dataset.prev);
+                    showTab(parseInt(this.dataset.prev));
                 });
             });
 
-            // Start button event
-            if (startBtn) {
-                startBtn.addEventListener('click', function() {
-                    showTab(this.dataset.next);
-                });
-            }
-
-            // Form validation
-            const formFields = form.querySelectorAll('input[required], select[required]');
+            // Add input event listeners to all form fields
+            const formFields = form.querySelectorAll('input, select, textarea');
             formFields.forEach(field => {
-                field.addEventListener('input', validateForm);
-                field.addEventListener('change', validateForm);
-            });
+                field.addEventListener('input', function() {
+                    this.classList.remove('invalid-field');
+                });
 
-            // Success message auto-hide
-            const successMessage = document.getElementById('success-message');
-            if (successMessage) {
-                setTimeout(function() {
-                    successMessage.style.opacity = '0';
-                    setTimeout(function() {
-                        successMessage.style.display = 'none';
-                    }, 300);
-                }, 8000);
-            }
+                field.addEventListener('change', function() {
+                    this.classList.remove('invalid-field');
+                });
+            });
 
             // Form submission handling
             window.handleSubmit = function(event) {
+                // Validate required fields only on submit
+                const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('invalid-field');
+                    } else {
+                        field.classList.remove('invalid-field');
+                    }
+                });
+                
                 // Check if form was already submitted
                 if (form.getAttribute('data-submitted') === 'true') {
                     event.preventDefault();
@@ -215,33 +249,40 @@
             };
 
             // Reset form submission state
-            form.addEventListener('reset', function() {
+            const resetFormState = function() {
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.classList.remove('disabled');
                     submitBtn.textContent = 'إرسال';
                 }
                 form.removeAttribute('data-submitted');
-            });
+            };
 
-            function validateForm() {
-                const requiredInputs = form.querySelectorAll('input[required], select[required]');
-                let isValid = true;
+            // Add reset event listener
+            form.addEventListener('reset', resetFormState);
 
-                requiredInputs.forEach(input => {
-                    if (!input.value.trim()) {
-                        isValid = false;
-                    }
-                });
-
-                if (submitBtn) {
-                    submitBtn.disabled = !isValid;
-                    submitBtn.classList.toggle('disabled', !isValid);
+            // Handle success message display
+            if (successFlag) {
+                // Show success message and hide welcome text
+                if (successMessage && welcomeText) {
+                    welcomeText.style.display = 'none';
+                    successMessage.style.display = 'block';
+                    
+                    // After 8 seconds, hide success message and show welcome text
+                    setTimeout(function() {
+                        successMessage.style.animation = 'fadeOut 0.5s ease-in-out forwards';
+                        
+                        setTimeout(function() {
+                            successMessage.style.display = 'none';
+                            welcomeText.style.display = 'block';
+                            welcomeText.style.animation = 'fadeIn 0.5s ease-in-out';
+                        }, 500);
+                    }, 8000);
                 }
+                
+                // Ensure we're on the first tab
+                showTab(1);
             }
-
-            // Initialize validation on page load
-            validateForm();
         });
     </script>
 </body>

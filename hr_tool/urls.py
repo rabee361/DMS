@@ -18,6 +18,13 @@ urlpatterns = [
     path('holidays/<str:pk>' , views.UpdateHolidayView.as_view() , name="holiday_info"),
     path('holidays/<str:pk>/delete' , views.DeleteHolidayView.as_view() , name="delete_holiday"),
 
+    # extra work
+    path('extras/' , views.ListExtraWorkView.as_view() , name="extras"),
+    path('extras/action' , views.ExtraWorkActionView.as_view() , name="extras_action"),
+    path('extras/add' , views.CreateExtraWorkView.as_view() , name="create_extra"),
+    path('extras/<str:pk>' , views.UpdateExtraWorkView.as_view() , name="extra_info"),
+    path('extras/<str:pk>/delete' , views.DeleteExtraWorkView.as_view() , name="delete_extra"),
+
     # employee's absences with/without reason by admin
     path('absences/' , views.ListAbsenceView.as_view() , name="absences_list"),
     path('absences/action/' , views.AbsenceActionView.as_view() , name="absences_action"),
@@ -38,6 +45,13 @@ urlpatterns = [
     path('goals/<str:pk>' , views.GoalDetailView.as_view() , name="goal_info"),
     path('goals/add' , views.CreateGoalView.as_view() , name="create_goal"),
     path('goals/<str:pk>/delete' , views.DeleteGoalView.as_view() , name="delete_goal"),
+
+    # Development Tracking
+    path('additions_discounts/' , views.ListAdditionsDiscountsView.as_view() , name="additions_discounts"),
+    path('additions_discounts/action' , views.AdditionsDiscountsActionView.as_view() , name="additions_discounts_action"),
+    path('additions_discounts/add' , views.CreateAdditionDiscountView.as_view() , name="create_addition_discount"),
+    path('additions_discounts/<str:pk>' , views.AdditionDiscountDetailView.as_view() , name="addition_discount_info"),
+    path('additions_discounts/<str:pk>/delete' , views.DeleteAdditionDiscountView.as_view() , name="delete_addition_discount"),
 
     path('skills/' , views.ListSkillsView.as_view() , name="skills_list"),
     path('skills/action' , views.SkillsActionView.as_view() , name="skills_action"),

@@ -31,14 +31,7 @@
                             <div class="form-error">{{ form.email.errors }}</div>
                         {% endif %}
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.upload_limit.id_for_label }}">حد التحميل</label>
-                        {{ form.upload_limit }}
-                        {% if form.upload_limit.errors %}
-                            <div class="form-error">{{ form.upload_limit.errors }}</div>
-                        {% endif %}
-                    </div>
+
                 </div>
 
                 <div class="form-row">
@@ -63,6 +56,14 @@
                         {% endif %}
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="{{ form.upload_limit.id_for_label }}">حد التحميل</label>
+                    {{ form.upload_limit }}
+                    {% if form.upload_limit.errors %}
+                        <div class="form-error">{{ form.upload_limit.errors }}</div>
+                    {% endif %}
+                </div>
+
             </div>
 
             <div class="form-section">
@@ -107,6 +108,13 @@
                             <div class="form-error">{{ form.start_date.errors }}</div>
                         {% endif %}
                     </div>
+                    <div class="form-group">
+                        <label for="{{ form.base_salary.id_for_label }}">الراتب الأساسي</label>
+                        {{ form.base_salary }}
+                        {% if form.base_salary.errors %}
+                            <div class="form-error">{{ form.base_salary.errors }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
             </div>
@@ -133,7 +141,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">إنشاء موظف</button>
+                <button type="submit" class="btn btn-primary">حفظ</button>
                 <a href="{% url 'employee_list' %}" class="btn btn-secondary">
                     إلغاء
                 </a>

@@ -1,36 +1,25 @@
 {% extends 'base.html' %}
 
-{% block title %}طلب إجازة جديد{% endblock %}
+{% block title %} عمل إضافي جديد{% endblock %}
 
 {% block content %}
 <div class="form-container">
     <div class="styled-form">
         <div class="form-header">
-            <h2>إنشاء طلب إجازة</h2>
-            <p class="form-subtitle">تقديم طلب إجازة جديد</p>
+            <h2>إنشاء عمل إضافي</h2>
+            <p class="form-subtitle">تقديم عمل إضافي جديد</p>
         </div>
 
         <form method="post" class="user-profile-form">
             {% csrf_token %}
             
             <div class="form-section">
-                <h3 class="section-title">تفاصيل الإجازة</h3>
+                <h3 class="section-title">تفاصيل العمل الإضافي</h3>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="{{ form.employee.id_for_label }}">الموظف</label>
                         {{ form.employee }}
-                    </div>
-                    <div class="form-group">
-                        <label for="{{ form.days.id_for_label }}">الأيام</label>
-                        {{ form.days }}
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="hours">الساعات</label>
-                        <input type="number" id="hours" class="form-control" value="{{ hours }}">
                     </div>
                     <div class="form-group">
                         <label for="{{ form.start.id_for_label }}">تاريخ البدء</label>
@@ -40,19 +29,38 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="{{ form.accepted.id_for_label }}">مقبول</label>
-                        {{ form.accepted }}
+                        <label for="hours">الساعات</label>
+                        <input type="number" id="hours" class="form-control" value="{{ hours }}">
                     </div>
                     <div class="form-group">
-                        <label for="{{ form.paid.id_for_label }}">مدفوعة</label>
-                        {{ form.paid }}
+                        <label for="{{ form.days.id_for_label }}">الأيام</label>
+                        {{ form.days }}
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.value_per_hour.id_for_label }}">قيمة الساعة</label>
+                        {{ form.value_per_hour }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.currency.id_for_label }}">العملة</label>
+                        {{ form.currency }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.notes.id_for_label }}">الملاحظات</label>
+                        {{ form.notes }}
+                    </div>
+                </div>
+
             </div>
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">حفظ</button>
-                <a href="{% url 'holidays_list' %}" class="btn btn-secondary">
+                <a href="{% url 'extras' %}" class="btn btn-secondary">
                     إلغاء
                 </a>
             </div>
@@ -64,7 +72,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const employeeSelect = document.getElementById('{{ form.employee.id_for_label }}');
     const daysInput = document.getElementById('{{ form.days.id_for_label }}');
-    const hoursInput = document.getElementById('hours');
+    const hoursInput = document.getElementById('{{ form.hours.id_for_label }}');
     let workHoursPerDay = 0;
     let calculating = false;
     

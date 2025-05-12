@@ -3,10 +3,6 @@
 {% block title %}قائمة الرواتب{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1 class="h2">رواتب الموظفين</h1>
-    <a href="#" class="btn btn-primary">إضافة +</a>
-</div>
 
 <style>
     .tree-container {
@@ -18,6 +14,40 @@
         justify-content: space-between;
         margin-bottom: 15px;
         align-items: center;
+    }
+    .date-range-form {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 15px;
+    }
+    .date-input-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 200px;
+    }
+    .date-label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .date-input {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+    .calculate-btn {
+        padding: 8px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        height: 38px;
+        margin-top: auto;
+    }
+    .calculate-btn:hover {
+        background-color: #218838;
     }
     .search-controls {
         flex: 1;
@@ -212,288 +242,187 @@
 
 <div class="tree-container">
     <div class="tree-controls">
-        <form method="post" action="#" class="action-form" id="actionForm">
-            <!-- No csrf token needed for fake data -->
-            <div class="search-controls">
-                <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
+        <form class="date-range-form" id="salaryCalculationForm" hx-post="{% url 'salaries' %}" hx-target="#departmentsTree" hx-indicator=".htmx-indicator">
+            {% csrf_token %}
+            <div class="date-input-group">
+                <label for="start_date" class="date-label">تاريخ البداية</label>
+                <input type="date" id="start_date" name="start_date" class="date-input" required>
             </div>
-            <select name="action" class="action-select">
-                <option value="">اختر إجراء</option>
-                <option value="delete">حذف الموظفين المحددين</option>
-                <option value="export_excel">تصدير إلى إكسل</option>
-            </select>
-            <button type="submit" class="do-action-btn">تنفيذ الإجراء</button>
-            <input type="hidden" name="selected_items" id="selectedItems">
+            <div class="date-input-group">
+                <label for="end_date" class="date-label">تاريخ النهاية</label>
+                <input type="date" id="end_date" name="end_date" class="date-input" required>
+            </div>
+            <button type="submit" class="calculate-btn">
+                <i class="bi bi-calculator"></i> حساب الرواتب
+            </button>
+            <div class="htmx-indicator" style="display: none;">جاري الحساب...</div>
         </form>
     </div>
 
     <ul class="tree" id="departmentsTree">
-        <!-- Employee 1 -->
-        <li class="tree-item" data-id="1" data-salary="5000">
-            <div class="tree-item-header" onclick="toggleTreeItem(this)">
-                <i class="bi bi-chevron-right tree-toggle"></i>
-                <input type="checkbox" class="item-checkbox tree-checkbox" value="1" onclick="event.stopPropagation();">
-                <span class="tree-id">1</span>
-                <span class="tree-name">أحمد محمد</span>
-                <span class="tree-salary">5,000 ريال</span>
-                <div class="tree-actions" onclick="event.stopPropagation();">
-                    <a href="#" class="delete-btn">
-                        <i class="bi bi-trash"></i>
-                    </a>
+        {% for data in employee_data %}
+            {% with employee=data.employee additions_discounts=data.additions_discounts absences=data.absences holidays=data.holidays extras=data.extras %}
+            <li class="tree-item" data-id="{{ employee.id }}" data-salary="{{ employee.base_salary|floatformat:0 }}">
+                <div class="tree-item-header" onclick="toggleTreeItem(this)">
+                    <i class="bi bi-chevron-right tree-toggle"></i>
+                    <input type="checkbox" class="item-checkbox tree-checkbox" value="{{ employee.id }}" onclick="event.stopPropagation();">
+                    <span class="tree-id">{{ employee.id }}</span>
+                    <span class="tree-name">{{ employee.get_full_name|default:employee.username }}</span>
+                    <span class="tree-salary">
+                        {{ employee.base_salary|floatformat:0 }} 
+                        {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                    </span>
                 </div>
-            </div>
-            <div class="tree-content">
-                <div class="employee-details">
-                    <div class="detail-section">
-                        <h4>الإضافات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">عمل إضافي</span>
-                            <span class="detail-value addition-amount" data-amount="500">+ 500 ريال</span>
+                <div class="tree-content">
+                    <div class="employee-details">
+                        <div class="detail-section">
+                            <h4>الإضافات</h4>
+                            {% for extra in extras %}
+                                <div class="detail-item">
+                                    <span class="detail-label">عمل إضافي ({{ extra.start }})</span>
+                                    <span class="detail-value addition-amount" data-amount="{{ extra.value|floatformat:2 }}">
+                                        + {{ extra.value|floatformat:2 }} 
+                                        {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                    </span>
+                                </div>
+                            {% empty %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد عمل إضافي</span></div>
+                            {% endfor %}
+                            {% for ad in additions_discounts %}
+                                {% if ad.type == "ADDITION" %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">{{ ad.get_type_display }}</span>
+                                        <span class="detail-value addition-amount" data-amount="{{ ad.value|floatformat:2 }}">
+                                            + {{ ad.value|floatformat:2 }} 
+                                            {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">بدل انتقال</span>
-                            <span class="detail-value addition-amount" data-amount="200">+ 200 ريال</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">حافز أداء</span>
-                            <span class="detail-value addition-amount" data-amount="300">+ 300 ريال</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-section">
-                        <h4>الخصومات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">غياب</span>
-                            <span class="detail-value deduction-amount" data-amount="150">- 150 ريال</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">قرض</span>
-                            <span class="detail-value deduction-amount" data-amount="500">- 500 ريال</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">تأخير</span>
-                            <span class="detail-value deduction-amount" data-amount="100">- 100 ريال</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="salary-summary">
-                    <div class="summary-item">
-                        <div class="summary-label">الراتب الأساسي</div>
-                        <div class="summary-value">5,000 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الإضافات</div>
-                        <div class="summary-value">1,000 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الخصومات</div>
-                        <div class="summary-value">750 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الصافي</div>
-                        <div class="summary-value net-salary-value">5,250 ريال</div>
-                    </div>
-                </div>
-            </div>
-        </li>
-        
-        <!-- Employee 2 -->
-        <li class="tree-item" data-id="2" data-salary="7500">
-            <div class="tree-item-header" onclick="toggleTreeItem(this)">
-                <i class="bi bi-chevron-right tree-toggle"></i>
-                <input type="checkbox" class="item-checkbox tree-checkbox" value="2" onclick="event.stopPropagation();">
-                <span class="tree-id">2</span>
-                <span class="tree-name">سارة عبدالله</span>
-                <span class="tree-salary">7,500 ريال</span>
-                <div class="tree-actions" onclick="event.stopPropagation();">
-                    <a href="#" class="delete-btn">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="tree-content">
-                <div class="employee-details">
-                    <div class="detail-section">
-                        <h4>الإضافات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">عمل إضافي</span>
-                            <span class="detail-value addition-amount" data-amount="800">+ 800 ريال</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">بدل سكن</span>
-                            <span class="detail-value addition-amount" data-amount="1500">+ 1,500 ريال</span>
+                        <div class="detail-section">
+                            <h4>الخصومات</h4>
+                            {% if absences %}
+                                {% for absence in absences %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">غياب ({{ absence.start }} - {{ absence.end }})</span>
+                                        <span class="detail-value deduction-amount" data-amount="0">
+                                            <!-- حساب الخصم بناءً على الغياب يمكن إضافته هنا -->
+                                        </span>
+                                    </div>
+                                    {% endfor %}
+                            {% else %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد غياب</span></div>
+                            {% endif %}
+                            {% for holiday in holidays %}
+                                {% if not holiday.paid %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">إجازة غير مدفوعة ({{ holiday.start }})</span>
+                                        <span class="detail-value deduction-amount" data-amount="0">
+                                            <!-- حساب الخصم بناءً على الإجازة غير المدفوعة يمكن إضافته هنا -->
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    <div class="detail-item"><span class="detail-label">لا يوجد إجازة غير مدفوعة</span></div>
+                                {% endif %}
+                            {% endfor %}
+                            {% for ad in additions_discounts %}
+                                {% if ad.type == "DISCOUNT" %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">{{ ad.get_type_display }}</span>
+                                        <span class="detail-value deduction-amount" data-amount="{{ ad.value|floatformat:2 }}">
+                                            - {{ ad.value|floatformat:2 }} 
+                                            {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
-                    
-                    <div class="detail-section">
-                        <h4>الخصومات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">قرض</span>
-                            <span class="detail-value deduction-amount" data-amount="1000">- 1,000 ريال</span>
+                    <div class="salary-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">الراتب الأساسي</div>
+                            <div class="summary-value">
+                                {{ employee.base_salary|floatformat:2 }} 
+                                {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">تأمين صحي</span>
-                            <span class="detail-value deduction-amount" data-amount="500">- 500 ريال</span>
+                        <div class="summary-item">
+                            <div class="summary-label">الإضافات</div>
+                            <div class="summary-value">
+                                {# مجموع الإضافات #}
+                                {% with total_add=0 %}
+                                    {% for extra in extras %}
+                                        {% widthratio extra.days 1 extra.value_per_hour as extra_total %}
+                                        {% with total_add=total_add|add:extra_total %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                    {% for ad in additions_discounts %}
+                                        {% if ad.type == "ADDITION" %}
+                                            {% with total_add=total_add|add:ad.value %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ total_add|floatformat:2 }} 
+                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                {% endwith %}
+                            </div>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="salary-summary">
-                    <div class="summary-item">
-                        <div class="summary-label">الراتب الأساسي</div>
-                        <div class="summary-value">7,500 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الإضافات</div>
-                        <div class="summary-value">2,300 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الخصومات</div>
-                        <div class="summary-value">1,500 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الصافي</div>
-                        <div class="summary-value net-salary-value">8,300 ريال</div>
-                    </div>
-                </div>
-            </div>
-        </li>
-        
-        <!-- Employee 3 -->
-        <li class="tree-item" data-id="3" data-salary="8200">
-            <div class="tree-item-header" onclick="toggleTreeItem(this)">
-                <i class="bi bi-chevron-right tree-toggle"></i>
-                <input type="checkbox" class="item-checkbox tree-checkbox" value="3" onclick="event.stopPropagation();">
-                <span class="tree-id">3</span>
-                <span class="tree-name">محمد عبدالرحمن</span>
-                <span class="tree-salary">8,200 ريال</span>
-                <div class="tree-actions" onclick="event.stopPropagation();">
-                    <a href="#" class="delete-btn">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="tree-content">
-                <div class="employee-details">
-                    <div class="detail-section">
-                        <h4>الإضافات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">مكافأة شهرية</span>
-                            <span class="detail-value addition-amount" data-amount="1200">+ 1,200 ريال</span>
+                        <div class="summary-item">
+                            <div class="summary-label">الخصومات</div>
+                            <div class="summary-value">
+                                {# مجموع الخصومات #}
+                                {% with total_deduct=0 %}
+                                    {% for ad in additions_discounts %}
+                                        {% if ad.type == "DISCOUNT" %}
+                                            {% with total_deduct=total_deduct|add:ad.value %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ total_deduct|floatformat:2 }} 
+                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                {% endwith %}
+                            </div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">بدل تقنية</span>
-                            <span class="detail-value addition-amount" data-amount="500">+ 500 ريال</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-section">
-                        <h4>الخصومات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">تأمينات اجتماعية</span>
-                            <span class="detail-value deduction-amount" data-amount="820">- 820 ريال</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">إجازة بدون راتب</span>
-                            <span class="detail-value deduction-amount" data-amount="400">- 400 ريال</span>
+                        <div class="summary-item">
+                            <div class="summary-label">الصافي</div>
+                            <div class="summary-value net-salary-value">
+                                {# الصافي = الراتب الأساسي + الإضافات - الخصومات #}
+                                {% with total_add=0 total_deduct=0 %}
+                                    {% for extra in extras %}
+                                        {% widthratio extra.days 1 extra.value_per_hour as extra_total %}
+                                        {% with total_add=total_add|add:extra_total %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                    {% for ad in additions_discounts %}
+                                        {% if ad.type == "ADDITION" %}
+                                            {% with total_add=total_add|add:ad.value %}
+                                            {% endwith %}
+                                        {% elif ad.type == "DISCOUNT" %}
+                                            {% with total_deduct=total_deduct|add:ad.value %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ employee.base_salary|add:total_add|floatformat:2|add:"-"|add:total_deduct|floatformat:2 }} 
+                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                {% endwith %}
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="salary-summary">
-                    <div class="summary-item">
-                        <div class="summary-label">الراتب الأساسي</div>
-                        <div class="summary-value">8,200 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الإضافات</div>
-                        <div class="summary-value">1,700 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الخصومات</div>
-                        <div class="summary-value">1,220 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الصافي</div>
-                        <div class="summary-value net-salary-value">8,680 ريال</div>
-                    </div>
-                </div>
-            </div>
-        </li>
-        
-        <!-- Employee 4 -->
-        <li class="tree-item" data-id="4" data-salary="6200">
-            <div class="tree-item-header" onclick="toggleTreeItem(this)">
-                <i class="bi bi-chevron-right tree-toggle"></i>
-                <input type="checkbox" class="item-checkbox tree-checkbox" value="4" onclick="event.stopPropagation();">
-                <span class="tree-id">4</span>
-                <span class="tree-name">فاطمة علي</span>
-                <span class="tree-salary">6,200 ريال</span>
-                <div class="tree-actions" onclick="event.stopPropagation();">
-                    <a href="#" class="delete-btn">
-                        <i class="bi bi-trash"></i>
-                    </a>
-                </div>
-            </div>
-            <div class="tree-content">
-                <div class="employee-details">
-                    <div class="detail-section">
-                        <h4>الإضافات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">بدل نقل</span>
-                            <span class="detail-value addition-amount" data-amount="400">+ 400 ريال</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">حافز مبيعات</span>
-                            <span class="detail-value addition-amount" data-amount="950">+ 950 ريال</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-section">
-                        <h4>الخصومات</h4>
-                        <div class="detail-item">
-                            <span class="detail-label">تأخير</span>
-                            <span class="detail-value deduction-amount" data-amount="120">- 120 ريال</span>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">سلفة</span>
-                            <span class="detail-value deduction-amount" data-amount="1500">- 1,500 ريال</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="salary-summary">
-                    <div class="summary-item">
-                        <div class="summary-label">الراتب الأساسي</div>
-                        <div class="summary-value">6,200 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الإضافات</div>
-                        <div class="summary-value">1,350 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الخصومات</div>
-                        <div class="summary-value">1,620 ريال</div>
-                    </div>
-                    <div class="summary-item">
-                        <div class="summary-label">الصافي</div>
-                        <div class="summary-value net-salary-value">5,930 ريال</div>
-                    </div>
-                </div>
-            </div>
-        </li>
+            </li>
+            {% endwith %}
+        {% endfor %}
     </ul>
 
-    <div class="pagination-container">
+    <!-- <div class="pagination-container">
         <ul class="pagination">
-            <!-- Fake pagination for demonstration -->
             <li><a href="#" class="page-link">السابق</a></li>
             <li><a href="#" class="page-link">1</a></li>
             <li><a href="#" class="page-link active">2</a></li>
             <li><a href="#" class="page-link">3</a></li>
             <li><a href="#" class="page-link">التالي</a></li>
         </ul>
-    </div>
+    </div> -->
 </div>
 {% endblock %}

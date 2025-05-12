@@ -2,6 +2,7 @@
 from typing import Any
 import json
 from django.db.models.query import QuerySet
+from django.forms import BaseModelForm
 from django.shortcuts import render, redirect
 from django.views import View
 from .models import *
@@ -30,7 +31,9 @@ class MainHR(View):
     def get(self, request):
         total_holidays = Holiday.objects.count()
         total_absences = Absence.objects.count()
+        total_additions_discounts = AdditionDiscount.objects.count()
         total_employees = Employee.objects.count()
+        total_extras = ExtraWork.objects.count()
         active_employees = Employee.objects.filter(is_active=True).count()
         approved_holidays = Holiday.objects.filter(accepted=True).count()
         total_recruiters = Recruitment.objects.count()
@@ -41,6 +44,8 @@ class MainHR(View):
         return render(request, 'hr_tool/HR.html', {
             'total_holidays': total_holidays,
             'total_absences': total_absences,
+            'total_additions_discounts': total_additions_discounts,
+            'total_extras': total_extras,
             'total_employees': total_employees,
             'active_employees': active_employees,
             'approved_holidays': approved_holidays,
@@ -96,6 +101,11 @@ class UpdateEmployeeView(UpdateView):
     template_name = 'hr_tool/employee/employee_profile.html'
     form_class = EmployeeUpdateForm
     success_url = reverse_lazy('employee_list')
+
+    def form_invalid(self, form: BaseModelForm) -> HttpResponse:
+        print(form.errors)
+        print("VVVVVVVVVVVVVVVVVVVV")
+        return super().form_invalid(form)
 
     # add extra data for each employee in the context
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
@@ -220,11 +230,54 @@ class DeleteHolidayView(DeleteView):
     success_url = reverse_lazy('holidays_list')
 
 
+
+
+@method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
+class ListExtraWorkView(ListView):
+    model = ExtraWork
+    template_name = 'hr_tool/extra/extras.html'
+    context_object_name = 'extras'
+    paginate_by = 10
+
+@method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
+class CreateExtraWorkView(CreateView):
+    model = ExtraWork
+    form_class = ExtraWorkForm
+    template_name = 'hr_tool/extra/extra_form.html'
+    success_url = reverse_lazy('extras')
+
+@method_decorator([login_required, user_passes_test(hr_criteria_edit_perm)], name='dispatch')
+class UpdateExtraWorkView(UpdateView):
+    model = ExtraWork
+    form_class = ExtraWorkForm
+    template_name = 'hr_tool/extra/extra_form.html'
+    success_url = reverse_lazy('extras')
+
+@method_decorator([login_required, user_passes_test(hr_criteria_delete_perm)], name='dispatch')
+class DeleteExtraWorkView(DeleteView):
+    model = ExtraWork
+    template_name = 'hr_tool/extra/delete_extra.html'
+    success_url = reverse_lazy('extras')
+
+@method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
+class ExtraWorkActionView(View):
+    def post(self, request):
+        selected_items = json.loads(request.POST.get('selected_ids', '[]'))
+        extra_works = ExtraWork.objects.filter(id__in=selected_items)
+
+        if request.POST.get('action') == 'delete':
+            extra_works.delete()
+
+        return redirect('extras')
+
+
+
+
 @method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
 class CreateAbsenceView(CreateView):
     model = Absence
     form_class = AbsenceForm
-    template_name = 'hr_tool/absence/create_absence.html'
+    template_name = 'hr_tool/absence/absence_form.html'
     success_url = reverse_lazy('absences_list')
 
 
@@ -267,12 +320,12 @@ class AbsenceActionView(View):
 
         return redirect('absences_list')
 
-
+0
 @method_decorator([login_required, user_passes_test(hr_criteria_edit_perm)], name='dispatch')
 class UpdateAbsenceView(UpdateView):
     model = Absence
     form_class = AbsenceForm
-    template_name = 'hr_tool/absence/absence_info.html'
+    template_name = 'hr_tool/absence/absence_form.html'
     success_url = reverse_lazy('absences_list')
     context_object_name = 'absence'
 
@@ -398,6 +451,44 @@ class GoalsActionView(View):
         if request.POST.get('action') == 'delete':
             goals.delete()
         return redirect('goals_list')
+
+
+
+class ListAdditionsDiscountsView(ListView):
+    model = AdditionDiscount
+    template_name = 'hr_tool/addition_discount/additions_discounts.html'
+    context_object_name = 'additions_discounts'
+    paginate_by = 10
+
+
+class CreateAdditionDiscountView(CreateView):
+    model = AdditionDiscount
+    form_class = AdditionDiscountForm
+    template_name = 'hr_tool/addition_discount/addition_discount_form.html'
+    success_url = reverse_lazy('additions_discounts')
+
+
+class AdditionDiscountDetailView(UpdateView):
+    model = AdditionDiscount
+    form_class = AdditionDiscountForm
+    template_name = 'hr_tool/addition_discount/addition_discount_form.html'
+    success_url = reverse_lazy('additions_discounts')
+
+
+class DeleteAdditionDiscountView(DeleteView):
+    model = AdditionDiscount
+    template_name = 'hr_tool/addition_discount/delete_addition_discount.html'
+    success_url = reverse_lazy('additions_discounts')
+
+
+class AdditionsDiscountsActionView(View):
+    def post(self, request):
+        selected_items = json.loads(request.POST.get('selected_ids'))
+        additions = AdditionDiscount.objects.filter(id__in=selected_items)
+        if request.POST.get('action') == 'delete':
+            additions.delete()
+        return redirect('additions_discounts')
+
 
 
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')

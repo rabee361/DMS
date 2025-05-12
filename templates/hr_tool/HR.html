@@ -114,43 +114,21 @@
         </div>
     </div>
 
-    <!-- Salary Management Card -->
+    <!-- Extra Work Management Card -->
     <div class="dashboard-card">
         <div class="card-icon">
-            <i class="bi bi-cash-stack"></i>
+            <i class="bi bi-clock-history"></i>
         </div>
         <div class="card-content">
-            <h3>الرواتب</h3>
-            <p>إدارة رواتب الموظفين ومراجعة المدفوعات.</p>
+            <h3>العمل الإضافي</h3>
+            <p>إدارة وتتبع ساعات العمل الإضافي للموظفين.</p>
             <div class="card-stats">
                 <div class="stat">
-                    <span class="stat-value">{{ total_salaries }}</span>
-                    <span class="stat-label">الرواتب المسجلة</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">{{ pending_salaries }}</span>
-                    <span class="stat-label">قيد الدفع</span>
+                    <span class="stat-value">{{ total_extras }}</span>
+                    <span class="stat-label">العمل الإضافي</span>
                 </div>
             </div>
-            <a href="#" class="card-action">الذهاب إلى الرواتب</a>
-        </div>
-    </div>
-
-    <!-- Currencies Management Card -->
-    <div class="dashboard-card">
-        <div class="card-icon">
-            <i class="bi bi-currency-exchange"></i>
-        </div>
-        <div class="card-content">
-            <h3>العملات</h3>
-            <p>إدارة العملات وأسعار الصرف.</p>
-            <div class="card-stats">
-                <div class="stat">
-                    <span class="stat-value">{{ total_currencies }}</span>
-                    <span class="stat-label">عدد العملات</span>
-                </div>
-            </div>
-            <a href="#" class="card-action">الذهاب إلى العملات</a>
+            <a href="{% url 'extras' %}" class="card-action">الذهاب إلى العمل الإضافي</a>
         </div>
     </div>
 
@@ -169,6 +147,24 @@
                 </div>
             </div>
             <a href="{% url 'departments' %}" class="card-action">الذهاب إلى القسم</a>
+        </div>
+    </div>
+
+    <!-- Departments Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="card-content">
+            <h3>الخصم/الإضافة</h3>
+            <p>إدارة الخصم/الإضافة.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_additions_discounts }}</span>
+                    <span class="stat-label">الخصم/الإضافة</span>
+                </div>
+            </div>
+            <a href="{% url 'additions_discounts' %}" class="card-action">الذهاب إلى الخصم/الإضافة</a>
         </div>
     </div>
 

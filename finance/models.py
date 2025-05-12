@@ -29,6 +29,20 @@ class Account(models.Model):
         return self.name
 
 
+
+class AccountMovement(models.Model):
+    from_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='from_account')
+    to_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='to_account')
+    amount = models.FloatField()
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+
+    def __str__(self):
+        return f'{self.from_account.name}-{self.to_account.name}-{self.amount}-{self.date}'
+
+
+
+
 def get_employee_model():
     from hr_tool.models import Employee
     return Employee

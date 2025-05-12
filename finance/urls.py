@@ -23,6 +23,13 @@ urlpatterns = [
     path('accounts/delete/<int:id>/', views.DeleteAccountView.as_view(), name="delete_account"),
     path('accounts/action/', views.AccountActionView.as_view(), name="accounts_action"),
 
+    path('account_movements/', views.ListAccountMovementsView.as_view(), name="account_movements"),
+    path('account_movements/add', views.CreateAccountMovementView.as_view(), name="create_account_movement"),
+    path('account_movements/<int:id>/', views.UpdateAccountMovementView.as_view(), name="account_movement_info"),
+    path('account_movements/delete/<int:id>/', views.DeleteAccountMovementView.as_view(), name="delete_account_movement"),
+    path('account_movements/action/', views.AccountMovementActionView.as_view(), name="account_movements_action"),
+
     path('salaries/', views.CalculateSalaryView.as_view(), name="salaries"),
     path('salaries/add', views.CreateSalaryView.as_view(), name="create_salary"),
+    path('salaries/calculate/', views.CalculateSalariesHtmxView.as_view(), name="calculate_salaries"),
 ]

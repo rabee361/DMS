@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء تعادل{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء حركة جديدة</h2>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">معلومات الحركة</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.from_account.id_for_label }}">الحساب الأول</label>
+                        {{ form.from_account }}
+                        {% if form.from_account.errors %}
+                            <div class="form-error">{{ form.from_account.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.to_account.id_for_label }}">الحساب الثاني</label>
+                        {{ form.to_account }}
+                        {% if form.to_account.errors %}
+                            <div class="form-error">{{ form.to_account.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.amount.id_for_label }}">المبلغ</label>
+                        {{ form.amount }}
+                        {% if form.amount.errors %}
+                            <div class="form-error">{{ form.amount.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.currency.id_for_label }}">العملة</label>
+                        {{ form.currency }}
+                        {% if form.currency.errors %}
+                            <div class="form-error">{{ form.currency.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.date.id_for_label }}">التاريخ</label>
+                        {{ form.date }}
+                        {% if form.date.errors %}
+                            <div class="form-error">{{ form.date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'account_movements' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

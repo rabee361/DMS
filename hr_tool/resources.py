@@ -26,5 +26,5 @@ class RecruitmentResource(resources.ModelResource):
 class AbsenceResource(resources.ModelResource):
     class Meta:
         model = Absence
-        fields = ['id', 'employee', 'days', 'reason', 'start', 'end']
+        fields = ['id', 'employee', 'days', 'start', 'end']
 

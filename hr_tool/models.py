@@ -50,8 +50,6 @@ class Position(models.Model):
 
 
 
-
-
 class Employee(User):
     position = models.ForeignKey(Position , on_delete=models.CASCADE , blank=True , null=True)
     department = models.ForeignKey(Department , on_delete=models.CASCADE , blank=True , null=True)
@@ -66,7 +64,21 @@ class Employee(User):
 
     def __str__(self) -> str:
         return self.username
-    
+
+
+
+class AdditionDiscount(models.Model):
+    employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
+    value = models.FloatField()
+    type = models.CharField(max_length=100,choices=AdditionDiscountType)
+    currency = models.ForeignKey(Currency , on_delete=models.CASCADE , blank=True , null=True)
+    start = models.DateField()
+    end = models.DateField()
+    created = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f'{self.employee.username} - {self.value}'
+
 
 
 
@@ -100,12 +112,25 @@ class Holiday(models.Model):
 
 class Absence(models.Model):
     employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
-    reason = models.CharField(max_length=100, choices=Absence,default='_')
     start = models.DateField()
     end = models.DateField()
 
     def __str__(self) -> str:
         return f'{self.employee.username} - {self.days}'
+
+
+
+class ExtraWork(models.Model):
+    employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
+    days = models.FloatField(validators=[MinValueValidator(0)])
+    start = models.DateField()
+    notes = models.TextField(blank=True,null=True)
+    value_per_hour = models.FloatField(validators=[MinValueValidator(0)])
+    currency = models.ForeignKey(Currency , on_delete=models.CASCADE , blank=True , null=True)
+
+    def __str__(self) -> str:
+        return f'{self.employee.username} - {self.days}'
+
 
 
 
