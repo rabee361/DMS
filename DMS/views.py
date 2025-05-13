@@ -49,6 +49,8 @@ class FormView(View):
             return render(request, 'form_builder/form_view.html', context)
         elif custom_form.template == '2':
             return render(request, 'form_builder/form_view2.html', context)
+        elif custom_form.template == '3':
+            return render(request, 'form_builder/form_view3.html', context)
 
 
     def post(self, request, slug):
@@ -88,6 +90,8 @@ class FormView(View):
                 return render(request, 'form_builder/form_view.html', context)
             elif custom_form.template == '2':
                 return render(request, 'form_builder/form_view2.html', context)
+            elif custom_form.template == '3':
+                return render(request, 'form_builder/form_view3.html', context)
         else:
             # If form is invalid, show errors
             context = {
@@ -104,6 +108,8 @@ class FormView(View):
                 return render(request, 'form_builder/form_view.html', context)
             elif custom_form.template == '2':
                 return render(request, 'form_builder/form_view2.html', context)
+            elif custom_form.template == '3':
+                return render(request, 'form_builder/form_view3.html', context)
 
         # except CustomForm.DoesNotExist:
         #     return redirect('form_builder')

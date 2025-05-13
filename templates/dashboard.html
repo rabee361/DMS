@@ -70,28 +70,6 @@
         </div>
     </div>
 
-    <!-- Goals Management Card -->
-    <!-- <div class="dashboard-card">
-        <div class="card-icon">
-            <i class="bi bi-trophy"></i>
-        </div>
-        <div class="card-content">
-            <h3>إدارة الأهداف</h3>
-            <p>تتبع وإدارة أهداف وإنجازات الموظفين.</p>
-            <div class="card-stats">
-                <div class="stat">
-                    <span class="stat-value">{{ total_goals }}</span>
-                    <span class="stat-label">الأهداف</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value">{{ completed_goals }}</span>
-                    <span class="stat-label">المكتملة</span>
-                </div>
-            </div>
-            <a href="{% url 'goals_list' %}" class="card-action">الذهاب إلى الأهداف</a>
-        </div>
-    </div> -->
-
     <!-- Task Management Card -->
     <div class="dashboard-card">
         <div class="card-icon">
@@ -117,18 +95,18 @@
     <!-- Reports Card -->
     <div class="dashboard-card">
         <div class="card-icon">
-            <i class="bi bi-bar-chart"></i>
+            <i class="bi bi-clipboard-data"></i>
         </div>
         <div class="card-content">
-            <h3>النماذج</h3>
-            <p>عرض وتحليل النماذج المختلفة.</p>
+            <h3>الاستبيانات</h3>
+            <p>عرض وتحليل الاستبيانات المختلفة.</p>
             <div class="card-stats">
                 <div class="stat">
                     <span class="stat-value">{{ total_forms }}</span>
-                    <span class="stat-label">النماذج</span>
+                    <span class="stat-label">الاستبيانات</span>
                 </div>
             </div>
-            <a href="{% url 'form_builder' %}" class="card-action">الذهاب إلى منشئ النماذج</a>
+            <a href="{% url 'form_builder' %}" class="card-action">الذهاب إلى منشئ الاستبيانات</a>
         </div>
     </div>
 
