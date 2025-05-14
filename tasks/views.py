@@ -9,7 +9,7 @@ from django.views import View
 from django.contrib.auth.decorators import user_passes_test
 import json
 from django.utils.decorators import method_decorator
-from utility.mixins import data_criteria_add_perm, data_criteria_delete_perm, data_criteria_edit_perm
+from utility.permissioms import data_criteria_add_perm, data_criteria_delete_perm, data_criteria_edit_perm
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 

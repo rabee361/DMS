@@ -10,7 +10,7 @@ import mimetypes
 import json
 from django.views import generic
 from django.contrib.auth.decorators import user_passes_test
-from utility.mixins import documents_criteria_add_perm, documents_criteria_edit_perm, documents_criteria_delete_perm
+from utility.permissioms import documents_criteria_add_perm, documents_criteria_edit_perm, documents_criteria_delete_perm
 
 add_perm_decorator = user_passes_test(documents_criteria_add_perm)
 edit_perm_decorator = user_passes_test(documents_criteria_edit_perm)

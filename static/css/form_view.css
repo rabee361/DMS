@@ -346,25 +346,28 @@ select {
 }
 
 .welcome-text ul {
-    text-align: right;
+    text-align: center;
     list-style: none;
     margin: 20px auto;
-    padding: 0 20px;
+    padding: 0;
     max-width: 500px;
 }
 
 .welcome-text ul li {
     position: relative;
-    padding-right: 20px;
+    padding-right: 0;
     margin-bottom: 12px;
     font-size: 15px;
+    display: inline-block;
+    padding: 0 15px;
 }
 
 .welcome-text ul li:before {
     content: "•";
     color: var(--primary-color);
-    position: absolute;
-    right: 0;
+    display: inline-block;
+    margin-left: 5px;
+    position: static;
     font-size: 20px;
     line-height: 1;
 }

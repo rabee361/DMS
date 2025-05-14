@@ -11,7 +11,7 @@ from django.views import generic
 from .forms import CustomSurveyForm
 from .form_utils import create_dynamic_form
 from django.db import connection
-from utility.mixins import form_criteria_add_perm, form_criteria_edit_perm, form_criteria_delete_perm
+from utility.permissioms import form_criteria_add_perm, form_criteria_edit_perm, form_criteria_delete_perm
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger

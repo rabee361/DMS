@@ -9,9 +9,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import UserRegistrationForm, UserUpdateForm, AdminChangePasswordForm, UserRoleForm
 from django.contrib.auth import get_user_model
 from django.views.generic import ListView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
 from .models import *
-from utility.mixins import users_criteria_add_perm, users_criteria_edit_perm, users_criteria_delete_perm
+from utility.permissioms import users_criteria_add_perm, users_criteria_edit_perm, users_criteria_delete_perm, users_criteria_view_perm
 import json
 User = get_user_model()
 

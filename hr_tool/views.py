@@ -17,7 +17,7 @@ import datetime
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 from .resources import EmployeeResource, HolidayResource, AbsenceResource, RecruitmentResource
-from utility.mixins import hr_criteria_add_perm, hr_criteria_delete_perm, hr_criteria_edit_perm
+from utility.permissioms import hr_criteria_add_perm, hr_criteria_delete_perm, hr_criteria_edit_perm
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView
 from utility.helper import change_format, reverse_format
 from django.utils.decorators import method_decorator
@@ -26,7 +26,7 @@ from django.contrib.auth.decorators import user_passes_test
 User = get_user_model()
 
 
-@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+@method_decorator(user_passes_test(hr_criteria_add_perm, login_url='401'), name='dispatch')
 class MainHR(View):
     def get(self, request):
         total_holidays = Holiday.objects.count()
@@ -74,7 +74,7 @@ class ListEmployeesView(ListView):
             return super().get_queryset()
 
 
-@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+@method_decorator(user_passes_test(hr_criteria_add_perm, login_url='401'), name='dispatch')
 class CreateEmployeeView(CreateView):
     model = Employee
     form_class = EmployeeRegistrationForm

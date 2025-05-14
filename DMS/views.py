@@ -129,3 +129,9 @@ class handler404(View):
 class handler500(View):
     def get(self, request):
         return render(request, '500.html')
+
+class handler401(View):
+    def get(self, request):
+        return render(request, '401.html')
+
+
