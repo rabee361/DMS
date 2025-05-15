@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء حساب{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء حساب جديد</h2>
+            <p class="form-subtitle">أدخل تفاصيل الحساب الجديد</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">معلومات الحساب</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">اسم الحساب</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="form-error">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'accounts' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

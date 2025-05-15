@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>حذف العملة</h2>
+<form method="post">
+    {% csrf_token %}
+    <p>هل أنت متأكد أنك تريد حذف "{{ currency.name }}"؟</p>
+    <button type="submit">تأكيد الحذف</button>
+</form>
+{% endblock %}

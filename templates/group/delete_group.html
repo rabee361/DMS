@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}حذف المجموعة{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="delete-confirmation">
+        <div class="delete-header">
+            <i class="bi bi-exclamation-triangle-fill warning-icon"></i>
+            <h2>حذف المجموعة</h2>
+            <p class="delete-subtitle">هذا الإجراء لا يمكن التراجع عنه</p>
+        </div>
+
+        <div class="delete-content">
+            <p class="confirmation-text">
+                هل أنت متأكد أنك تريد حذف المجموعة "<span class="highlight">{{ group.name }}</span>"؟
+            </p>
+        </div>
+
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i>
+                    تأكيد الحذف
+                </button>
+                <a href="{% url 'groups' %}" class="btn btn-secondary">
+                    <i class="bi bi-x"></i>
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

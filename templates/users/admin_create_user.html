@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء مستخدم جديد{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء مستخدم جديد</h2>
+            <p class="form-subtitle">أدخل تفاصيل حساب المستخدم الجديد</p>
+        </div>
+
+        <form method="post" class="user-create-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_username">اسم المستخدم</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="form-error">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email">البريد الإلكتروني</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="form-error">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_password1">كلمة المرور</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="form-error">{{ form.password1.errors }}</div>
+                        {% endif %}
+                        <small class="help-text">{{ form.password1.help_text }}</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_password2">تأكيد كلمة المرور</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="form-error">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_role">دور المستخدم</label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                            <div class="form-error">{{ form.role.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_upload_limit">حد الرفع</label>
+                        {{ form.upload_limit }}
+                        {% if form.upload_limit.errors %}
+                            <div class="form-error">{{ form.upload_limit.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phonenumber">رقم الهاتف</label>
+                        {{ form.phonenumber }}
+                        {% if form.phonenumber.errors %}
+                            <div class="form-error">{{ form.phonenumber.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">إنشاء مستخدم</button>
+                <a href="{% url 'users_list' %}" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

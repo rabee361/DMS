@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %} إضافة جديد{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء إضافة</h2>
+            <p class="form-subtitle">تقديم إضافة جديد</p>
+        </div>
+
+        <form method="post" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">تفاصيل الإضافة</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.employee.id_for_label }}">الموظف</label>
+                        {{ form.employee }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.start.id_for_label }}">تاريخ البدء</label>
+                        {{ form.start }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.value.id_for_label }}">القيمة</label>
+                        {{ form.value }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.currency.id_for_label }}">العملة</label>
+                        {{ form.currency }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.type.id_for_label }}">النوع</label>
+                        {{ form.type }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.end.id_for_label }}">النهاية</label>
+                        {{ form.end }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'additions_discounts' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const employeeSelect = document.getElementById('{{ form.employee.id_for_label }}');
+    const daysInput = document.getElementById('{{ form.days.id_for_label }}');
+    const hoursInput = document.getElementById('{{ form.hours.id_for_label }}');
+    let workHoursPerDay = 0;
+    let calculating = false;
+    
+    // Function to get work hours from API
+    function getWorkHours() {
+        const employeeId = employeeSelect.value;
+        
+        if (employeeId) {
+            fetch(`/dms/api/emp-hours/${employeeId}/`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    workHoursPerDay = data.work_hours;
+                    // Calculate based on current days value
+                    if (daysInput.value) {
+                        calculating = true;
+                        calculateHoursFromDays();
+                        calculating = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching work hours:', error);
+                    workHoursPerDay = 0;
+                });
+        } else {
+            workHoursPerDay = 0;
+        }
+    }
+    
+    // Function to calculate hours based on days
+    function calculateHoursFromDays() {
+        if (calculating) return;
+        
+        const days = parseFloat(daysInput.value) || 0;
+        if (workHoursPerDay && days) {
+            calculating = true;
+            hoursInput.value = (days * workHoursPerDay).toFixed(2);
+            calculating = false;
+        }
+    }
+    
+    // Function to calculate days based on hours
+    function calculateDaysFromHours() {
+        if (calculating) return;
+        
+        const hours = parseFloat(hoursInput.value) || 0;
+        if (workHoursPerDay && hours) {
+            calculating = true;
+            daysInput.value = (hours / workHoursPerDay).toFixed(2);
+            calculating = false;
+        }
+    }
+    
+    // Calculate when employee selection changes
+    employeeSelect.addEventListener('change', getWorkHours);
+    
+    // Calculate hours when days value changes
+    daysInput.addEventListener('input', calculateHoursFromDays);
+    
+    // Calculate days when hours value changes
+    hoursInput.addEventListener('input', calculateDaysFromHours);
+    
+    // Initialize calculations if employee already selected
+    if (employeeSelect.value) {
+        getWorkHours();
+    }
+});
+</script>
+{% endblock %}

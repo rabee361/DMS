@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة تحكم الموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">المستندات</h1>
+</div>
+
+<div class="dashboard-grid">
+
+    <!-- بطاقة المهارات -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-person-plus"></i>
+        </div>
+        <div class="card-content">
+            <h3>المهارات</h3>
+            <p>إدارة مهارات الموظفين وتطويرهم.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_skills }}</span>
+                    <span class="stat-label">المهارات</span>
+                </div>
+            </div>
+
+            <a href="{% url 'skills_list' %}" class="card-action">الانتقال إلى المهارات</a>
+        </div>
+    </div>
+
+    <!-- بطاقة الأهداف -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-trophy"></i>
+        </div>
+        <div class="card-content">
+            <h3>الأهداف</h3>
+            <p>متابعة مهارات الموظفين وتقدم الأهداف.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_goals }}</span>
+                    <span class="stat-label">الأهداف</span>
+                </div>
+            </div>
+
+            <a href="{% url 'goals_list' %}" class="card-action">الانتقال إلى الأهداف</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

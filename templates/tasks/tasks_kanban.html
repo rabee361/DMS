@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load task_filters %}
+
+{% block title %}لوحة مهام كانبان{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">لوحة المهام</h1>
+    <div class="view-controls">
+        <a href="{% url 'task-create' %}" class="btn btn-primary">إضافة مهمة +</a>
+        <a href="{% url 'tasks-list' %}" class="btn btn-secondary view-toggle">
+            <i class="bi bi-list-ul"></i> عرض القائمة
+        </a>
+    </div>
+</div>
+
+<!-- Kanban Filter Navbar -->
+<div class="kanban-filter-navbar" hx-target="#kanban-board-container" hx-swap="innerHTML">
+    <div class="filter-section">
+        <label for="priority-filter">الأولوية:</label>
+        <select id="priority-filter" class="filter-select" name="priority" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="all" {% if filters.priority == 'all' %}selected{% endif %}>الكل</option>
+            <option value="Low" {% if filters.priority == 'Low' %}selected{% endif %}>منخفضة</option>
+            <option value="Medium" {% if filters.priority == 'Medium' %}selected{% endif %}>متوسطة</option>
+            <option value="High" {% if filters.priority == 'High' %}selected{% endif %}>عالية</option>
+        </select>
+    </div>
+    <div class="filter-section">
+        <label for="user-filter">المستخدم:</label>
+        <select id="user-filter" class="filter-select" name="user" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="all" {% if filters.user == 'all' %}selected{% endif %}>الكل</option>
+            {% for username in tasks|extract_unique_users %}
+                <option value="{{ username }}" {% if filters.user == username %}selected{% endif %}>{{ username }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="filter-section">
+        <label for="sort-by">ترتيب حسب:</label>
+        <select id="sort-by" class="filter-select" name="sort_by" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="title" {% if filters.sort_by == 'title' %}selected{% endif %}>العنوان</option>
+            <option value="priority" {% if filters.sort_by == 'priority' %}selected{% endif %}>الأولوية</option>
+            <option value="user" {% if filters.sort_by == 'user' %}selected{% endif %}>المستخدم</option>
+            <option value="due_date" {% if filters.sort_by == 'due_date' %}selected{% endif %}>تاريخ الاستحقاق</option>
+        </select>
+    </div>
+    <div class="filter-section">
+        <label for="sort-direction">الترتيب:</label>
+        <select id="sort-direction" class="filter-select" name="sort_direction" hx-get="{% url 'task-kanban' %}" hx-trigger="change">
+            <option value="asc" {% if filters.sort_direction == 'asc' %}selected{% endif %}>تصاعدي</option>
+            <option value="desc" {% if filters.sort_direction == 'desc' %}selected{% endif %}>تنازلي</option>
+        </select>
+    </div>
+    <div class="filter-section">
+        <button class="btn btn-secondary" hx-get="{% url 'task-kanban' %}" hx-include="none">إعادة ضبط</button>
+    </div>
+</div>
+
+<div id="kanban-board-container">
+    {% include "partials/tasks_kanban_partial.html" %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all kanban cards and columns
+    const columns = document.querySelectorAll('.column-content');
+    
+    let draggedItem = null;
+    
+    function setupDragAndDrop() {
+        const cards = document.querySelectorAll('.kanban-card');
+        
+        // Add event listeners to cards
+        cards.forEach(card => {
+            // When drag starts
+            card.addEventListener('dragstart', function(e) {
+                draggedItem = card;
+                setTimeout(() => {
+                    card.style.opacity = '0.5';
+                }, 0);
+            });
+            
+            // When drag ends
+            card.addEventListener('dragend', function() {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    draggedItem = null;
+                }, 0);
+            });
+        });
+    }
+    
+    // Add event listeners to columns
+    columns.forEach(column => {
+        // When item is dragged over column
+        column.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        });
+        
+        // When item is dragged and enters column
+        column.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            this.style.backgroundColor = 'rgba(0, 0, 0, 0.05)';
+        });
+        
+        // When item leaves column
+        column.addEventListener('dragleave', function() {
+            this.style.backgroundColor = 'transparent';
+        });
+        
+        // When item is dropped in column
+        column.addEventListener('drop', function(e) {
+            this.style.backgroundColor = 'transparent';
+            
+            if (draggedItem) {
+                // Get current column's status
+                const newStatus = this.getAttribute('data-status');
+                const taskId = draggedItem.getAttribute('data-task-id');
+                
+                // Update the card's status attribute
+                draggedItem.setAttribute('data-status', newStatus);
+                
+                // Append the card to the new column
+                this.appendChild(draggedItem);
+                
+                // Update the task status via AJAX
+                updateTaskStatus(taskId, newStatus);
+            }
+        });
+    });
+    
+    // Function to update task status via AJAX
+    function updateTaskStatus(taskId, newStatus) {
+        // Create a fetch request to update status
+        fetch(`/dms/tasks/${taskId}/update-status/`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ status: newStatus })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('فشل تحديث حالة المهمة');
+            }
+            
+            // Update the task count for each column
+            updateTaskCounts();
+            
+            return response;
+        })
+        .catch(error => {
+            console.error('خطأ:', error);
+            alert('فشل تحديث حالة المهمة. يرجى المحاولة مرة أخرى.');
+        });
+    }
+    
+    // Function to update task counts
+    function updateTaskCounts() {
+        const counts = {
+            'Pending': document.querySelectorAll('[data-status="Pending"] .kanban-card').length,
+            'In Progress': document.querySelectorAll('[data-status="In Progress"] .kanban-card').length,
+            'Completed': document.querySelectorAll('[data-status="Completed"] .kanban-card').length
+        };
+        
+        document.querySelector('.column-header.pending .task-count').textContent = counts['Pending'];
+        document.querySelector('.column-header.in-progress .task-count').textContent = counts['In Progress'];
+        document.querySelector('.column-header.completed .task-count').textContent = counts['Completed'];
+    }
+
+    // Initialize drag and drop
+    setupDragAndDrop();
+    
+    // Setup event listener for HTMX after swap
+    document.body.addEventListener('htmx:afterSwap', function(e) {
+        if (e.detail.target.id === 'kanban-board-container') {
+            setupDragAndDrop();
+            updateTaskCounts();
+        }
+    });
+});
+</script>
+{% endblock %}

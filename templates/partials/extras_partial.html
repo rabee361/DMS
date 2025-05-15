@@ -1,0 +1,32 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+        <th>المعرف</th>
+        <th>الموظف</th>
+        <th>الأيام</th>
+        <th>البدء</th>
+        <th>الملاحظات</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+<tbody>
+    {% for extra in extras %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'extra_info' extra.id %}">
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ extra.id }}">
+        </td>
+        <td>{{ extra.id }}</td>
+        <td>{{ extra.employee.username }}</td>
+        <td>{{ extra.days }}</td>
+        <td>{{ extra.start }}</td>
+        <td>{{ extra.notes }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_extra' extra.id %}" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

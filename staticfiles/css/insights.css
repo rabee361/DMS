@@ -1,0 +1,89 @@
+  /* Insights section */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  
+  .insight-card {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 16px;
+    box-shadow: var(--box-shadow);
+  }
+  
+  .insight-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  
+  .insight-type {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .insight-content {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+.severity-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Severity colors */
+.severity-badge.high {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.severity-badge.medium {
+    background-color: #fef3c7;
+    color: #d97706;
+}
+
+.severity-badge.low {
+    background-color: #dcfce7;
+    color: #16a34a;
+}
+
+.insight-message {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Card border colors based on severity */
+.severity-high {
+    border-left: 4px solid #dc2626;
+}
+
+.severity-medium {
+    border-left: 4px solid #d97706;
+}
+
+.severity-low {
+    border-left: 4px solid #16a34a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .insights-container {
+        padding: 15px;
+    }
+    
+    .insights-title {
+        font-size: 20px;
+    }
+} 
+

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة تحكم الموارد البشرية{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">المستندات</h1>
+</div>
+
+<div class="dashboard-grid">
+
+    <!-- Dcoument Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-file-earmark-text"></i>
+        </div>
+        <div class="card-content">
+            <h3>المستند</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_documents }}</span>
+                    <span class="stat-label">المستندات</span>
+                </div>
+            </div>
+            <a href="{% url 'document_list' %}" class="card-action">الذهاب إلى المستندات</a>
+        </div>
+
+    </div>
+
+    <!-- Document Group Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-folder2"></i>
+        </div>
+        <div class="card-content">
+            <h3>مجموعة المستندات</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_groups }}</span>
+                    <span class="stat-label">المجموعات</span>
+                </div>
+            </div>
+            <a href="{% url 'groups' %}" class="card-action">الذهاب إلى الأهداف</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

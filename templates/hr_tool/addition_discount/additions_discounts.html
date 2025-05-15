@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}قائمة العمل الإضافي{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">العمل الإضافي</h1>
+    <a href="{% url 'create_addition_discount' %}" class="btn btn-primary">إضافة +</a>
+</div>
+
+<div class="table-container">
+    <div class="table-controls">
+        <div class="search-controls">
+            <input hx-get="{% url 'additions_discounts' %}" hx-push-url="true" hx-target="#additions-discounts-partial" hx-swap="innerHTML" hx-trigger="keyup changed delay:500ms" type="text" name="q" class="search-input" placeholder="ابحث بالاسم..." value="{{ request.GET.q }}"/>
+        </div>
+        <div class="action-controls">
+            <select id="bulkAction" name="action" class="action-select">
+                <option value="" selected disabled>اختر الإجراء</option>
+                <option value="delete">حذف الإضافات المحددين</option>
+            </select>
+            <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'additions_discounts_action' %}"  id="bulkActionForm">
+        {% csrf_token %}
+        <input type="hidden" name="selected_ids" id="selectedIds">
+        <input type="hidden" name="action" id="selectedAction">
+        
+        <table class="data-table" id="extras-partial">
+            {% include 'partials/additions_discounts_partial.html' %}
+        </table>
+            
+    </form>
+
+    <div class="pagination-container">
+        <ul class="pagination">
+            {% if page_obj %}
+                {% if page_obj.has_previous %}
+                    <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">السابق</a></li>
+                    <li><a href="#" class="page-link">{{ page_obj.number|add:'-1' }}</a></li>
+                {% endif %}
+                <li><a href="#" class="page-link active">{{ page_obj.number }}</a></li>
+                {% if page_obj.has_next %}
+                    <li><a href="#" class="page-link">{{ page_obj.number|add:'1' }}</a></li>
+                    <li><a href="?page={{ page_obj.next_page_number }}" class="page-link">التالي</a></li>
+                {% endif %}
+            {% endif %}
+        </ul>
+    </div>
+</div>
+
+{% endblock %}

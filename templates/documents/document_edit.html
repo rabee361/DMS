@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}تعديل المستند{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>تعديل المستند</h2>
+            <p class="form-subtitle">تحديث تفاصيل المستند</p>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.title.id_for_label }}">العنوان</label>
+                        {{ form.title }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.group.id_for_label }}">مجموعة المستندات</label>
+                        {{ form.group }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.description.id_for_label }}">الوصف</label>
+                        {{ form.description }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.comment.id_for_label }}">التعليق</label>
+                        {{ form.comment }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.file.id_for_label }}">ملف المستند</label>
+                        {{ form.file }}
+                        <small class="help-text">الملف الحالي: {{ document.file.name }}</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.language.id_for_label }}">اللغة</label>
+                        {{ form.language }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.is_private.id_for_label }}">مستند خاص</label>
+                        {{ form.is_private }}
+                    </div>  
+                </div>
+            </div>
+
+
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>نوع الملف</label>
+                        <input type="text" value="{{ document.file_type }}" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>الحجم</label>
+                        <input type="text" value="{{ document.size|floatformat:2 }} ميجابايت" class="form-control" readonly>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>تاريخ الرفع</label>
+                        <input type="text" value="{{ document.upload_date|date:'Y-m-d H:i' }}" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>تم الرفع بواسطة</label>
+                        <input type="text" value="{{ document.uploaded_by }}" class="form-control" readonly>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">تحديث المستند</button>
+                <a href="{% url 'document_list' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

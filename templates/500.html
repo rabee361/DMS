@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlNoor - 500</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --body-color: #E3F2FD;
+            --card-bg: #BBDEFB;
+            --primary-color: #1976D2;
+            --secondary-color: #2196F3;
+            --light-color: #BBDEFB;
+            --dark-color: #0D47A1;
+            --border-color: #dadce0;
+            --text-color: #202124;
+            --text-muted: #666666;
+            --hover-color: #1565C0;
+            --error-color: #d93025;
+        }
+        
+        body {
+            background-color: var(--body-color);
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .error-container {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .error-content {
+            text-align: center;
+            background-color: var(--bg-color);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(25, 118, 210, 0.08);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .error-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: var(--primary-color);
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--primary-color);
+            line-height: 1;
+            text-shadow: 0 5px 10px rgba(25, 118, 210, 0.15);
+        }
+        
+        .error-message {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 10px 0 20px;
+            color: var(--dark-color);
+        }
+        
+        .error-description {
+            font-size: 1rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .error-code {
+                font-size: 6rem;
+            }
+            
+            .error-message {
+                font-size: 1.5rem;
+            }
+            
+            .error-content {
+                padding: 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .error-code {
+                font-size: 5rem;
+            }
+            
+            .error-message {
+                font-size: 1.2rem;
+            }
+            
+            .error-content {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-content">
+            <h1 class="error-code">500</h1>
+            <h2 class="error-message">خطأ في الخادم</h2>
+            <p class="error-description">عذراً، حدث خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقًا.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}إنشاء استبيان جديد{% endblock %}
+
+{% block content %}
+<div class="form-container" dir="rtl">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء استبيان جديد</h2>
+            <p class="form-subtitle">أدخل معلومات الاستبيان التي تريد إنشاءها</p>
+        </div>
+
+        <form method="post" class="form-create-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_name">اسم الاستبيان (مطلوب)</label>
+                        {{ form.name }}
+                        <small class="help-text">اسم الاستبيان للاستخدام الداخلي في النظام</small>
+                        {% if form.name.errors %}
+                            <div class="form-error">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_title">عنوان الاستبيان (مطلوب)</label>
+                        {{ form.title }}
+                        <small class="help-text">سيظهر هذا العنوان للمستخدمين عند تعبئة الاستبيان</small>
+                        {% if form.title.errors %}
+                            <div class="form-error">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_welcome">رسالة الترحيب</label>
+                        {{ form.welcome }}
+                        <small class="help-text">رسالة ترحيبية تظهر في بداية الاستمارة</small>
+                        {% if form.welcome.errors %}
+                            <div class="form-error">{{ form.welcome.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_logo">شعار الاستبيان</label>
+                        <input type="file" name="logo" id="id_logo" class="form-control-file">
+                        <small class="help-text">يمكنك رفع صورة شعار مخصصة ستظهر أعلى الاستبيان</small>
+                        {% if form.logo.errors %}
+                            <div class="form-error">{{ form.logo.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_language">لغة الاستمارة</label>
+                        {{ form.language }}
+                        {% if form.language.errors %}
+                            <div class="form-error">{{ form.language.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section template-selection">
+                <h3 class="section-title">اختر قالب الاستمارة</h3>
+                <p class="section-info">اختر القالب الذي سيتم استخدامه لعرض الاستمارة</p>
+                
+                <div class="template-options">
+                    <label class="template-option">
+                        <input type="radio" name="template" value="1" checked>
+                        <div class="template-preview">
+                            <img src="/static/images/1.png" alt="قالب 1">
+                        </div>
+                        <span class="template-label">القالب الأساسي</span>
+                        <small class="template-description">تصميم بسيط وأنيق</small>
+                    </label>
+                    
+                    <label class="template-option">
+                        <input type="radio" name="template" value="2">
+                        <div class="template-preview">
+                            <img src="/static/images/2.png" alt="قالب 2" >
+                        </div>
+                        <span class="template-label">القالب الحديث</span>
+                        <small class="template-description">تصميم عصري مع عناصر متحركة</small>
+                    </label>
+                    
+                    <label class="template-option">
+                        <input type="radio" name="template" value="3">
+                        <div class="template-preview">
+                            <img src="/static/images/3.png" alt="قالب 3">
+                        </div>
+                        <span class="template-label">القالب المتقدم</span>
+                        <small class="template-description">تصميم متطور مع خيارات متعددة</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-field-section">
+                <h3>حقول الاستمارة</h3>
+                <p class="section-info">سيتم إضافة حقول الاستمارة بعد إنشاء الاستمارة الأساسية</p>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">إنشاء الاستمارة</button>
+                <a href="{% url 'form_builder' %}" class="btn btn-secondary">إلغاء</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

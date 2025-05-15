@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}المجندين{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">جميع المجندين</h1>
+</div>
+
+<div class="table-container">
+    <div class="table-controls">
+        <div class="search-controls">
+            <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
+        </div>
+        <div class="action-controls">
+            <select id="bulkAction" name="action" class="action-select">
+                <option value="" selected disabled>اختر إجراء</option>
+                <option value="delete">حذف السجلات المحددة</option>
+                <option value="export_excel">تصدير إلى إكسل</option>
+            </select>
+            <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
+        </div>
+    </div>
+    
+    <form method="post" action="{% url 'recruiters_action' %}" class="action-form" id="bulkActionForm">
+        {% csrf_token %}
+        <input type="hidden" name="selected_ids" id="selectedIds">
+        <input type="hidden" name="action" id="selectedAction">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+                    <th>الرقم التعريفي</th>
+                    <th>الصورة</th>
+                    <th>الاسم الأول</th>
+                    <th>اسم العائلة</th>
+                    <th>تاريخ الميلاد</th>
+                    <th>المنصب</th>
+                    <th>القسم</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for recruiter in recruiters %}
+                <tr onclick="clickHandler(event)" data-link="{% url 'recruiter_profile' recruiter.id %}">
+                    <td onclick="event.stopPropagation();">
+                        <input type="checkbox" class="item-checkbox" value="{{ recruiter.id }}">
+                    </td>
+                    <td>{{ recruiter.id }}</td>
+                    <td><img src="{{ recruiter.image }}" alt=""></td>
+                    <td>{{ recruiter.first_name }}</td>
+                    <td>{{ recruiter.last_name }}</td>
+                    <td>{{ recruiter.birthday }}</td>
+                    <td>{{ recruiter.position }}</td>
+                    <td>{{ recruiter.department }}</td>
+                    <td>
+                        {% if recruiter.is_active %}
+                            <span class="status-badge active"><i class="bi bi-check-circle"></i> نشط</span>
+                        {% else %}
+                            <span class="status-badge inactive"><i class="bi bi-x-circle"></i> غير نشط</span>
+                        {% endif %}
+                    </td>
+                    <td onclick="event.stopPropagation();">
+                        <div class="action-buttons">
+                            <a href="{% url 'delete_recruiter' recruiter.id %}" class="delete-btn">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+    {% if is_paginated %}
+    <div class="pagination-container">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">السابق</a></li>
+                <li><a href="#" class="page-link">{{ page_obj.number|add:'-1' }}</a></li>
+            {% endif %}
+            <li><a href="#" class="page-link active">{{ page_obj.number }}</a></li>
+            {% if page_obj.has_next %}
+                <li><a href="#" class="page-link">{{ page_obj.number|add:'1' }}</a></li>
+                <li><a href="?page={{ page_obj.next_page_number }}" class="page-link">التالي</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

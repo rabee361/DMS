@@ -1,0 +1,289 @@
+{% load static %}
+{% load form_filters %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ form_name }}</title>
+    <link rel="icon" type="image/png" href="{% static '/assets/img/alnoor.png' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/form_view2.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="form-wrapper">
+        <!-- Sidebar -->
+        <div class="form-sidebar">
+            <div class="sidebar-header">
+                {% if logo %}
+                <img src="{{ logo.url }}" alt="Logo" class="sidebar-logo">
+                {% else %}
+                <img src="{% static 'assets/img/alnoor2.png' %}" alt="Logo" class="sidebar-logo">
+                {% endif %}
+                <h2 class="form-number">{{ form_id }}</h2>
+            </div>
+            <div class="sidebar-description">
+                <p>يرجى ملء هذه الاستمارة بالمعلومات المطلوبة</p>
+            </div>
+            <!-- Progress navigation -->
+            <div class="progress-nav">
+                <!-- Welcome tab button -->
+                <a href="#" class="nav-item {% if not active_tab or active_tab == '1' %}active{% endif %}" data-tab="1">
+                    <span class="nav-number">1</span>
+                    <span class="nav-text">مرحباً بكم</span>
+                </a>
+                
+                <!-- Create tab buttons dynamically -->
+                {% for i in form_tab_count|range_filter %}
+                    <a href="#" class="nav-item {% if active_tab == forloop.counter|add:1|stringformat:'s' %}active{% endif %}" data-tab="{{ forloop.counter|add:1 }}">
+                        <span class="nav-number">{{ forloop.counter|add:1 }}</span>
+                        <span class="nav-text">الصفحة {{ forloop.counter }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+            <div class="sidebar-footer">
+                <p>جميع الحقوق محفوظة &copy; {% now "Y" %}</p>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="form-content">
+            <form class="modern-form" method="POST" id="registrationForm" onsubmit="return handleSubmit(event)">
+                {% csrf_token %}
+                <input type="hidden" name="form_id" value="{{ request.session.session_key }}_{% now "U" %}">
+                <input type="hidden" id="success-flag" value="{% if success %}true{% else %}false{% endif %}">
+                <input type="hidden" id="fields-count" value="{{ form.fields_count }}">
+
+                <!-- Welcome tab content -->
+                <div class="tab-content {% if not active_tab or active_tab == '1' %}active{% endif %}" data-tab="1">
+                    <div class="welcome-section">
+                        <!-- Success message container (hidden by default) -->
+                        <div id="success-message-container" class="success-message-container" style="display: none;">
+                            <div class="success-icon"></div>
+                            <h3>تم إرسال النموذج بنجاح!</h3>
+                            <p>شكراً لك على تقديم المعلومات. تم استلام البيانات بنجاح.</p>
+                        </div>
+                        
+                        <!-- Error message container -->
+                        {% if form.non_field_errors %}
+                        <div class="error-message-container">
+                            <h3>حدث خطأ أثناء معالجة النموذج</h3>
+                            <p>{{ form.non_field_errors }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Welcome text -->
+                        <div id="welcome-text" class="welcome-text">
+                            <h2>{{ welcome_text }}</h2>
+                            <div class="welcome-card">
+                                <ul class="important-notes">
+                                    <li>يرجى تعبئة جميع الحقول المطلوبة</li>
+                                    <li>تأكد من صحة المعلومات المدخلة</li>
+                                </ul>
+                                <button type="button" class="start-btn" data-next="2">ابدأ التسجيل</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form fields divided into tabs -->
+                {% with fields_list=form.visible_fields %}
+                    {% for field in fields_list %}
+                        {% with tab_index=forloop.counter0|intdiv:8|add:2 %}
+                            {% if forloop.counter0|divisibleby:8 %}
+                                <div class="tab-content {% if active_tab == tab_index|stringformat:'s' %}active{% endif %}" data-tab="{{ tab_index }}">
+                                    <div class="form-page">
+                                        <h2 class="page-title">الصفحة {{ forloop.counter0|intdiv:8|add:1 }}</h2>
+                            {% endif %}
+                            
+                            <div class="form-field">
+                                <label for="{{ field.id_for_label }}" class="field-label">{{ field.label }}{% if field.field.required %} <span class="required">*</span>{% endif %}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <span class="field-error">{{ field.errors.0 }}</span>
+                                {% endif %}
+                            </div>
+                            
+                            {% if forloop.counter|divisibleby:8 or forloop.last %}
+                                        <div class="form-navigation">
+                                            <button type="button" class="nav-btn prev-btn" data-prev="{{ tab_index|add:-1 }}">السابق</button>
+                                            
+                                            {% with data_tabs_needed=form.fields_count|add:7|intdiv:8 %}
+                                                {% with last_tab=data_tabs_needed|add:1 %}
+                                                    {% if tab_index == last_tab or forloop.last %}
+                                                        <button type="submit" class="nav-btn submit-btn">إرسال</button>
+                                                    {% else %}
+                                                        <button type="button" class="nav-btn next-btn" data-next="{{ tab_index|add:1 }}">التالي</button>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endwith %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endfor %}
+                {% endwith %}
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registrationForm');
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const nextBtns = document.querySelectorAll('[data-next]');
+            const prevBtns = document.querySelectorAll('[data-prev]');
+            const startBtn = document.querySelector('.start-btn');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const successMessage = document.getElementById('success-message-container');
+            const welcomeText = document.getElementById('welcome-text');
+            const successFlag = document.getElementById('success-flag').value === 'true';
+            const fieldsCount = parseInt(document.getElementById('fields-count').value);
+            let currentTab = parseInt('{{ active_tab|default:1 }}');
+
+            // Calculate the total number of tabs (welcome tab + data tabs)
+            const fieldsPerTab = 8;
+            const dataTabs = Math.ceil(fieldsCount / fieldsPerTab);
+            const totalTabs = dataTabs + 1; // +1 for welcome tab
+
+            // Add hidden input for active tab
+            const activeTabInput = document.createElement('input');
+            activeTabInput.type = 'hidden';
+            activeTabInput.name = 'active_tab';
+            activeTabInput.value = currentTab;
+            form.appendChild(activeTabInput);
+
+            function showTab(tabNumber) {
+                // Transition animation
+                const currentTabContent = document.querySelector(`.tab-content[data-tab="${currentTab}"]`);
+                if (currentTabContent) {
+                    currentTabContent.style.animation = 'fadeOut 0.3s forwards';
+                }
+                
+                // Update tab visibility after animation
+                setTimeout(() => {
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    navItems.forEach(item => item.classList.remove('active'));
+
+                    const targetTab = document.querySelector(`.tab-content[data-tab="${tabNumber}"]`);
+                    const targetNav = document.querySelector(`.nav-item[data-tab="${tabNumber}"]`);
+                    
+                    if (targetTab && targetNav) {
+                        targetTab.classList.add('active');
+                        targetNav.classList.add('active');
+                        targetTab.style.animation = 'fadeIn 0.3s forwards';
+                        
+                        currentTab = parseInt(tabNumber);
+                        activeTabInput.value = currentTab;
+                        window.scrollTo(0, 0);
+                    }
+                }, 300);
+            }
+
+            // Navigation events
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabNum = parseInt(this.dataset.tab);
+                    showTab(tabNum);
+                });
+            });
+
+            // Next/Previous button events
+            nextBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showTab(parseInt(this.dataset.next));
+                });
+            });
+
+            prevBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    showTab(parseInt(this.dataset.prev));
+                });
+            });
+
+            // Add input event listeners to all form fields
+            const formFields = form.querySelectorAll('input, select, textarea');
+            formFields.forEach(field => {
+                field.addEventListener('input', function() {
+                    this.classList.remove('invalid-field');
+                });
+
+                field.addEventListener('change', function() {
+                    this.classList.remove('invalid-field');
+                });
+            });
+
+            // Form submission handling
+            window.handleSubmit = function(event) {
+                // Validate required fields only on submit
+                const requiredFields = form.querySelectorAll('input[required], select[required], textarea[required]');
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        isValid = false;
+                        field.classList.add('invalid-field');
+                    } else {
+                        field.classList.remove('invalid-field');
+                    }
+                });
+                
+                // Check if form was already submitted
+                if (form.getAttribute('data-submitted') === 'true') {
+                    event.preventDefault();
+                    return false;
+                }
+
+                // Disable submit button and update text
+                submitBtn.disabled = true;
+                submitBtn.classList.add('disabled');
+                submitBtn.textContent = 'جاري الإرسال...';
+                
+                // Mark form as submitted
+                form.setAttribute('data-submitted', 'true');
+                return true;
+            };
+
+            // Reset form submission state
+            const resetFormState = function() {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('disabled');
+                    submitBtn.textContent = 'إرسال';
+                }
+                form.removeAttribute('data-submitted');
+            };
+
+            // Add reset event listener
+            form.addEventListener('reset', resetFormState);
+
+            // Handle success message display
+            if (successFlag) {
+                // Show success message and hide welcome text
+                if (successMessage && welcomeText) {
+                    welcomeText.style.display = 'none';
+                    successMessage.style.display = 'block';
+                    
+                    // After 8 seconds, hide success message and show welcome text
+                    setTimeout(function() {
+                        successMessage.style.animation = 'fadeOut 0.5s ease-in-out forwards';
+                        
+                        setTimeout(function() {
+                            successMessage.style.display = 'none';
+                            welcomeText.style.display = 'block';
+                            welcomeText.style.animation = 'fadeIn 0.5s ease-in-out';
+                        }, 500);
+                    }, 8000);
+                }
+                
+                // Ensure we're on the first tab
+                showTab(1);
+            }
+        });
+    </script>
+</body>
+</html>

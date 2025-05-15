@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة تحكم المالية{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">المالية</h1>
+</div>
+
+<div class="dashboard-grid">
+
+    <!-- Currencies Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-currency-exchange"></i>
+        </div>
+        <div class="card-content">
+            <h3>العملات</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_currencies }}</span>
+                    <span class="stat-label">عدد العملات</span>
+                </div>
+            </div>
+            <a href="{% url 'currencies' %}" class="card-action">عرض العملات</a>
+        </div>
+    </div>
+
+    <!-- Currencies Exchange Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-arrow-left-right"></i>
+        </div>
+        <div class="card-content">
+            <h3>تحويل العملات</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_exchanges }}</span>
+                    <span class="stat-label">عدد عمليات التعادل</span>
+                </div>
+            </div>
+            <a href="{% url 'exchanges' %}" class="card-action">عرض عمليات التحويل</a>
+        </div>
+    </div>
+
+    <!-- Accounts Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-bank"></i>
+        </div>
+        <div class="card-content">
+            <h3>الحسابات</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_accounts }}</span>
+                    <span class="stat-label">عدد الحسابات</span>
+                </div>
+            </div>
+            <a href="{% url 'accounts' %}" class="card-action">عرض الحسابات</a>
+        </div>
+    </div>
+
+    <!-- Salarie Blocks Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="card-content">
+            <h3>كتل الرواتب</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_salarie_blocks }}</span>
+                    <span class="stat-label">عدد كتل الرواتب</span>
+                </div>
+            </div>
+            <a href="{% url 'salaries' %}" class="card-action">عرض كتل الرواتب</a>
+        </div>
+    </div>
+
+    <!-- Account Movement Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <div class="card-content">
+            <h3>حركات الحساب</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_account_movements }}</span>
+                    <span class="stat-label">عدد الحركات</span>
+                </div>
+            </div>
+            <a href="{% url 'account_movements' %}" class="card-action">عرض الحركات</a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!-- documents/templates/documents/upload.html -->
+
+{% extends "base.html" %}
+
+{% block title %}تحميل المستند{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">تحميل المستند</h1>
+</div>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-cloud-upload"></i>
+        </div>
+        <div class="card-content">
+            <h3>اختر الملف</h3>
+            <p>اختر مستندًا للتحميل (PDF أو صور أو مقاطع فيديو)</p>
+            
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                <div class="file-upload-wrapper">
+                    {{ form.file }}
+                    {% if form.file.errors %}
+                        <div class="form-error">{{ form.file.errors }}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="card-action">تحميل المستند</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+

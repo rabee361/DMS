@@ -1,0 +1,26 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+        <th>المعرف</th>
+        <th>اسم الحساب</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+<tbody>
+    {% for account in accounts %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'account_info' account.id %}">
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ account.id }}">
+        </td>
+        <td>{{ account.id }}</td>
+        <td>{{ account.name }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_account' account.id %}" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

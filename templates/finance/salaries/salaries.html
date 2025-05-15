@@ -1,0 +1,428 @@
+{% extends "base.html" %}
+
+{% block title %}قائمة الرواتب{% endblock %}
+
+{% block content %}
+
+<style>
+    .tree-container {
+        margin: 20px 0;
+        direction: rtl;
+    }
+    .tree-controls {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+    .date-range-form {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 15px;
+    }
+    .date-input-group {
+        display: flex;
+        flex-direction: column;
+        min-width: 200px;
+    }
+    .date-label {
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    .date-input {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+    .calculate-btn {
+        padding: 8px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        height: 38px;
+        margin-top: auto;
+    }
+    .calculate-btn:hover {
+        background-color: #218838;
+    }
+    .search-controls {
+        flex: 1;
+        margin-left: 15px;
+    }
+    .search-input {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+    }
+    .action-select {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        margin-left: 10px;
+    }
+    .do-action-btn {
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .tree {
+        list-style: none;
+        padding: 0;
+    }
+    .tree-item {
+        border: 1px solid #e0e0e0;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .tree-item-header {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        background-color: #f8f9fa;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .tree-item-header:hover {
+        background-color: #e9ecef;
+    }
+    .tree-item-header.selected {
+        background-color: #e7f1ff;
+    }
+    .tree-checkbox {
+        margin-left: 15px;
+    }
+    .tree-id {
+        width: 80px;
+        font-weight: bold;
+    }
+    .tree-name {
+        flex: 1;
+    }
+    .tree-salary {
+        width: 120px;
+        text-align: center;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .tree-actions {
+        width: 80px;
+        display: flex;
+        justify-content: flex-end;
+    }
+    .delete-btn {
+        color: #dc3545;
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    .tree-content {
+        padding: 15px;
+        display: none;
+        border-top: 1px solid #e0e0e0;
+        background-color: #f8f9fa;
+    }
+    .tree-toggle {
+        margin-left: 10px;
+        transition: transform 0.3s;
+    }
+    .expanded .tree-toggle {
+        transform: rotate(90deg);
+    }
+    .pagination-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+    .pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+    }
+    .pagination li {
+        margin: 0 5px;
+    }
+    .page-link {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        color: #007bff;
+        text-decoration: none;
+    }
+    .page-link.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+    
+    /* Additional styles for employee details */
+    .employee-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+    .detail-section {
+        background: white;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    .detail-section h4 {
+        margin-top: 0;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        color: #333;
+    }
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed #eee;
+    }
+    .detail-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .detail-label {
+        color: #666;
+    }
+    .detail-value {
+        font-weight: bold;
+    }
+    .addition-amount {
+        color: #28a745;
+    }
+    .deduction-amount {
+        color: #dc3545;
+    }
+    .salary-summary {
+        background: #343a40;
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        margin-top: 20px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .summary-item {
+        text-align: center;
+    }
+    .summary-label {
+        font-size: 0.9em;
+        margin-bottom: 5px;
+    }
+    .summary-value {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .progress-container {
+        margin-top: 5px;
+        background: #e9ecef;
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #007bff, #00c6ff);
+        transition: width 0.5s ease;
+    }
+</style>
+
+<div class="tree-container">
+    <div class="tree-controls">
+        <form class="date-range-form" id="salaryCalculationForm" hx-post="{% url 'salaries' %}" hx-target="#departmentsTree" hx-indicator=".htmx-indicator">
+            {% csrf_token %}
+            <div class="date-input-group">
+                <label for="start_date" class="date-label">تاريخ البداية</label>
+                <input type="date" id="start_date" name="start_date" class="date-input" required>
+            </div>
+            <div class="date-input-group">
+                <label for="end_date" class="date-label">تاريخ النهاية</label>
+                <input type="date" id="end_date" name="end_date" class="date-input" required>
+            </div>
+            <button type="submit" class="calculate-btn">
+                <i class="bi bi-calculator"></i> حساب الرواتب
+            </button>
+            <div class="htmx-indicator" style="display: none;">جاري الحساب...</div>
+        </form>
+    </div>
+
+    <ul class="tree" id="departmentsTree">
+        {% for data in employee_data %}
+            {% with employee=data.employee additions_discounts=data.additions_discounts absences=data.absences holidays=data.holidays extras=data.extras %}
+            <li class="tree-item" data-id="{{ employee.id }}" data-salary="{{ employee.base_salary|floatformat:0 }}">
+                <div class="tree-item-header" onclick="toggleTreeItem(this)">
+                    <i class="bi bi-chevron-right tree-toggle"></i>
+                    <input type="checkbox" class="item-checkbox tree-checkbox" value="{{ employee.id }}" onclick="event.stopPropagation();">
+                    <span class="tree-id">{{ employee.id }}</span>
+                    <span class="tree-name">{{ employee.get_full_name|default:employee.username }}</span>
+                    <span class="tree-salary">
+                        {{ employee.base_salary|floatformat:0 }} 
+                        {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                    </span>
+                </div>
+                <div class="tree-content">
+                    <div class="employee-details">
+                        <div class="detail-section">
+                            <h4>الإضافات</h4>
+                            {% for extra in extras %}
+                                <div class="detail-item">
+                                    <span class="detail-label">عمل إضافي ({{ extra.start }})</span>
+                                    <span class="detail-value addition-amount" data-amount="{{ extra.value|floatformat:2 }}">
+                                        + {{ extra.value|floatformat:2 }} 
+                                        {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                    </span>
+                                </div>
+                            {% empty %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد عمل إضافي</span></div>
+                            {% endfor %}
+                            {% for ad in additions_discounts %}
+                                {% if ad.type == "ADDITION" %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">{{ ad.get_type_display }}</span>
+                                        <span class="detail-value addition-amount" data-amount="{{ ad.value|floatformat:2 }}">
+                                            + {{ ad.value|floatformat:2 }} 
+                                            {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <div class="detail-section">
+                            <h4>الخصومات</h4>
+                            {% if absences %}
+                                {% for absence in absences %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">غياب ({{ absence.start }} - {{ absence.end }})</span>
+                                        <span class="detail-value deduction-amount" data-amount="0">
+                                            <!-- حساب الخصم بناءً على الغياب يمكن إضافته هنا -->
+                                        </span>
+                                    </div>
+                                    {% endfor %}
+                            {% else %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد غياب</span></div>
+                            {% endif %}
+                            {% for holiday in holidays %}
+                                {% if not holiday.paid %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">إجازة غير مدفوعة ({{ holiday.start }})</span>
+                                        <span class="detail-value deduction-amount" data-amount="0">
+                                            <!-- حساب الخصم بناءً على الإجازة غير المدفوعة يمكن إضافته هنا -->
+                                        </span>
+                                    </div>
+                                {% else %}
+                                    <div class="detail-item"><span class="detail-label">لا يوجد إجازة غير مدفوعة</span></div>
+                                {% endif %}
+                            {% endfor %}
+                            {% for ad in additions_discounts %}
+                                {% if ad.type == "DISCOUNT" %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">{{ ad.get_type_display }}</span>
+                                        <span class="detail-value deduction-amount" data-amount="{{ ad.value|floatformat:2 }}">
+                                            - {{ ad.value|floatformat:2 }} 
+                                            {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="salary-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">الراتب الأساسي</div>
+                            <div class="summary-value">
+                                {{ employee.base_salary|floatformat:2 }} 
+                                {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">الإضافات</div>
+                            <div class="summary-value">
+                                {# مجموع الإضافات #}
+                                {% with total_add=0 %}
+                                    {% for extra in extras %}
+                                        {% widthratio extra.days 1 extra.value_per_hour as extra_total %}
+                                        {% with total_add=total_add|add:extra_total %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                    {% for ad in additions_discounts %}
+                                        {% if ad.type == "ADDITION" %}
+                                            {% with total_add=total_add|add:ad.value %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ total_add|floatformat:2 }} 
+                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">الخصومات</div>
+                            <div class="summary-value">
+                                {# مجموع الخصومات #}
+                                {% with total_deduct=0 %}
+                                    {% for ad in additions_discounts %}
+                                        {% if ad.type == "DISCOUNT" %}
+                                            {% with total_deduct=total_deduct|add:ad.value %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ total_deduct|floatformat:2 }} 
+                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">الصافي</div>
+                            <div class="summary-value net-salary-value">
+                                {# الصافي = الراتب الأساسي + الإضافات - الخصومات #}
+                                {% with total_add=0 total_deduct=0 %}
+                                    {% for extra in extras %}
+                                        {% widthratio extra.days 1 extra.value_per_hour as extra_total %}
+                                        {% with total_add=total_add|add:extra_total %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                    {% for ad in additions_discounts %}
+                                        {% if ad.type == "ADDITION" %}
+                                            {% with total_add=total_add|add:ad.value %}
+                                            {% endwith %}
+                                        {% elif ad.type == "DISCOUNT" %}
+                                            {% with total_deduct=total_deduct|add:ad.value %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ employee.base_salary|add:total_add|floatformat:2|add:"-"|add:total_deduct|floatformat:2 }} 
+                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% endwith %}
+        {% endfor %}
+    </ul>
+
+    <!-- <div class="pagination-container">
+        <ul class="pagination">
+            <li><a href="#" class="page-link">السابق</a></li>
+            <li><a href="#" class="page-link">1</a></li>
+            <li><a href="#" class="page-link active">2</a></li>
+            <li><a href="#" class="page-link">3</a></li>
+            <li><a href="#" class="page-link">التالي</a></li>
+        </ul>
+    </div> -->
+</div>
+{% endblock %}

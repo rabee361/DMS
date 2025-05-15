@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">لوحة التحكم</h1>
+</div>
+
+<div class="dashboard-grid">
+    <!-- User Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <div class="card-content">
+            <h3>إدارة المستخدمين</h3>
+            <p>إدارة المستخدمين وأدوارهم داخل النظام.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_users }}</span>
+                    <span class="stat-label">إجمالي المستخدمين</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ active_users }}</span>
+                    <span class="stat-label">المستخدمين النشطين</span>
+                </div>
+            </div>
+            <a href="{% url 'users' %}" class="card-action">الذهاب إلى المستخدمين</a>
+        </div>
+    </div>
+
+    <!-- Document Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-folder"></i>
+        </div>
+        <div class="card-content">
+            <h3>إدارة المستندات</h3>
+            <p>تحميل وإدارة المستندات مثل ملفات PDF والصور ومقاطع الفيديو.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_documents }}</span>
+                    <span class="stat-label">المستندات</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ total_groups }}</span>
+                    <span class="stat-label">المجموعات</span>
+                </div>
+            </div>
+            <a href="{% url 'documents' %}" class="card-action">الذهاب إلى المستندات</a>
+        </div>
+    </div>
+
+    <!-- HR Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-briefcase"></i>
+        </div>
+        <div class="card-content">
+            <h3>إدارة الموارد البشرية</h3>
+            <p>إدارة الموظفين والعطلات والغيابات والمزيد...</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_employees }}</span>
+                    <span class="stat-label">الموظفين</span>
+                </div>
+            </div>
+            <a href="{% url 'hr' %}" class="card-action">الذهاب إلى الموارد البشرية</a>
+        </div>
+    </div>
+
+    <!-- Task Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-list-task"></i>
+        </div>
+        <div class="card-content">
+            <h3>إدارة المهام</h3>
+            <p>إدارة وتتبع المهام والمشاريع.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_tasks }}</span>
+                    <span class="stat-label">المهام</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ total_finished_tasks }}</span>
+                    <span class="stat-label">المكتملة</span>
+                </div>
+            </div>
+            <a href="{% url 'tasks-list' %}" class="card-action">الذهاب إلى المهام</a>
+        </div>
+    </div>
+
+    <!-- Reports Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-clipboard-data"></i>
+        </div>
+        <div class="card-content">
+            <h3>الاستبيانات</h3>
+            <p>عرض وتحليل الاستبيانات المختلفة.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_forms }}</span>
+                    <span class="stat-label">الاستبيانات</span>
+                </div>
+            </div>
+            <a href="{% url 'form_builder' %}" class="card-action">الذهاب إلى منشئ الاستبيانات</a>
+        </div>
+    </div>
+
+    <!-- Settings Card -->
+    <!-- <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-gear"></i>
+        </div>
+        <div class="card-content">
+            <h3>الإعدادات</h3>
+            <p>تعديل إعدادات النظام والتفضيلات.</p>
+            <a href="" class="card-action">الذهاب إلى الإعدادات</a>
+        </div>
+    </div> -->
+</div>
+{% endblock %}

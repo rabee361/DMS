@@ -1,0 +1,34 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+        <th>المعرف</th>
+        <th>الموظف</th>
+        <th>القيمة</th>
+        <th>النوع</th>
+        <th>البدء</th>
+        <th>النهاية</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+<tbody>
+    {% for addition_discount in additions_discounts %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'addition_discount_info' addition_discount.id %}">
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ addition_discount.id }}">
+        </td>
+        <td>{{ addition_discount.id }}</td>
+        <td>{{ addition_discount.employee.username }}</td>
+        <td>{{ addition_discount.value }}</td>
+        <td>{{ addition_discount.get_type_display }}</td>
+        <td>{{ addition_discount.start }}</td>
+        <td>{{ addition_discount.end }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_addition_discount' addition_discount.id %}" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
