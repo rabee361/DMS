@@ -8,7 +8,7 @@ from django.views import View
 from .models import *
 from .forms import *
 # from users.models import User
-from .forms import EmployeeRegistrationForm , EmployeeUpdateForm , HolidayForm , WorkGoalForm , HRSettingsForm , AbsenceForm
+from .forms import EmployeeRegistrationForm , EmployeeUpdateForm , HolidayForm , WorkGoalForm , HRSettingsForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test
@@ -16,7 +16,7 @@ from django.contrib.auth import get_user_model
 import datetime
 from django.http import HttpResponse
 from django.urls import reverse_lazy
-from .resources import EmployeeResource, HolidayResource, AbsenceResource, RecruitmentResource
+from .resources import EmployeeResource, HolidayResource, RecruitmentResource
 from utility.permissioms import hr_criteria_add_perm, hr_criteria_delete_perm, hr_criteria_edit_perm
 from django.views.generic import ListView, DeleteView, CreateView, UpdateView
 from utility.helper import change_format, reverse_format
@@ -30,7 +30,6 @@ User = get_user_model()
 class MainHR(View):
     def get(self, request):
         total_holidays = Holiday.objects.count()
-        total_absences = Absence.objects.count()
         total_additions_discounts = AdditionDiscount.objects.count()
         total_employees = Employee.objects.count()
         total_extras = ExtraWork.objects.count()
@@ -43,7 +42,6 @@ class MainHR(View):
         total_positions = Position.objects.count()
         return render(request, 'hr_tool/HR.html', {
             'total_holidays': total_holidays,
-            'total_absences': total_absences,
             'total_additions_discounts': total_additions_discounts,
             'total_extras': total_extras,
             'total_employees': total_employees,
@@ -111,9 +109,7 @@ class UpdateEmployeeView(UpdateView):
     def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         holidays = Holiday.objects.filter(employee=self.object).count()  # get number of holidays for the employee
-        absences = Absence.objects.filter(employee=self.object).count()  # get number of absences for the employee
         context['holidays'] = holidays
-        context['absences'] = absences
         return context
 
 
@@ -269,73 +265,6 @@ class ExtraWorkActionView(View):
             extra_works.delete()
 
         return redirect('extras')
-
-
-
-
-@method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
-class CreateAbsenceView(CreateView):
-    model = Absence
-    form_class = AbsenceForm
-    template_name = 'hr_tool/absence/absence_form.html'
-    success_url = reverse_lazy('absences_list')
-
-
-@method_decorator([login_required, user_passes_test(hr_criteria_add_perm)], name='dispatch')
-class ListAbsenceView(ListView):
-    model = Absence
-    template_name = 'hr_tool/absence/absences.html'
-    context_object_name = 'absences'
-    paginate_by = 10
-
-    def get_queryset(self) -> QuerySet[Any]:
-        queryset = super().get_queryset()
-        q = self.request.GET.get('q', None)
-        if q:
-            queryset = queryset.filter(
-                employee__username__startswith=q
-            )
-        return queryset
-
-
-@method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
-class AbsenceActionView(View):
-    def post(self, request):
-        selected_ids = json.loads(request.POST.get('selected_ids', '[]'))
-        absences = Absence.objects.filter(id__in=selected_ids)
-        # perform DB operation depending on the chosen action
-        if request.POST.get('action') == 'delete':
-            absences.delete()
-
-        elif request.POST.get('action') == 'export_excel':
-            absence_resource = AbsenceResource()
-            dataset = absence_resource.export(absences)
-            dataset = dataset.export(format='xlsx')
-            response = HttpResponse(
-                dataset,
-                content_type='application/vnd.ms-excel'
-            )
-            response['Content-Disposition'] = f'attachment; filename="absences_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx"'
-            return response
-
-        return redirect('absences_list')
-
-0
-@method_decorator([login_required, user_passes_test(hr_criteria_edit_perm)], name='dispatch')
-class UpdateAbsenceView(UpdateView):
-    model = Absence
-    form_class = AbsenceForm
-    template_name = 'hr_tool/absence/absence_form.html'
-    success_url = reverse_lazy('absences_list')
-    context_object_name = 'absence'
-
-
-@method_decorator([login_required, user_passes_test(hr_criteria_delete_perm)], name='dispatch')
-class DeleteAbsenceView(DeleteView):
-    model = Absence
-    template_name = 'hr_tool/absence/list_absences.html'
-    success_url = reverse_lazy('absences_list')
-    context_object_name = 'absence'
 
 
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')

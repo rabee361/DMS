@@ -5,7 +5,6 @@ from .models import *
 
 admin.site.register(Employee)
 admin.site.register(Holiday)
-admin.site.register(Absence)
 admin.site.register(Skill)
 admin.site.register(WorkGoal)
 admin.site.register(Recruitment)

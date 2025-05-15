@@ -59,6 +59,9 @@
                         <a href="#" class="copy-btn" data-url="{{ form.get_absolute_url }}">
                             <i class="bi bi-clipboard"></i>
                         </a>
+                        <a href="{% url 'update_form' form.id %}" class="edit-btn">
+                            <i class="bi bi-pencil"></i>
+                        </a>
                     </div>
                 </td>
             </tr>

@@ -104,19 +104,13 @@ class Holiday(models.Model):
     @property
     def hours(self):
         return self.days * self.employee.department.work_hours
+    
+    @property
+    def holiday_discount(self):
+        return (self.employee.base_salary / 30) * self.days
 
     def __str__(self) -> str:
         return f'{self.employee.username}'
-
-
-
-class Absence(models.Model):
-    employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
-    start = models.DateField()
-    end = models.DateField()
-
-    def __str__(self) -> str:
-        return f'{self.employee.username} - {self.days}'
 
 
 
@@ -127,6 +121,10 @@ class ExtraWork(models.Model):
     notes = models.TextField(blank=True,null=True)
     value_per_hour = models.FloatField(validators=[MinValueValidator(0)])
     currency = models.ForeignKey(Currency , on_delete=models.CASCADE , blank=True , null=True)
+
+    @property
+    def total_extra_work_value(self):
+        return self.value_per_hour * self.days
 
     def __str__(self) -> str:
         return f'{self.employee.username} - {self.days}'

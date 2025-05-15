@@ -25,13 +25,6 @@ urlpatterns = [
     path('extras/<str:pk>' , views.UpdateExtraWorkView.as_view() , name="extra_info"),
     path('extras/<str:pk>/delete' , views.DeleteExtraWorkView.as_view() , name="delete_extra"),
 
-    # employee's absences with/without reason by admin
-    path('absences/' , views.ListAbsenceView.as_view() , name="absences_list"),
-    path('absences/action/' , views.AbsenceActionView.as_view() , name="absences_action"),
-    path('absences/add' , views.CreateAbsenceView.as_view() , name="create_absence"),
-    path('absences/<str:pk>' , views.UpdateAbsenceView.as_view() , name="absence_info"),
-    path('absences/<str:pk>/delete' , views.DeleteAbsenceView.as_view() , name="delete_absence"),
-
     # Recruitment to store info about recruiters and thier interview process
     path('recruiters/' , views.ListRecruitersView.as_view() , name="recruiters_list"),
     path('recruiters/action' , views.RecruitersActionView.as_view() , name="recruiters_action"),

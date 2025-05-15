@@ -7,7 +7,8 @@ class AddRecordForm(forms.Form):
 
 
 class CustomSurveyForm(forms.ModelForm):
+    logo = forms.ImageField(widget=forms.FileInput(attrs={'class': 'form-control-file', 'name': 'logo', 'id': 'id_logo'}))
     class Meta:
         model = CustomForm
-        fields = ['name', 'title', 'welcome', 'language']
+        fields = ['name', 'title', 'welcome', 'language', 'template', 'logo']
 

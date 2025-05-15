@@ -16,10 +16,16 @@ class FinanceView(View):
         total_accounts = Account.objects.count()
         total_currencies = Currency.objects.count()
         total_exchanges = ExchangePrice.objects.count()
+        total_expenses = Expense.objects.count()
+        total_salaries = SalaryBlock.objects.count()
+        total_account_movements = AccountMovement.objects.count()
         context = { 
             'total_accounts': total_accounts,
             'total_currencies': total_currencies,
-            'total_exchanges': total_exchanges
+            'total_exchanges': total_exchanges,
+            'total_expenses': total_expenses,
+            'total_salaries': total_salaries,
+            'total_account_movements': total_account_movements
         }
         return render(request, 'finance/finance.html', context)
 
@@ -177,6 +183,63 @@ class AccountActionView(View):
 
 
 
+
+# ------------------ Expense Views ------------------
+
+@method_decorator(login_required, name='dispatch')
+class ListExpensesView(ListView):
+    model = Expense
+    template_name = 'finance/expenses/expenses.html'
+    context_object_name = 'expenses'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q = self.request.GET.get('q', None)
+        if q:
+            queryset = queryset.filter(name__icontains=q)
+        return queryset
+
+@method_decorator(login_required, name='dispatch')
+class CreateExpenseView(CreateView):
+    model = Expense
+    form_class = ExpenseForm
+    template_name = 'finance/expenses/expense_form.html'
+    success_url = reverse_lazy('expenses')
+
+@method_decorator(login_required, name='dispatch')
+class UpdateExpenseView(UpdateView):
+    model = Expense
+    form_class = ExpenseForm
+    template_name = 'finance/expenses/expense_form.html'
+    success_url = reverse_lazy('expenses')
+    pk_url_kwarg = 'id'
+
+@method_decorator(login_required, name='dispatch')
+class DeletEexpenseView(DeleteView):
+    model = Expense
+    template_name = 'finance/expenses/delete_expense.html'
+    context_object_name = 'expense'
+    success_url = reverse_lazy('expenses')
+    pk_url_kwarg = 'id'
+
+@method_decorator(login_required, name='dispatch')
+class ExpenseActionView(View):
+    def post(self, request):
+        selected_items = json.loads(request.POST.get('selected_ids', '[]'))
+        expenses = Expense.objects.filter(id__in=selected_items)
+
+        # perform DB operation depending on the chosen action
+        if request.POST.get('action') == 'delete':
+            expenses.delete()
+
+        return redirect('expenses')
+
+
+
+
+
+
 # ------------------ Salary Views ------------------
 
 @method_decorator(login_required, name='dispatch')
@@ -203,15 +266,13 @@ class CalculateSalaryView(View):
     def get(self, request):
         employees = Employee.objects.all().prefetch_related(
             'additiondiscount_set',
-            'absence_set',
             'holiday_set',
             'extrawork_set'
         )
-        # For each employee, gather related extras, absences, leaves, and addition-discounts
+        # For each employee, gather related extras, leaves, and addition-discounts
         employee_data = []
         for employee in employees:
             additions_discounts = employee.additiondiscount_set.all()
-            absences = employee.absence_set.all()
             holidays = employee.holiday_set.all()
             extras = employee.extrawork_set.all()
             # Calculate total extra work value (value * days for each extra)
@@ -222,7 +283,6 @@ class CalculateSalaryView(View):
             employee_data.append({
                 'employee': employee,
                 'additions_discounts': additions_discounts,
-                'absences': absences,
                 'holidays': holidays,
                 'extras': extras,
                 'total_extra_work_value': total_extra_work_value,

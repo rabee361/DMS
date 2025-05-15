@@ -1,5 +1,5 @@
 from import_export import resources
-from .models import Employee, Holiday , Recruitment, Absence
+from .models import Employee, Holiday , Recruitment
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -21,10 +21,4 @@ class RecruitmentResource(resources.ModelResource):
     class Meta:
         model = Recruitment
         fields = ['first_name', 'last_name', 'birthday', 'state', 'position', 'department']
-
-
-class AbsenceResource(resources.ModelResource):
-    class Meta:
-        model = Absence
-        fields = ['id', 'employee', 'days', 'start', 'end']
 

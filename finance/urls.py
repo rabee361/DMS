@@ -23,6 +23,12 @@ urlpatterns = [
     path('accounts/delete/<int:id>/', views.DeleteAccountView.as_view(), name="delete_account"),
     path('accounts/action/', views.AccountActionView.as_view(), name="accounts_action"),
 
+    path('expenses/', views.ListExpensesView.as_view(), name="expenses"),
+    path('expenses/add', views.CreateExpenseView.as_view(), name="create_expense"),
+    path('expenses/<int:id>/', views.UpdateExpenseView.as_view(), name="expense_info"),
+    path('expenses/delete/<int:id>/', views.DeletEexpenseView.as_view(), name="delete_expense"),
+    path('expenses/action/', views.ExpenseActionView.as_view(), name="expenses_action"),
+
     path('account_movements/', views.ListAccountMovementsView.as_view(), name="account_movements"),
     path('account_movements/add', views.CreateAccountMovementView.as_view(), name="create_account_movement"),
     path('account_movements/<int:id>/', views.UpdateAccountMovementView.as_view(), name="account_movement_info"),

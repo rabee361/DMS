@@ -74,20 +74,6 @@ class AdditionDiscountForm(forms.ModelForm):
         model = AdditionDiscount
         fields = ['employee', 'value', 'currency', 'type', 'start', 'end']
 
-
-class AbsenceForm(forms.ModelForm):
-    start = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
-    )
-    end = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})
-    )
-    
-    class Meta:
-        model = Absence
-        fields = ['start', 'end', 'employee']
-
-
 class SkillForm(forms.ModelForm):
     class Meta:
         model = Skill

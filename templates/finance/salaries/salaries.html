@@ -261,7 +261,7 @@
 
     <ul class="tree" id="departmentsTree">
         {% for data in employee_data %}
-            {% with employee=data.employee additions_discounts=data.additions_discounts absences=data.absences holidays=data.holidays extras=data.extras %}
+            {% with employee=data.employee additions_discounts=data.additions_discounts holidays=data.holidays extras=data.extras %}
             <li class="tree-item" data-id="{{ employee.id }}" data-salary="{{ employee.base_salary|floatformat:0 }}">
                 <div class="tree-item-header" onclick="toggleTreeItem(this)">
                     <i class="bi bi-chevron-right tree-toggle"></i>
@@ -280,8 +280,8 @@
                             {% for extra in extras %}
                                 <div class="detail-item">
                                     <span class="detail-label">عمل إضافي ({{ extra.start }})</span>
-                                    <span class="detail-value addition-amount" data-amount="{{ extra.value|floatformat:2 }}">
-                                        + {{ extra.value|floatformat:2 }} 
+                                    <span class="detail-value addition-amount" data-amount="{{ extra.total_extra_work_value|floatformat:2 }}">
+                                        + {{ extra.total_extra_work_value|floatformat:2 }} 
                                         {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
                                     </span>
                                 </div>
@@ -302,29 +302,18 @@
                         </div>
                         <div class="detail-section">
                             <h4>الخصومات</h4>
-                            {% if absences %}
-                                {% for absence in absences %}
-                                    <div class="detail-item">
-                                        <span class="detail-label">غياب ({{ absence.start }} - {{ absence.end }})</span>
-                                        <span class="detail-value deduction-amount" data-amount="0">
-                                            <!-- حساب الخصم بناءً على الغياب يمكن إضافته هنا -->
-                                        </span>
-                                    </div>
-                                    {% endfor %}
-                            {% else %}
-                                <div class="detail-item"><span class="detail-label">لا يوجد غياب</span></div>
-                            {% endif %}
                             {% for holiday in holidays %}
                                 {% if not holiday.paid %}
                                     <div class="detail-item">
                                         <span class="detail-label">إجازة غير مدفوعة ({{ holiday.start }})</span>
-                                        <span class="detail-value deduction-amount" data-amount="0">
-                                            <!-- حساب الخصم بناءً على الإجازة غير المدفوعة يمكن إضافته هنا -->
+                                        <span class="detail-value deduction-amount" data-amount="{{ holiday.holiday_discount|floatformat:2 }}">
+                                            - {{ holiday.holiday_discount|floatformat:2 }} 
+                                            {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
                                         </span>
                                     </div>
-                                {% else %}
-                                    <div class="detail-item"><span class="detail-label">لا يوجد إجازة غير مدفوعة</span></div>
                                 {% endif %}
+                            {% empty %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد إجازة غير مدفوعة</span></div>
                             {% endfor %}
                             {% for ad in additions_discounts %}
                                 {% if ad.type == "DISCOUNT" %}
@@ -353,8 +342,7 @@
                                 {# مجموع الإضافات #}
                                 {% with total_add=0 %}
                                     {% for extra in extras %}
-                                        {% widthratio extra.days 1 extra.value_per_hour as extra_total %}
-                                        {% with total_add=total_add|add:extra_total %}
+                                        {% with total_add=total_add|add:extra.total_extra_work_value %}
                                         {% endwith %}
                                     {% endfor %}
                                     {% for ad in additions_discounts %}
@@ -379,6 +367,12 @@
                                             {% endwith %}
                                         {% endif %}
                                     {% endfor %}
+                                    {% for holiday in holidays %}
+                                        {% if not holiday.paid %}
+                                            {% with total_deduct=total_deduct|add:holiday.holiday_discount %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
                                     {{ total_deduct|floatformat:2 }} 
                                     {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
                                 {% endwith %}
@@ -390,8 +384,7 @@
                                 {# الصافي = الراتب الأساسي + الإضافات - الخصومات #}
                                 {% with total_add=0 total_deduct=0 %}
                                     {% for extra in extras %}
-                                        {% widthratio extra.days 1 extra.value_per_hour as extra_total %}
-                                        {% with total_add=total_add|add:extra_total %}
+                                        {% with total_add=total_add|add:extra.total_extra_work_value %}
                                         {% endwith %}
                                     {% endfor %}
                                     {% for ad in additions_discounts %}
@@ -400,6 +393,12 @@
                                             {% endwith %}
                                         {% elif ad.type == "DISCOUNT" %}
                                             {% with total_deduct=total_deduct|add:ad.value %}
+                                            {% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% for holiday in holidays %}
+                                        {% if not holiday.paid %}
+                                            {% with total_deduct=total_deduct|add:holiday.holiday_discount %}
                                             {% endwith %}
                                         {% endif %}
                                     {% endfor %}

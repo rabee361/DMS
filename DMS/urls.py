@@ -14,6 +14,7 @@ urlpatterns = [
     path('dms/documents/', include('documents.urls')),
     path('dms/tasks/', include('tasks.urls')),
     path('dms/hr/', include('hr_tool.urls')),
+    path('dms/warehouses/', include('warehouses.urls')),
     path('dms/form-builder/', include('form_builder.urls')),
     path('dms/finance/', include('finance.urls')),
     path('dms/stats/', include('stats.urls')),

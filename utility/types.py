@@ -24,6 +24,13 @@ class PermissionLevel(models.TextChoices):
     USER = 'user'
 
 
+class InvoiceType(models.TextChoices):
+    SELL = 'مبيع'
+    BUY = 'شراء'
+    SELL_RETURN = 'مرتجع مبيع'
+    BUY_RETURN = 'مرتجع شراء'
+    INPUT = 'ادخال'
+    OUTPUT = 'اخراج'
 
 class DateFormat(models.TextChoices):
     DMY = 'dd/mm/yyyy'

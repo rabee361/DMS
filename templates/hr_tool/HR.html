@@ -8,36 +8,18 @@
 </div>
 
 <div class="dashboard-grid">
-    <!-- Absences Management Card -->
-    <div class="dashboard-card">
-        <div class="card-icon">
-            <i class="bi bi-calendar-x"></i>
-        </div>
-        <div class="card-content">
-            <h3>إدارة الغيابات</h3>
-            <p>تتبع وإدارة غيابات وإجازات الموظفين.</p>
-            <div class="card-stats">
-                <div class="stat">
-                    <span class="stat-value">{{ total_absences }}</span>
-                    <span class="stat-label">الإجمالي</span>
-                </div>
-            </div>
-            <a href="{% url 'absences_list' %}" class="card-action">الذهاب إلى الغيابات</a>
-        </div>
-    </div>
-
     <!-- Holiday Management Card -->
     <div class="dashboard-card">
         <div class="card-icon">
             <i class="bi bi-calendar-check"></i>
         </div>
         <div class="card-content">
-            <h3>إدارة العطلات</h3>
-            <p>إدارة وتخصيص العطلات للموظفين.</p>
+            <h3>إدارة الإجازات</h3>
+            <p>إدارة وتخصيص الإجازات للموظفين.</p>
             <div class="card-stats">
                 <div class="stat">
                     <span class="stat-value">{{ total_holidays }}</span>
-                    <span class="stat-label">العطلات</span>
+                    <span class="stat-label">الإجازات</span>
                 </div>
                 <div class="stat">
                     <span class="stat-value">{{ approved_holidays }}</span>

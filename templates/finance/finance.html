@@ -76,6 +76,22 @@
             <a href="{% url 'salaries' %}" class="card-action">عرض كتل الرواتب</a>
         </div>
     </div>
+    <!-- Expenses Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div class="card-content">
+            <h3>المصروفات</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_expenses }}</span>
+                    <span class="stat-label">عدد المصروفات</span>
+                </div>
+            </div>
+            <a href="{% url 'expenses' %}" class="card-action">عرض المصروفات</a>
+        </div>
+    </div>
 
     <!-- Account Movement Card -->
     <div class="dashboard-card">

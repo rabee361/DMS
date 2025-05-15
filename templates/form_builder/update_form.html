@@ -6,8 +6,8 @@
 <div class="form-container" dir="rtl">
     <div class="styled-form">
         <div class="form-header">
-            <h2>إنشاء استبيان جديد</h2>
-            <p class="form-subtitle">أدخل معلومات الاستبيان التي تريد إنشاءها</p>
+            <h2>تحديث الاستبيان</h2>
+            <p class="form-subtitle">تعديل معلومات الاستبيان</p>
         </div>
 
         <form method="post" class="form-create-form" enctype="multipart/form-data">
@@ -75,7 +75,7 @@
                 
                 <div class="template-options">
                     <label class="template-option">
-                        <input type="radio" name="{{ form.template.html_name }}" value="1" {% if form.template.value == "1" or not form.template.value %}checked{% endif %}>
+                        <input type="radio" name="template" value="1" {% if selected_template == '1' %}checked{% endif %}>
                         <div class="template-preview">
                             <img src="/static/images/1.png" alt="قالب 1">
                         </div>
@@ -84,7 +84,7 @@
                     </label>
                     
                     <label class="template-option">
-                        <input type="radio" name="{{ form.template.html_name }}" value="2" {% if form.template.value == "2" %}checked{% endif %}>
+                        <input type="radio" name="template" value="2" {% if selected_template == '2' %}checked{% endif %}>
                         <div class="template-preview">
                             <img src="/static/images/2.png" alt="قالب 2" >
                         </div>
@@ -93,7 +93,7 @@
                     </label>
                     
                     <label class="template-option">
-                        <input type="radio" name="{{ form.template.html_name }}" value="3" {% if form.template.value == "3" %}checked{% endif %}>
+                        <input type="radio" name="template" value="3" {% if selected_template == '3' %}checked{% endif %}>
                         <div class="template-preview">
                             <img src="/static/images/3.png" alt="قالب 3">
                         </div>
@@ -101,9 +101,6 @@
                         <small class="template-description">تصميم متطور مع خيارات متعددة</small>
                     </label>
                 </div>
-                {% if form.template.errors %}
-                    <div class="form-error">{{ form.template.errors }}</div>
-                {% endif %}
             </div>
 
             <div class="form-field-section">
@@ -112,7 +109,7 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">إنشاء الاستمارة</button>
+                <button type="submit" class="btn btn-primary">تحديث الاستبيان</button>
                 <a href="{% url 'form_builder' %}" class="btn btn-secondary">إلغاء</a>
             </div>
         </form>

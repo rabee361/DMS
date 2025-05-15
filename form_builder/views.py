@@ -82,7 +82,7 @@ class CreateFormView(View):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request):
-        form = CustomSurveyForm(request.POST)
+        form = CustomSurveyForm(request.POST, request.FILES)
         if form.is_valid():
             custom_form = form.save()
             create_form_table(custom_form.name)
@@ -137,9 +137,19 @@ class CreateFormFieldsView(View):
 
 
 
+class UpdateFormView(View):
+    def get(self, request, pk): 
+        form_instance = CustomForm.objects.get(id=pk)
+        form = CustomSurveyForm(instance=form_instance)
+        return render(request, 'form_builder/update_form.html', {'form': form, 'selected_template': form_instance.template})
 
-
-
+    def post(self, request, pk):
+        form_instance = CustomForm.objects.get(id=pk)
+        form = CustomSurveyForm(request.POST, request.FILES, instance=form_instance)
+        if form.is_valid():
+            form.save()
+            return redirect('form_builder')
+        return render(request, 'form_builder/update_form.html', {'form': form, 'selected_template': form_instance.template})
 
 
 

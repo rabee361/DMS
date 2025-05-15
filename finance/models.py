@@ -68,3 +68,14 @@ class SalaryBlockEntry(models.Model):
 
     def __str__(self):
         return f'{self.salary_block.employee.name}-{self.name}-{self.amount}'
+
+
+
+class Expense(models.Model):
+    name = models.CharField(max_length=255)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='account')
+    opposite_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='opposite_account')
+    amount = models.FloatField()
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+

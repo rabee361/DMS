@@ -1,5 +1,5 @@
 from django import forms
-from .models import Currency, ExchangePrice, Account, AccountMovement
+from .models import *
 
 
 class CurrencyForm(forms.ModelForm):
@@ -16,10 +16,16 @@ class ExchangePriceForm(forms.ModelForm):
         }
 
 
-
 class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
+        fields = '__all__'
+
+
+class ExpenseForm(forms.ModelForm):
+    date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'date'}))
+    class Meta:
+        model = Expense
         fields = '__all__'
 
 

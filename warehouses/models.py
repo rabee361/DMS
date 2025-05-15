@@ -1,8 +1,17 @@
-from django.db import models
-from django.contrib.auth import get_user_model
-User = get_user_model() 
+# from django.db import models
+# from django.contrib.auth import get_user_model
+# User = get_user_model() 
 
-# Create your models here.
+# # Create your models here.
+
+
+# class INVOICE_TYPES(models.TextChoices):
+#     SELL = 'مبيع'
+#     BUY = 'شراء'
+#     SELL_RETURN = 'مرتجع مبيع'
+#     BUY_RETURN = 'مرتجع شراء'
+#     INPUT = 'ادخال'
+#     OUTPUT = 'اخراج'
 
 
 # class Material(models.Model):
@@ -10,12 +19,13 @@ User = get_user_model()
 #     description = models.TextField(blank=True)
 #     current_stock = models.DecimalField(max_digits=10, decimal_places=2)
 #     unit = models.ForeignKey('Unit', on_delete=models.CASCADE)
-#     unit_conversion = models.ForeignKey('UnitConversion', on_delete=models.CASCADE)
 
 
 # class MaterialMove(models.Model):
 #     source_warehouse = models.ForeignKey('Warehouse', on_delete=models.CASCADE, related_name='source_warehouse')
+#     source_warehouse_entry = models.IntegerField(default=0)
 #     destination_warehouse = models.ForeignKey('Warehouse', on_delete=models.CASCADE, related_name='destination_warehouse')
+#     destination_warehouse_entry = models.IntegerField(default=0)
 #     material = models.ForeignKey('Material', on_delete=models.CASCADE)
 #     quantity = models.DecimalField(max_digits=10, decimal_places=2)
 #     move_date = models.DateTimeField(auto_now_add=True)
@@ -44,17 +54,25 @@ User = get_user_model()
 
 
 # class Client(models.Model):
-#     pass
-
-
-# class Supplier(models.Model):
-#     pass
+#     name = models.CharField(max_length=255)
+#     type = models.CharField(max_length=20, choices=(('CLIENT', 'cleint'), ('SUPPLIER', 'supplier')))
+#     phone = models.IntegerField(max_length=255)
+#     phone2 = models.IntegerField(max_length=255)
+#     email = models.EmailField()
+#     address = models.CharField(max_length=255)
 
 
 # class InvoiceMaterials(models.Model):
-#     material = 
+#     material = models.ForeignKey('Material', on_delete=models.CASCADE)
+#     invoice = models.ForeignKey('Invoice', on_delete=models.CASCADE)
+#     quantity = models.DecimalField(max_digits=10, decimal_places=2)
 
 
 
 # class Invoice(models.Model):
+#     client = models.ForeignKey('Client', on_delete=models.CASCADE)
+#     amount = models.DecimalField(max_digits=10, decimal_places=2)
+#     invoice_type = models.CharField(max_length=20, choices=INVOICE_TYPES)
+#     date = models.DateField(auto_now_add=True)
+
 
