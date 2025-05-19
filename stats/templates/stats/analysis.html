@@ -176,13 +176,15 @@
       </div>
       
       <div class="selector-content flex flex-col md:flex-row md:items-center gap-4">
-        <div class="column-dropdown flex-grow">
-          <select id="column-picker" class="w-full p-2 border rounded-md" multiple>
-            {% for col in columns %}
-              <option value="{{ col }}">{{ col }}</option>
-            {% endfor %}
-          </select>
-          <p class="text-xs text-gray-500 mt-1">اضغط Ctrl/Cmd لتحديد أكثر من عمود (حد أقصى 4)</p>
+        <div class="column-checkboxes grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          
+          {% for col in columns %}
+            <label class="flex items-center space-x-8 pl-2">
+              <input type="checkbox" name="column" value="{{ col }}" class="column-checkbox h-5 w-5 text-blue-500 ml-2">
+              <span class="text-gray-700">{{ col }}</span>
+            </label>
+          {% endfor %}
+          
         </div>
         
         <div class="column-actions">
@@ -806,9 +808,13 @@
       // Load selected columns button
       $('#load-selected-columns').on('click', function() {
         debugLog("Load button clicked");
-        const selectedColumns = $('#column-picker').val() || [];
-        debugLog(`Selected columns: ${selectedColumns.join(', ')}`);
         
+        // Get selected checkboxes
+        const selectedColumns = [];
+        $('input[name="column"]:checked').each(function() {
+            selectedColumns.push($(this).val());
+        });
+
         // Enforce maximum of 4 columns
         if (selectedColumns.length > 4) {
           alert('يرجى اختيار بحد أقصى 4 أعمدة لأداء أفضل.');
@@ -1029,14 +1035,14 @@
                         <div>الوسيط: ${stats.median ? stats.median.toFixed(2) : 'N/A'}</div>
                         <div>الانحراف المعياري: ${stats.std ? stats.std.toFixed(2) : 'N/A'}</div>
                         <div>المدى: ${stats.min !== null ? stats.min.toFixed(2) : 'N/A'} - ${stats.max !== null ? stats.max.toFixed(2) : 'N/A'}</div>
-                        <div>المفقود: ${stats.missing} قيم</div>
+                        <div>القيم الفارغة بالعمود: ${stats.missing} قيم</div>
                       </div>
                     `;
                   } else {
                     statsHtml += `
                       <div>
-                        <div>المميزات المميزة: ${stats.unique}</div>
-                        <div>المفقود: ${stats.missing} قيم</div>
+                        <div>الاسماء المميزة: ${stats.unique}</div>
+                        <div>القيم الفارغة بالعمود: ${stats.missing} قيم</div>
                         <div class="mt-1">القيم الأكثر شيوعا:</div>
                         <ul class="list-disc ml-4">
                           ${Object.entries(stats.top_values || {}).map(([key, value]) => 
