@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}قائمة السلف{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">جميع السلف</h1>
+    <a href="{% url 'create_hr_loan' %}" class="btn btn-primary">إضافة +</a>
+</div>
+
+<div class="table-container">
+    <div class="table-controls">
+            {% csrf_token %}
+            <div class="search-controls">
+                <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
+            </div>
+            <div class="action-controls">
+                <select id="bulkAction" name="action" class="action-select">
+                    <option value="" selected disabled>اختر إجراء</option>
+                    <option value="delete">حذف السجلات </option>
+                    <option value="export_excel">تصدير إلى إكسل</option>
+                    <option value="accept">موافقة</option>
+                    <option value="reject">رفض</option>
+                </select>
+                <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
+            </div>
+
+    </div>
+
+    <form method="post" action="{% url 'hr_loans_action' %}"  id="bulkActionForm">
+        {% csrf_token %}
+        <input type="hidden" name="selected_ids" id="selectedIds">
+        <input type="hidden" name="action" id="selectedAction">
+
+
+        <table class="data-table">
+            {% include 'partials/hr_loan_partial.html' %}
+        </table>
+
+    </form>
+
+    {% if is_paginated %}
+    <div class="pagination-container">
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+                <li><a href="?page={{ page_obj.previous_page_number }}" class="page-link">السابق</a></li>
+                <li><a href="#" class="page-link">{{ page_obj.number|add:'-1' }}</a></li>
+            {% endif %}
+            <li><a href="#" class="page-link active">{{ page_obj.number }}</a></li>
+            {% if page_obj.has_next %}
+                <li><a href="#" class="page-link">{{ page_obj.number|add:'1' }}</a></li>
+                <li><a href="?page={{ page_obj.next_page_number }}" class="page-link">التالي</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

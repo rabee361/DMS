@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}طلب إجازة جديد{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء سلف</h2>
+            <p class="form-subtitle"> سلف جديد</p>
+        </div>
+
+        <form method="post" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">تفاصيل الإجازة</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.employee.id_for_label }}">الموظف</label>
+                        {{ form.employee }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.amount.id_for_label }}">المبلغ</label>
+                        {{ form.amount }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.currency.id_for_label }}">العملة</label>
+                        {{ form.currency }}
+                    </div>  
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.opposite_account.id_for_label }}">الحساب المقابل</label>
+                        {{ form.opposite_account }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.account.id_for_label }}">الحساب</label>
+                        {{ form.account }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.payment_cycle.id_for_label }}">دورة الخصم</label>
+                        {{ form.payment_cycle }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.dicount_amount.id_for_label }}">الخصم</label>
+                        {{ form.dicount_amount }}
+                        <small>قيمة الخصم تحسب من الراتب بحال عدم تحديده</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'hr_loans' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

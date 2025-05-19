@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء قرض{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>إنشاء قرض جديد</h2>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="user-profile-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">معلومات القرض</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.name.id_for_label }}">الاسم</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="form-error">{{ form.name.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.provider.id_for_label }}">الجهة المانحة</label>
+                        {{ form.provider }}
+                        {% if form.provider.errors %}
+                            <div class="form-error">{{ form.provider.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.payment.id_for_label }}">الدفع</label>
+                        {{ form.payment }}
+                        {% if form.payment.errors %}
+                            <div class="form-error">{{ form.payment.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.payment_cycle.id_for_label }}">دورة القرض</label>
+                        {{ form.payment_cycle }}
+                        {% if form.payment_cycle.errors %}
+                            <div class="form-error">{{ form.payment_cycle.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.bank.id_for_label }}">البنك</label>
+                        {{ form.bank }}
+                        {% if form.bank.errors %}
+                            <div class="form-error">{{ form.bank.errors }}</div>
+                        {% endif %}
+                    </div>
+                                        
+                    <div class="form-group">
+                        <label for="{{ form.amount.id_for_label }}">المبلغ</label>
+                        {{ form.amount }}
+                        {% if form.amount.errors %}
+                            <div class="form-error">{{ form.amount.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.currency.id_for_label }}">العملة</label>
+                        {{ form.currency }}
+                        {% if form.currency.errors %}
+                            <div class="form-error">{{ form.currency.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.opposite_account.id_for_label }}">الحساب المقابل</label>
+                        {{ form.opposite_account }}
+                        {% if form.opposite_account.errors %}
+                            <div class="form-error">{{ form.opposite_account.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.account.id_for_label }}">الحساب</label>
+                        {{ form.account }}
+                        {% if form.account.errors %}
+                            <div class="form-error">{{ form.account.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    
+                    <div class="form-group">
+                        <label for="{{ form.date.id_for_label }}">التاريخ</label>
+                        {{ form.date }}
+                        {% if form.date.errors %}
+                            <div class="form-error">{{ form.date.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'loans' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

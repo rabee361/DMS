@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.fields import related
+from utility.types import PaymentCycle, PaymentType
 # Create your models here.
 
 
@@ -23,6 +25,8 @@ class ExchangePrice(models.Model):
 
 
 class Account(models.Model):
+    parent = models.ForeignKey('self', related_name='parent_account', on_delete=models.CASCADE, null=True, blank=True)
+    final = models.BooleanField(default=False)
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
@@ -75,6 +79,31 @@ class Expense(models.Model):
     name = models.CharField(max_length=255)
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='account')
     opposite_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='opposite_account')
+    amount = models.FloatField()
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+
+
+
+class Loan(models.Model):
+    name = models.CharField(max_length=255)
+    provider = models.CharField(max_length=255) 
+    bank = models.CharField(max_length=255, null=True, blank=True)
+    payment = models.CharField(max_length=255, choices=PaymentType.choices)
+    payment_cycle = models.CharField(max_length=255, choices=PaymentCycle.choices, default=PaymentCycle.MONTHLY)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='loan_account')
+    opposite_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='loan_opposite_account')
+    amount = models.FloatField()
+    currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
+    date = models.DateTimeField()
+
+    def remaining_amount(self):
+        return self.amount - sum(self.loanpayment_set.values_list('amount', flat=True))
+
+
+class LoanPayment(models.Model):
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='loan_payment_account')
+    opposite_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='loan_payment_opposite_account')
     amount = models.FloatField()
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
     date = models.DateTimeField()

@@ -18,11 +18,13 @@ class FinanceView(View):
         total_exchanges = ExchangePrice.objects.count()
         total_expenses = Expense.objects.count()
         total_salaries = SalaryBlock.objects.count()
+        total_loans = Loan.objects.count()
         total_account_movements = AccountMovement.objects.count()
         context = { 
             'total_accounts': total_accounts,
             'total_currencies': total_currencies,
             'total_exchanges': total_exchanges,
+            'total_loans': total_loans,
             'total_expenses': total_expenses,
             'total_salaries': total_salaries,
             'total_account_movements': total_account_movements
@@ -56,6 +58,7 @@ class CreateCurrencyView(CreateView):
 class UpdateCurrencyView(UpdateView):
     model = Currency
     form_class = CurrencyForm
+    pk_url_kwarg = 'id'
     template_name = 'finance/currencies/currency_form.html'
     success_url = reverse_lazy('currencies')
 
@@ -104,6 +107,7 @@ class CreateExchangeView(CreateView):
 class UpdateExchangeView(UpdateView):
     model = ExchangePrice
     form_class = ExchangePriceForm
+    pk_url_kwarg = 'id'
     template_name = 'finance/exchanges/exchange_form.html'
     success_url = reverse_lazy('exchanges')
 
@@ -159,6 +163,7 @@ class CreateAccountView(CreateView):
 class UpdateAccountView(UpdateView):
     model = Account
     fields = '__all__'
+    pk_url_kwarg = 'id'
     template_name = 'finance/accounts/account_form.html'
     success_url = reverse_lazy('accounts')
 
@@ -234,6 +239,59 @@ class ExpenseActionView(View):
             expenses.delete()
 
         return redirect('expenses')
+
+
+
+# ------------------ Loan Views ------------------
+
+@method_decorator(login_required, name='dispatch')
+class ListLoansView(ListView):
+    model = Loan
+    template_name = 'finance/loans/loans.html'
+    context_object_name = 'loans'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        q = self.request.GET.get('q', None)
+        if q:
+            queryset = queryset.filter(name__icontains=q)
+        return queryset
+
+@method_decorator(login_required, name='dispatch')
+class CreateLoanView(CreateView):
+    model = Loan
+    form_class = LoanForm
+    template_name = 'finance/loans/loan_form.html'
+    success_url = reverse_lazy('loans')
+
+@method_decorator(login_required, name='dispatch')
+class UpdateLoanView(UpdateView):
+    model = Loan
+    form_class = LoanForm
+    template_name = 'finance/loans/loan_form.html'
+    success_url = reverse_lazy('loans')
+    pk_url_kwarg = 'id'
+
+@method_decorator(login_required, name='dispatch')
+class DeleteLoanView(DeleteView):
+    model = Loan
+    template_name = 'finance/loans/delete_loan.html'
+    context_object_name = 'loan'
+    success_url = reverse_lazy('loans')
+    pk_url_kwarg = 'id'
+
+@method_decorator(login_required, name='dispatch')
+class LoanActionView(View):
+    def post(self, request):
+        selected_items = json.loads(request.POST.get('selected_ids', '[]'))
+        loans = Loan.objects.filter(id__in=selected_items)
+
+        # perform DB operation depending on the chosen action
+        if request.POST.get('action') == 'delete':
+            loans.delete()
+
+        return redirect('loans')
 
 
 

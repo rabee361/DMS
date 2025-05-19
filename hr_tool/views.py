@@ -32,6 +32,7 @@ class MainHR(View):
         total_holidays = Holiday.objects.count()
         total_additions_discounts = AdditionDiscount.objects.count()
         total_employees = Employee.objects.count()
+        total_hr_loans = HRLoan.objects.count()
         total_extras = ExtraWork.objects.count()
         active_employees = Employee.objects.filter(is_active=True).count()
         approved_holidays = Holiday.objects.filter(accepted=True).count()
@@ -51,7 +52,8 @@ class MainHR(View):
             'total_goals': total_goals,
             'total_skills': total_skills,
             'total_departments': total_departments,
-            'total_positions': total_positions
+            'total_positions': total_positions,
+            'total_hr_loans': total_hr_loans
         })
 
 
@@ -562,3 +564,99 @@ class PositionsActionView(View):
         if request.POST.get('action') == 'delete':
             positions.delete()
         return redirect('positions_list')
+
+
+
+
+
+@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+class ListCoursesView(ListView):
+    model = Course
+    template_name = 'hr_tool/courses/courses.html'
+    context_object_name = 'courses'
+    paginate_by = 10
+
+@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+class CreateCourseView(CreateView):
+    model = Course
+    form_class = CourseForm
+    template_name = 'hr_tool/courses/course_form.html'
+    success_url = reverse_lazy('courses')
+
+@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+class CreateCourseEmployeeView(CreateView):
+    model = Course
+    form_class = CourseForm
+    template_name = 'hr_tool/courses/course_employee_form.html'
+    success_url = reverse_lazy('courses')
+
+@method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
+class CourseDetailView(UpdateView):
+    model = Course
+    form_class = CourseForm
+    template_name = 'hr_tool/courses/course_form.html'
+    context_object_name = 'course'
+    success_url = reverse_lazy('courses')
+
+@method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
+class DeleteCourseView(DeleteView):
+    model = Course
+    template_name = 'hr_tool/courses/delete_course.html'
+    success_url = reverse_lazy('courses')
+    context_object_name = 'course'
+
+
+@method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
+class CoursesActionView(View):
+    def post(self, request):
+        selected_items = json.loads(request.POST.get('selected_ids'))
+        courses = Course.objects.filter(id__in=selected_items)
+        if request.POST.get('action') == 'delete':
+            courses.delete()
+        return redirect('courses')
+
+
+
+
+
+@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+class ListHRLoansView(ListView):
+    model = HRLoan
+    template_name = 'hr_tool/hr_loans/hr_loans.html'
+    context_object_name = 'hr_loans'
+    paginate_by = 10
+
+@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+class CreateHRLoanView(CreateView):
+    model = HRLoan
+    form_class = HRLoanForm
+    template_name = 'hr_tool/hr_loans/hr_loan_form.html'
+    success_url = reverse_lazy('hr_loans')
+
+@method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
+class HRLoanDetailView(UpdateView):
+    model = HRLoan
+    form_class = HRLoanForm
+    template_name = 'hr_tool/hr_loans/hr_loan_form.html'
+    context_object_name = 'loan'
+    pk_url_kwarg = 'id'
+    success_url = reverse_lazy('hr_loans')
+
+@method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
+class DeleteHRLoanView(DeleteView):
+    model = HRLoan
+    template_name = 'hr_tool/hr_loans/delete_hr_loan.html'
+    success_url = reverse_lazy('hr_loans')
+    context_object_name = 'loan'
+
+
+@method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
+class HRLoansActionView(View):
+    def post(self, request):
+        selected_items = json.loads(request.POST.get('selected_ids'))
+        loans = HRLoan.objects.filter(id__in=selected_items)
+        if request.POST.get('action') == 'delete':
+            loans.delete()
+        return redirect('courses')
+
+

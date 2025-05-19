@@ -7,7 +7,15 @@ class FileType(models.TextChoices):
     DOCUMENT = 'document'
     TEXT = 'txt'
 
+class PaymentType(models.TextChoices):
+    CASH = 'Cash'
+    CREDIT_CARD = 'Credit Card'
+    BANK_TRANSFER = 'Bank Transfer'
 
+class PaymentCycle(models.TextChoices):
+    DAILY = 'Daily'
+    WEEKLY = 'Weekly'
+    MONTHLY = 'Monthly'
 
 class Language(models.TextChoices):
     ENGLISH = 'en'

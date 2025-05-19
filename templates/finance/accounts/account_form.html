@@ -23,6 +23,22 @@
                             <div class="form-error">{{ form.name.errors }}</div>
                         {% endif %}
                     </div>
+                    <div class="form-group">
+                        <label for="{{ form.parent.id_for_label }}"> الحساب الأب</label>
+                        {{ form.parent }}
+                        {% if form.parent.errors %}
+                            <div class="form-error">{{ form.parent.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.final.id_for_label }}">ختامي</label>
+                        {{ form.final }}
+                        {% if form.final.errors %}
+                            <div class="form-error">{{ form.final.errors }}</div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
 

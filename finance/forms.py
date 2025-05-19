@@ -22,6 +22,22 @@ class AccountForm(forms.ModelForm):
         fields = '__all__'
 
 
+class LoanForm(forms.ModelForm):
+    class Meta:
+        model = Loan
+        fields = '__all__'
+        widgets = {
+            'date': forms.DateTimeInput(attrs={'type': 'date'}),
+        }
+
+class AccountForm(forms.ModelForm):
+    class Meta:
+        model = Account
+        fields = '__all__'
+        widgets = {
+            'date': forms.DateTimeInput(attrs={'type': 'date'}),
+        }
+
 class ExpenseForm(forms.ModelForm):
     date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'date'}))
     class Meta:

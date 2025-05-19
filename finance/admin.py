@@ -8,4 +8,7 @@ admin.site.register(Account)
 admin.site.register(AccountMovement)
 admin.site.register(SalaryBlock)
 admin.site.register(SalaryBlockEntry)
+admin.site.register(Loan)
+admin.site.register(LoanPayment)
+admin.site.register(Expense)
 

@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator , MaxValueValidator
 from utility.types import *
 from django.core.validators import RegexValidator
-from finance.models import Currency
+from finance.models import Currency , Account
 User = get_user_model()
 
 
@@ -175,3 +175,40 @@ class HRSettings(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+
+class Course(models.Model):
+    name = models.CharField(max_length=100)
+    employees = models.ManyToManyField(Employee)
+    subject = models.CharField(max_length=100)
+    created = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.name
+
+
+
+class HRLoan(models.Model):
+    employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
+    amount = models.FloatField()
+    payment_cycle = models.CharField(max_length=100 , choices=PaymentCycle)
+    dicount_amount = models.FloatField(null=True, blank=True)
+    account = models.ForeignKey(Account , on_delete=models.CASCADE, related_name="hr_loan_account")
+    opposite_account = models.ForeignKey(Account , on_delete=models.CASCADE, related_name="hr_loan_opposite_account")
+    currency = models.ForeignKey(Currency , on_delete=models.CASCADE)
+    created = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.employee.username
+
+class HRLoanPayment(models.Model):
+    loan = models.ForeignKey(HRLoan , on_delete=models.CASCADE)
+    amount = models.FloatField()
+    account = models.ForeignKey(Account , on_delete=models.CASCADE, related_name="hr_loan_payment_account")
+    opposite_account = models.ForeignKey(Account , on_delete=models.CASCADE, related_name="hr_loan_payment_opposite_account")
+    currency = models.ForeignKey(Currency , on_delete=models.CASCADE)
+    created = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.loan.employee.username

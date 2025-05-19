@@ -168,6 +168,42 @@
         </div>
     </div>
 
+    <!-- Courses Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-person-badge"></i>
+        </div>
+        <div class="card-content">
+            <h3>الدورات التدريبية</h3>
+            <p>إدارة الدورات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_courses }}</span>
+                    <span class="stat-label">الدورات</span>
+                </div>
+            </div>
+            <a href="{% url 'courses' %}" class="card-action">الذهاب إلى الدورات</a>
+        </div>
+    </div>
+
+    <!-- Positions Management Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-person-badge"></i>
+        </div>
+        <div class="card-content">
+            <h3>السلف</h3>
+            <p>إدارة السلف.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_hr_loans }}</span>
+                    <span class="stat-label">السلف</span>
+                </div>
+            </div>
+            <a href="{% url 'hr_loans' %}" class="card-action">الذهاب إلى السلف</a>
+        </div>
+    </div>
+
 
 </div>
 {% endblock %}

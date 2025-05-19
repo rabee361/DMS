@@ -64,6 +64,19 @@ urlpatterns = [
     path('positions/<str:pk>' , views.PositionDetailView.as_view() , name="position_info"),
     path('positions/<str:pk>/delete' , views.DeletePositionView.as_view() , name="delete_position"),
 
+    path('courses/' , views.ListCoursesView.as_view() , name="courses"),
+    path('courses/add' , views.CreateCourseView.as_view() , name="create_course"),
+    path('courses/add/employee/<str:pk>' , views.CreateCourseEmployeeView.as_view() , name="create_course_employee"),
+    path('courses/action' , views.CoursesActionView.as_view() , name="courses_action"),
+    path('courses/<str:pk>' , views.CourseDetailView.as_view() , name="course_info"),
+    path('courses/<str:pk>/delete' , views.DeleteCourseView.as_view() , name="delete_course"),
+
+    path('loans/' , views.ListHRLoansView.as_view() , name="hr_loans"),
+    path('loans/add' , views.CreateHRLoanView.as_view() , name="create_hr_loan"),
+    path('loans/action' , views.HRLoansActionView.as_view() , name="hr_loans_action"),
+    path('loans/<str:pk>' , views.HRLoanDetailView.as_view() , name="hr_loan_info"),
+    path('loans/<str:pk>/delete' , views.DeleteHRLoanView.as_view() , name="delete_hr_loan"),
+
     path('hr_settings/' , views.SettingsView.as_view() , name="hr_settings")
     
 ]

@@ -45,6 +45,18 @@ class DepartmentForm(forms.ModelForm):
         fields = '__all__'
 
 
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = '__all__'
+
+
+class HRLoanForm(forms.ModelForm):
+    class Meta:
+        model = HRLoan
+        fields = '__all__'
+
+
 class HolidayForm(forms.ModelForm):
     start = forms.DateField(
         widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'})

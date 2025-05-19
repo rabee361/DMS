@@ -110,5 +110,22 @@
         </div>
     </div>
 
+    <!-- Account Movement Card -->
+    <div class="dashboard-card">
+        <div class="card-icon">
+            <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <div class="card-content">
+            <h3>القروض</h3>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_loans }}</span>
+                    <span class="stat-label">عدد القروض</span>
+                </div>
+            </div>
+            <a href="{% url 'loans' %}" class="card-action">عرض القروض</a>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

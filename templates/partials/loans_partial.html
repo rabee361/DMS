@@ -1,0 +1,40 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="selectAll" class="select-all-checkbox"></th>
+        <th>المعرف</th>
+        <th>الجهة المانحة</th>
+        <th>الحساب</th>
+        <th>الحساب المقابل</th>
+        <th>دورة القرض</th>
+        <th>الدفع</th>
+        <th>المبلغ</th>
+        <th>العملة</th>
+        <th>التاريخ</th>    
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+<tbody>
+    {% for loan in loans %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'loan_info' loan.id %}">
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ loan.id }}">
+        </td>
+        <td>{{ loan.id }}</td>
+        <td>{{ loan.provider }}</td>
+        <td>{{ loan.account.name }}</td>
+        <td>{{ loan.opposite_account.name }}</td>
+        <td>{{ loan.payment_cycle }}</td>
+        <td>{{ loan.payment }}</td>
+        <td>{{ loan.amount }}</td>
+        <td>{{ loan.currency.name }}</td>
+        <td>{{ loan.date }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_loan' loan.id %}" class="delete-btn" data-id="{{ loan.id }}" data-name="{{ loan.name }}">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

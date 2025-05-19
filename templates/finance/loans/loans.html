@@ -1,35 +1,35 @@
 {% extends "base.html" %}
 
-{% block title %}قائمة الحسابات{% endblock %}
+{% block title %}قائمة القروض{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="h2">الحسابات</h1>
-    <a href="{% url 'create_account' %}" class="btn btn-primary">إضافة +</a>
+    <h1 class="h2">القروض</h1>
+    <a href="{% url 'create_loan' %}" class="btn btn-primary">إضافة +</a>
 </div>
 
 <div class="table-container">
     <div class="table-controls">
         <div class="search-controls">
-            <input hx-get="{% url 'accounts' %}" hx-push-url="true" hx-target="#accounts-partial" hx-swap="innerHTML" hx-trigger="keyup changed delay:500ms" type="text" name="q" class="search-input" placeholder="ابحث بالاسم..." value="{{ request.GET.q }}"/>
+            <input hx-get="{% url 'loans' %}" hx-push-url="true" hx-target="#loans-partial" hx-swap="innerHTML" hx-trigger="keyup changed delay:500ms" type="text" name="q" class="search-input" placeholder="ابحث بالاسم..." value="{{ request.GET.q }}"/>
         </div>
         <div class="action-controls">
             <select id="bulkAction" name="action" class="action-select">
                 <option value="" selected disabled>اختر الإجراء</option>
-                <option value="delete">حذف الحسابات المحددة</option>
+                <option value="delete">حذف المصروفات المحددة</option>
             </select>
             <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
         </div>
     </div>
 
-    <form method="post" action="{% url 'accounts_action' %}"  id="bulkActionForm">
+    <form method="post" action="{% url 'loans_action' %}"  id="bulkActionForm">
         {% csrf_token %}
         <input type="hidden" name="selected_ids" id="selectedIds">
         <input type="hidden" name="action" id="selectedAction">
         
-        <table class="data-table" id="accounts-partial">
-            {% include 'partials/accounts_partial.html' %}
-        </table>
+        <table class="data-table" id="loans-partial">
+            {% include 'partials/loans_partial.html' %}
+        </table>    
             
     </form>
 
