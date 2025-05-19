@@ -22,7 +22,7 @@
         <td>{{ currency.parts_relation }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">
-                <a href="{% url 'delete_currency' currency.id %}" class="delete-btn">
+                <a href="{% url 'delete_currency' currency.id %}" class="delete-btn" data-id="{{ currency.id }}" data-name="{{ currency.name }}">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>

@@ -3,6 +3,23 @@ import json
 from .models import CustomForm
 
 
+def table_exists(table_name):
+    """
+    Check if a table with the given name exists in the database
+    
+    Args:
+        table_name (str): The name of the table to check
+        
+    Returns:
+        bool: True if the table exists, False otherwise
+    """
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name=%s",
+            [table_name]
+        )
+        return cursor.fetchone() is not None
+
 
 def list_forms():
     with connection.cursor() as cursor:

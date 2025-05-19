@@ -1,0 +1,36 @@
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <button type="button" class="modal-close">
+                <i class="bi bi-x"></i>
+            </button>
+            
+            <div class="modal-header">
+                <i class="bi bi-exclamation-triangle-fill warning-icon"></i>
+                <h2>حذف العنصر</h2>
+                <p class="modal-subtitle">لا يمكن التراجع عن هذا الإجراء</p>
+            </div>
+            
+            <div class="modal-body">
+                <p class="confirmation-text">
+                    هل أنت متأكد من رغبتك في حذف "<span id="deleteItemName" class="highlight"></span>"؟
+                </p>
+            </div>
+            
+            <div class="modal-footer">
+                <form method="post" id="deleteForm">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i>
+                        تأكيد الحذف
+                    </button>
+                    <button type="button" class="btn btn-secondary modal-cancel">
+                        <i class="bi bi-x"></i>
+                        إلغاء
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

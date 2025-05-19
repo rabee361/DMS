@@ -24,7 +24,7 @@
         <td>{{ account_movement.date }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">
-                <a href="{% url 'delete_account_movement' account_movement.id %}" class="delete-btn">
+                <a href="{% url 'delete_account_movement' account_movement.id %}" class="delete-btn" data-id="{{ account_movement.id }}" data-name="{{ account_movement.name }}">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>
