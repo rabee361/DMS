@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.fields import related
 from utility.types import PaymentCycle, PaymentType
+from utility.account import create_movement
 # Create your models here.
 
 
@@ -81,7 +82,6 @@ class Expense(models.Model):
     opposite_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='opposite_account')
     amount = models.FloatField()
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
-
 
 
 class Loan(models.Model):

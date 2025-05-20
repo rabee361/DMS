@@ -289,11 +289,11 @@
                                 <div class="detail-item"><span class="detail-label">لا يوجد عمل إضافي</span></div>
                             {% endfor %}
                             {% for ad in additions_discounts %}
-                                {% if ad.type == "ADDITION" %}
+                                {% if ad.type == "إضافة" %}
                                     <div class="detail-item">
-                                        <span class="detail-label">{{ ad.get_type_display }}</span>
+                                        <span class="detail-label">{{ ad.type }}</span>
                                         <span class="detail-value addition-amount" data-amount="{{ ad.value|floatformat:2 }}">
-                                            + {{ ad.value|floatformat:2 }} 
+                                            + {{ ad.value|floatformat:2 }}        
                                             {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
                                         </span>
                                     </div>
@@ -316,9 +316,9 @@
                                 <div class="detail-item"><span class="detail-label">لا يوجد إجازة غير مدفوعة</span></div>
                             {% endfor %}
                             {% for ad in additions_discounts %}
-                                {% if ad.type == "DISCOUNT" %}
+                                {% if ad.type == "خصم" %}
                                     <div class="detail-item">
-                                        <span class="detail-label">{{ ad.get_type_display }}</span>
+                                        <span class="detail-label">{{ ad.type }}</span>
                                         <span class="detail-value deduction-amount" data-amount="{{ ad.value|floatformat:2 }}">
                                             - {{ ad.value|floatformat:2 }} 
                                             {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
@@ -362,7 +362,7 @@
                                 {# مجموع الخصومات #}
                                 {% with total_deduct=0 %}
                                     {% for ad in additions_discounts %}
-                                        {% if ad.type == "DISCOUNT" %}
+                                        {% if ad.type == "خصم" %}
                                             {% with total_deduct=total_deduct|add:ad.value %}
                                             {% endwith %}
                                         {% endif %}
@@ -388,10 +388,10 @@
                                         {% endwith %}
                                     {% endfor %}
                                     {% for ad in additions_discounts %}
-                                        {% if ad.type == "ADDITION" %}
+                                        {% if ad.type == "إضافة" %}
                                             {% with total_add=total_add|add:ad.value %}
                                             {% endwith %}
-                                        {% elif ad.type == "DISCOUNT" %}
+                                        {% elif ad.type == "خصم" %}
                                             {% with total_deduct=total_deduct|add:ad.value %}
                                             {% endwith %}
                                         {% endif %}
