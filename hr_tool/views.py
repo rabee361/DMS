@@ -39,6 +39,7 @@ class MainHR(View):
         total_recruiters = Recruitment.objects.count()
         total_goals = WorkGoal.objects.count()
         total_skills = Skill.objects.count()
+        total_courses = Skill.objects.count()
         total_departments = Department.objects.count()
         total_positions = Position.objects.count()
         return render(request, 'hr_tool/HR.html', {
@@ -50,7 +51,8 @@ class MainHR(View):
             'approved_holidays': approved_holidays,
             'total_recruiters': total_recruiters,
             'total_goals': total_goals,
-            'total_skills': total_skills,
+            'total_skills': total_skills, 
+            'total_courses': total_courses, 
             'total_departments': total_departments,
             'total_positions': total_positions,
             'total_hr_loans': total_hr_loans
@@ -572,8 +574,8 @@ class PositionsActionView(View):
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
 class ListCoursesView(ListView):
     model = Course
-    template_name = 'hr_tool/courses/courses.html'
     context_object_name = 'courses'
+    template_name = 'hr_tool/courses/courses.html'
     paginate_by = 10
 
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
@@ -584,16 +586,28 @@ class CreateCourseView(CreateView):
     success_url = reverse_lazy('courses')
 
 @method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
-class CreateCourseEmployeeView(CreateView):
-    model = Course
-    form_class = CourseForm
-    template_name = 'hr_tool/courses/course_employee_form.html'
-    success_url = reverse_lazy('courses')
+class CreateCourseEmployeeView(View):
+    def get(self, request):
+        return render(request , 'hr_tool/courses/course_form.html')
+
+    def post(self, request):
+        return redirect('courses')
+
+@method_decorator(user_passes_test(hr_criteria_add_perm), name='dispatch')
+class AddCourseEmployeeView(View):
+    def post(self, request):
+        course_id = request.POST.get('course')
+        employee_id = request.POST.get('employee')
+        course = Course.objects.get_or_404(id=course_id)
+        employee = Employee.objects.get_or_404(id=employee_id)
+        course.employees.add(employee)
+        return redirect('courses')
 
 @method_decorator(user_passes_test(hr_criteria_edit_perm), name='dispatch')
 class CourseDetailView(UpdateView):
     model = Course
     form_class = CourseForm
+    pk_url_kwarg = 'id'
     template_name = 'hr_tool/courses/course_form.html'
     context_object_name = 'course'
     success_url = reverse_lazy('courses')
@@ -601,6 +615,7 @@ class CourseDetailView(UpdateView):
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
 class DeleteCourseView(DeleteView):
     model = Course
+    pk_url_kwarg = 'id'
     template_name = 'hr_tool/courses/delete_course.html'
     success_url = reverse_lazy('courses')
     context_object_name = 'course'

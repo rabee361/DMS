@@ -1,23 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}إنشاء قسم{% endblock %}
+{% block title %}إنشاء دورة تدريبية{% endblock %}
 
 {% block content %}
 <div class="form-container">
     <div class="styled-form">
         <div class="form-header">
-            <h2>إنشاء قسم جديد</h2>
-            <p class="form-subtitle">أدخل تفاصيل القسم الجديد</p>
+            <h2>إنشاء دورة </h2>
+            <p class="form-subtitle">أدخل تفاصيل الدورة </p>
         </div>
 
         <form method="post" enctype="multipart/form-data" class="user-profile-form">
             {% csrf_token %}
             
             <div class="form-section">
-                <h3 class="section-title">معلومات القسم</h3>
+                <h3 class="section-title">معلومات </h3>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="{{ form.name.id_for_label }}">اسم القسم</label>
+                        <label for="{{ form.name.id_for_label }}">اسم الدورة</label>
                         {{ form.name }}
                         {% if form.name.errors %}
                             <div class="form-error">{{ form.name.errors }}</div>
@@ -25,87 +25,10 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="{{ form.work_hours.id_for_label }}">ساعات العمل اليومية</label>
-                        {{ form.work_hours }}
-                        {% if form.work_hours.errors %}
-                            <div class="form-error">{{ form.work_hours.errors }}</div>
-                        {% endif %}
-                        <span class="help-text">عدد ساعات العمل في اليوم</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h3 class="section-title">أيام العمل</h3>
-                
-                <div class="work-days-grid">
-                    <div class="form-group work-day-checkbox">
-                        {{ form.work_day_sunday }}
-                        <label for="{{ form.work_day_sunday.id_for_label }}" class="checkbox-label">
-                            <span>الأحد</span>
-                        </label>
-                        {% if form.work_day_sunday.errors %}
-                            <div class="form-error">{{ form.work_day_sunday.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group work-day-checkbox">
-                        {{ form.work_day_monday }}
-                        <label for="{{ form.work_day_monday.id_for_label }}" class="checkbox-label">
-                            <span>الاثنين</span>
-                        </label>
-                        {% if form.work_day_monday.errors %}
-                            <div class="form-error">{{ form.work_day_monday.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group work-day-checkbox">
-                        {{ form.work_day_tuesday }}
-                        <label for="{{ form.work_day_tuesday.id_for_label }}" class="checkbox-label">
-                            <span>الثلاثاء</span>
-                        </label>
-                        {% if form.work_day_tuesday.errors %}
-                            <div class="form-error">{{ form.work_day_tuesday.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group work-day-checkbox">
-                        {{ form.work_day_wednesday }}
-                        <label for="{{ form.work_day_wednesday.id_for_label }}" class="checkbox-label">
-                            <span>الأربعاء</span>
-                        </label>
-                        {% if form.work_day_wednesday.errors %}
-                            <div class="form-error">{{ form.work_day_wednesday.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group work-day-checkbox">
-                        {{ form.work_day_thursday }}
-                        <label for="{{ form.work_day_thursday.id_for_label }}" class="checkbox-label">
-                            <span>الخميس</span>
-                        </label>
-                        {% if form.work_day_thursday.errors %}
-                            <div class="form-error">{{ form.work_day_thursday.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group work-day-checkbox">
-                        {{ form.work_day_friday }}
-                        <label for="{{ form.work_day_friday.id_for_label }}" class="checkbox-label">
-                            <span>الجمعة</span>
-                        </label>
-                        {% if form.work_day_friday.errors %}
-                            <div class="form-error">{{ form.work_day_friday.errors }}</div>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="form-group work-day-checkbox">
-                        {{ form.work_day_saturday }}
-                        <label for="{{ form.work_day_saturday.id_for_label }}" class="checkbox-label">
-                            <span>السبت</span>
-                        </label>
-                        {% if form.work_day_saturday.errors %}
-                            <div class="form-error">{{ form.work_day_saturday.errors }}</div>
+                        <label for="{{ form.subject.id_for_label }}">الموضوع</label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                            <div class="form-error">{{ form.subject.errors }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -113,11 +36,43 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">حفظ</button>
-                <a href="{% url 'departments' %}" class="btn btn-secondary">
+                <a href="{% url 'courses' %}" class="btn btn-secondary">
                     إلغاء
                 </a>
             </div>
         </form>
     </div>
+
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>الموظفين المسجلين</h2>
+        </div>
+        <div class="table-controls">
+            <form method="post" action="{% url 'courses' %}" class="action-form" id="actionForm">
+                {% csrf_token %}
+                <div class="search-controls">
+                    <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
+                </div>
+                <select name="action" class="action-select">
+                    <option value="">اختر إجراء</option>
+                    <option value="delete">حذف القسم المحددين</option>
+                    <option value="export_excel">تصدير إلى إكسل</option>
+                </select>
+                <button type="submit" class="do-action-btn">تنفيذ الإجراء</button>
+                <!-- Add hidden input for selected items -->
+                <input type="hidden" name="selected_items" id="selectedItems">
+            </form>
+        </div>
+        <table class="data-table">
+            {% include 'partials/courses_employees_partial.html' %}
+        </table>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">حفظ</button>
+            <a href="{% url 'courses' %}" class="btn btn-secondary">
+                إلغاء
+            </a>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

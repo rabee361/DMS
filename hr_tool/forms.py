@@ -51,6 +51,12 @@ class CourseForm(forms.ModelForm):
         fields = '__all__'
 
 
+class CourseEmployeeForm(forms.ModelForm):
+    class Meta:
+        model = CourseEmployee
+        fields = '__all__'
+
+
 class HRLoanForm(forms.ModelForm):
     class Meta:
         model = HRLoan

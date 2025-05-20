@@ -594,6 +594,9 @@ input[type="checkbox"] {
 
 /* Form Container Styles */
 .form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     max-width: 800px;
     margin: 2rem auto;
     padding: 0 1rem;
@@ -1368,7 +1371,7 @@ input[type="checkbox"] {
 
 .btn-secondary:hover {
     background-color: #dee2e6;
-    color: #212529;
+    color: white;
 }
 
 /* Responsive Design */

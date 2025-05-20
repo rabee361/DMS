@@ -1,0 +1,29 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="select-all"></th>
+        <th>الرقم التعريفي</th>
+        <th>اسم الموظف</th>
+        <th>التقدير</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+
+<tbody>
+    {% for employee in course.employees %}
+    <tr>
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ employee.id }}">
+        </td>
+        <td>{{ employee.id }}</td>
+        <td>{{ employee.name }}</td>
+        <td>{{ employee.gpa }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="{% url 'delete_employee' department.id %}" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

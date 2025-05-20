@@ -346,7 +346,6 @@ class CalculateSalaryView(View):
                 'extras': extras,
                 'total_extra_work_value': total_extra_work_value,
             })
-        print(employee_data[0]['additions_discounts'][0].type)
         return render(request, 'finance/salaries/salaries.html', {
             'employee_data': employee_data,
         })

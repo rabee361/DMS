@@ -30,6 +30,13 @@ class LoanForm(forms.ModelForm):
             'date': forms.DateTimeInput(attrs={'type': 'date'}),
         }
 
+    def save(self, commit=True):
+        instance = super().save(commit)
+        # Call create_movement after saving the expense
+        create_movement(instance.account, instance.opposite_account, instance.amount, instance.currency, 'قرض', instance.id)
+        return instance
+
+
 class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
@@ -38,11 +45,20 @@ class AccountForm(forms.ModelForm):
             'date': forms.DateTimeInput(attrs={'type': 'date'}),
         }
 
+from utility.account import create_movement
+
 class ExpenseForm(forms.ModelForm):
     date = forms.DateTimeField(widget=forms.DateTimeInput(attrs={'type': 'date'}))
+
     class Meta:
         model = Expense
         fields = '__all__'
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        # Call create_movement after saving the expense
+        create_movement(instance.account, instance.opposite_account, instance.amount, instance.currency, 'مصروف', instance.id)
+        return instance
 
 
 class AccountMovementForm(forms.ModelForm):

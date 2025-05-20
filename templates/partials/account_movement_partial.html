@@ -6,6 +6,7 @@
         <th>الحساب الثاني</th>
         <th>المبلغ</th>
         <th>العملة</th>
+        <th>الأصل</th>
         <th>التاريخ</th>
         <th>الإجراءات</th>
     </tr>
@@ -21,6 +22,7 @@
         <td>{{ account_movement.to_account.name }}</td>
         <td>{{ account_movement.amount }}</td>
         <td>{{ account_movement.currency.name }}</td>
+        <td>{{ account_movement.origin_type }}</td>
         <td>{{ account_movement.date }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">

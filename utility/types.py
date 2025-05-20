@@ -17,6 +17,7 @@ class PaymentCycle(models.TextChoices):
     WEEKLY = 'Weekly'
     MONTHLY = 'Monthly'
 
+
 class Language(models.TextChoices):
     ENGLISH = 'en'
     ARABIC = 'ar'
@@ -25,6 +26,11 @@ class AdditionDiscountType(models.TextChoices):
     ADDITION = 'إضافة'
     DISCOUNT = 'خصم'
         
+
+class OriginType(models.TextChoices):
+    SALARY = 'راتب'
+    EXPENSE = 'مصروفات'
+    LOAN = 'الإيداعات'
 
 class PermissionLevel(models.TextChoices):
     PUBLIC = 'public'

@@ -180,13 +180,19 @@ class HRSettings(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=100)
-    employees = models.ManyToManyField(Employee)
+    employees = models.ManyToManyField(Employee ,through='CourseEmployee')
     subject = models.CharField(max_length=100)
     created = models.DateField(auto_now_add=True)
 
     def __str__(self) -> str:
         return self.name
 
+
+class CourseEmployee(models.Model):
+    course = models.ForeignKey(Course , on_delete=models.CASCADE)
+    employee = models.ForeignKey(Employee , on_delete=models.CASCADE)
+    gpa = models.FloatField()
+    created = models.DateField(auto_now_add=True)
 
 
 class HRLoan(models.Model):

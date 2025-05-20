@@ -63,6 +63,33 @@
             </div>
         </form>
     </div>
+
+    <div class="styled-form">
+        <div class="form-header">
+            <h2>الموظفين  </h2>
+        </div>
+        <div class="table-controls">
+            <form method="post" action="{% url 'courses' %}" class="action-form" id="actionForm">
+                {% csrf_token %}
+                <div class="search-controls">
+                    <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
+                </div>
+                <select name="action" class="action-select">
+                    <option value="">اختر إجراء</option>
+                    <option value="delete">حذف القسم المحددين</option>
+                    <option value="export_excel">تصدير إلى إكسل</option>
+                </select>
+                <button type="submit" class="do-action-btn">تنفيذ الإجراء</button>
+                <!-- Add hidden input for selected items -->
+                <input type="hidden" name="selected_items" id="selectedItems">
+            </form>
+        </div>
+        <table class="data-table">
+            {% include 'partials/courses_partial.html' %}
+        </table>
+    </div>
+
+
 </div>
 
 {% endblock %}

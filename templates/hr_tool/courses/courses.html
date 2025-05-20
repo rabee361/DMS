@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 
-{% block title %}قائمة القسم{% endblock %}
+{% block title %}قائمة الدورات التدريبية{% endblock %}
 
 {% block content %}
 <div class="page-header">
-    <h1 class="h2">جميع القسم</h1>
-    <a href="{% url 'create_department' %}" class="btn btn-primary">إضافة +</a>
+    <h1 class="h2">جميع الدورات</h1>
+    <a href="{% url 'create_course' %}" class="btn btn-primary">إضافة +</a>
 </div>
 
 <div class="table-container">
     <div class="table-controls">
-        <form method="post" action="{% url 'departments_action' %}" class="action-form" id="actionForm">
+        <form method="post" action="{% url 'courses' %}" class="action-form" id="actionForm">
             {% csrf_token %}
             <div class="search-controls">
                 <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
@@ -27,34 +27,7 @@
     </div>
 
     <table class="data-table">
-        <thead>
-            <tr>
-                <th><input type="checkbox" id="select-all"></th>
-                <th>الرقم التعريفي</th>
-                <th>اسم القسم</th>
-                <th>ساعات الدوام</th>
-                <th>الإجراءات</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for department in departments %}
-            <tr onclick="clickHandler(event)" data-link="{% url 'department_info' department.id %}">
-                <td onclick="event.stopPropagation();">
-                    <input type="checkbox" class="item-checkbox" value="{{ department.id }}">
-                </td>
-                <td>{{ department.id }}</td>
-                <td>{{ department.name }}</td>
-                <td>{{ department.work_hours }}</td>
-                <td onclick="event.stopPropagation();">
-                    <div class="action-buttons">
-                        <a href="{% url 'delete_department' department.id %}" class="delete-btn">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+        {% include 'partials/courses_partial.html' %}
     </table>
 
     <div class="pagination-container">

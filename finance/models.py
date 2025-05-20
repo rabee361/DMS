@@ -1,7 +1,6 @@
 from django.db import models
 from django.db.models.fields import related
-from utility.types import PaymentCycle, PaymentType
-from utility.account import create_movement
+from utility.types import PaymentCycle, PaymentType, OriginType
 # Create your models here.
 
 
@@ -40,7 +39,9 @@ class AccountMovement(models.Model):
     to_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='to_account')
     amount = models.FloatField()
     currency = models.ForeignKey(Currency, on_delete=models.CASCADE)
-    date = models.DateTimeField()
+    origin_type = models.CharField(max_length=50, choices=OriginType.choices)
+    origin_id = models.IntegerField()
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.from_account.name}-{self.to_account.name}-{self.amount}-{self.date}'
@@ -51,6 +52,7 @@ class AccountMovement(models.Model):
 def get_employee_model():
     from hr_tool.models import Employee
     return Employee
+
 
 
 class SalaryBlock(models.Model):
