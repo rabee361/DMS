@@ -25,6 +25,30 @@ client = OpenAI(
     api_key=env("api_key"),
 )
 
+# فحص البيانات المالية
+def is_financial_data(df: pd.DataFrame) -> bool:
+    """Check if the dataset is likely financial by column names or sample values."""
+    financial_keywords = [
+        'price', 'amount', 'revenue', 'income', 'expense', 'profit', 'loss',
+        'balance', 'cost', 'budget', 'sales', 'capital', 'asset', 'liability',
+        'equity', 'tax', 'dividend', 'interest', 'investment', 'debt', 'credit',
+        'debit', 'payment', 'transaction', 'invoice', 'statement', 'account',
+        'cash', 'fund', 'stock', 'bond', 'share', 'margin', 'amortization',
+        'depreciation', 'roi', 'roe', 'roa', 'eps', 'pe', 'yield', 'mortgage',
+        'loan', 'financing', 'liquidity', 'سعر', 'تكلفة', 'ربح', 'خسارة', 'ميزانية'
+    ]
+    for col in df.columns:
+        if any(keyword in col.lower() for keyword in financial_keywords):
+            return True
+    # Check for currency symbols in sample data
+    currency_symbols = ['$', '€', '£', '¥', '₹', '₽', '₺', '₩', 'د.إ', 'ر.س', 'ر.ق', 'د.ك', 'ر.ع', 'د.ب', 'ج.م','ل.س']
+
+    sample_values = df.head(10).astype(str).values.flatten().tolist()
+    for value in sample_values:
+        if any(char in value for char in currency_symbols) or re.search(r'\d+(\.\d{2})?', value):
+            return True
+
+    return False
 
 @csrf_exempt
 def get_dataset_insights(request):
@@ -130,8 +154,49 @@ def get_dataset_insights(request):
                 'tail': df.tail(5).to_dict('records')
             }
             
-            system_prompt = f"""You are Data Analyst, an advanced data analyst expert who provides SPECIFIC and ACTIONABLE insights.
+             #  prompt مخصص للبيانات المالية
+            is_finance = is_financial_data(df)
 
+            if is_finance:
+                system_prompt = f"""You are Data Analyst, an advanced data analyst expert who provides SPECIFIC and ACTIONABLE insights.
+نظرة عامة على البيانات:
+- عدد الصفوف: {len(df)}
+- الأعمدة: {', '.join(df.columns.tolist())}
+
+الإحصائيات الرقمية:
+{json.dumps(summary_stats['numeric'], indent=2)}
+
+الإحصائيات النوعية:
+{json.dumps(summary_stats['categorical'], indent=2)}
+
+الارتباطات القوية:
+{json.dumps(correlations, indent=2)}
+
+القيم المتطرفة:
+{json.dumps(outliers, indent=2)}
+
+عينات من البيانات:
+{json.dumps(data_sample['head'], indent=2)}
+
+
+قم بتحليل البيانات المالية وقدم:
+1. ملخص تحليلي للوضع المالي بناءً على البيانات المقدمة
+2. اتجاهات مالية رئيسية تظهر في البيانات
+3. مؤشرات مالية مهمة يجب الانتباه لها (معدلات النمو، التكاليف المرتفعة، مصادر الإيرادات)
+4. توصيات عملية لتحسين الأداء المالي استنادًا إلى البيانات
+5. تنبيهات لمخاطر مالية محتملة كشفت عنها البيانات
+
+احرص على أن تكون الردود:
+- مكتوبة باللغة العربية الفصحى
+- منظمة بنقاط واضحة ومختصرة
+- عملية وقابلة للتنفيذ
+- مدعومة بالأرقام والنسب من البيانات
+- خالية من المصطلحات المعقدة غير الضرورية
+"""
+            else:
+                system_prompt = f"""You are Data Analyst, an advanced data analyst expert who provides SPECIFIC and ACTIONABLE insights.
+
+                
 Dataset Overview:
 - Number of rows: {len(df)}
 - Columns: {', '.join(df.columns.tolist())}
@@ -196,14 +261,17 @@ Answer in Arabic.
             )
             
             response = completion.choices[0].message.content
-            
+            response = response.strip().rstrip(",")
+
+
             # Store this insight in session for future reference
             request.session['ai_insights'] = response
             request.session.modified = True
             
             return JsonResponse({
                 'status': 'success',
-                'insights': response
+                'insights': response,
+                'is_financial_data': is_finance
             })
             
         except Exception as e:

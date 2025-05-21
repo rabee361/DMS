@@ -136,6 +136,11 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
           تحديث رؤى الذكاء الاصطناعي
         </button>
+        <!-- تنبيه البيانات المالية -->
+        <div id="finance-alert" class="alert mt-4 p-4 rounded bg-yellow-100 text-yellow-800 font-medium" style="display: none;">
+          ⚠️ تم التعرف على البيانات كبيانات مالية. التحليل يتضمن توصيات مالية.
+        </div>
+
       </div>
 
       <!-- Insights Grid - Empty at first, will be filled by JavaScript -->
@@ -2128,204 +2133,128 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Add this script block just before the closing </body> tag -->
 <script>
-  // Main function to generate and display AI Insights
-  function generateAndDisplayInsights(isRefresh = false) {
-    // If refreshing, show loading state on the button
-    const generateBtn = document.getElementById('generateAIInsights');
-    const originalBtnText = generateBtn.innerHTML;
-    
-    if (isRefresh) {
-      generateBtn.innerHTML = `
-        <svg class="animate-spin h-5 w-5 text-white inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg> اعادة تحليل`;
-      generateBtn.disabled = true;
+// Main function to generate and display AI Insights
+function generateAndDisplayInsights(isRefresh = false) {
+  // If refreshing, show loading state on the button
+  const generateBtn = document.getElementById('generateAIInsights');
+  const originalBtnText = generateBtn.innerHTML;
+  
+  if (isRefresh) {
+    generateBtn.innerHTML = `
+      <svg class="animate-spin h-5 w-5 text-white inline mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg> اعادة تحليل`;
+    generateBtn.disabled = true;
+  }
+  
+  // Declare variable to keep track of initial load vs refresh
+  const isInitialLoad = !isRefresh;
+  
+  // Call the API to generate insights
+  fetch('{% url "get_dataset_insights" %}', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({})
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
-    
-    // Call the API to generate insights
-    fetch('{% url "get_dataset_insights" %}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: JSON.stringify({})
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
+    return response.json();
+  })
+  .then(data => {
+    if (data.status === 'success') {
+      // Get the insights container and clear it
+      const insightsContainer = document.querySelector('.insights-grid');
+      
+      // Store previous insights if this is a refresh for non-financial data
+      let previousInsights = [];
+      if (isRefresh) {
+        previousInsights = Array.from(insightsContainer.querySelectorAll('.insight-card')).map(card => {
+          const dataDiv = card.querySelector('.insight-data');
+          return dataDiv ? JSON.parse(dataDiv.textContent) : null;
+        }).filter(item => item !== null);
       }
-      return response.json();
-    })
-    .then(data => {
-      if (data.status === 'success') {
-        // Get the insights container and clear it
-        const insightsContainer = document.querySelector('.insights-grid');
-        insightsContainer.innerHTML = ''; // Remove all existing insights
-        
-        // Define different categories for insights with different colors
-        const categories = [
-          { name: 'Data Quality', color: 'blue' },
-          { name: 'Distribution', color: 'green' },
-          { name: 'Correlation', color: 'purple' },
-          { name: 'Trend', color: 'yellow' },
-          { name: 'Business', color: 'red' }
-        ];
-        
-        // Parse bullet points from the response
-        const bulletPoints = data.insights.split('\n')
+      
+      insightsContainer.innerHTML = ''; // Remove all existing insights
+      
+      // Define different categories for insights with different colors
+      // Removed 'Financial' category
+      const categories = [
+        { name: 'Data Quality', color: 'blue' },
+        { name: 'Distribution', color: 'green' },
+        { name: 'Correlation', color: 'purple' },
+        { name: 'Trend', color: 'yellow' },
+        { name: 'Business', color: 'red' }
+      ];
+      
+      // Parse bullet points from the response
+      const bulletPoints = data.insights.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.startsWith('•') || line.startsWith('-') || line.startsWith('* '))
+        .map(line => line.replace(/^[•\-\*]\s*/, '').trim());
+      
+      let allLines = [];
+      if (bulletPoints.length === 0) {
+        // If no bullet points found, try to find any non-empty lines
+        allLines = data.insights.split('\n')
           .map(line => line.trim())
-          .filter(line => line.startsWith('•') || line.startsWith('-') || line.startsWith('* '))
-          .map(line => line.replace(/^[•\-\*]\s*/, '').trim());
+          .filter(line => line.length > 0);
         
-        if (bulletPoints.length === 0) {
-          // If no bullet points found, try to find any non-empty lines
-          const allLines = data.insights.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0);
-          
-          // Add whole paragraphs as single insights if bullet points aren't found
-          allLines.forEach((line, index) => {
-            if (line.length > 30) { // Only add substantial lines
-              bulletPoints.push(line);
-            }
-          });
+        // Add whole paragraphs as single insights if bullet points aren't found
+        allLines.forEach((line, index) => {
+          if (line.length > 30) { // Only add substantial lines
+            bulletPoints.push(line);
+          }
+        });
+      }
+      
+      // If still no insights, show a message
+      if (bulletPoints.length === 0) {
+        insightsContainer.innerHTML = `
+          <div class="col-span-full text-center py-8 bg-gray-50 rounded-lg">
+            <p class="text-gray-500">No insights could be generated for this dataset.</p>
+          </div>
+        `;
+        
+        // Reset button if refreshing
+        if (isRefresh && generateBtn) {
+          generateBtn.innerHTML = originalBtnText;
+          generateBtn.disabled = false;
         }
         
-        // If still no insights, show a message
-        if (bulletPoints.length === 0) {
-          insightsContainer.innerHTML = `
-            <div class="col-span-full text-center py-8 bg-gray-50 rounded-lg">
-              <p class="text-gray-500">No insights could be generated for this dataset.</p>
-            </div>
-          `;
-          
-          // Reset button if refreshing
-          if (isRefresh && generateBtn) {
-            generateBtn.innerHTML = originalBtnText;
-            generateBtn.disabled = false;
+        return;
+      }
+      
+      // Check for finance insights to determine if this is financial data
+      const financeKeywords = ['price', 'amount', 'revenue', 'income', 'expense', 'profit', 'loss',
+      'balance', 'cost', 'budget', 'sales', 'capital', 'asset', 'liability',
+      'equity', 'tax', 'dividend', 'interest', 'investment', 'debt', 'credit',
+      'debit', 'payment', 'transaction', 'invoice', 'statement', 'account',
+      'cash', 'fund', 'stock', 'bond', 'share', 'margin', 'amortization',
+      'depreciation', 'roi', 'roe', 'roa', 'eps', 'pe', 'yield', 'mortgage',
+      'loan', 'financing', 'liquidity', 'سعر', 'تكلفة', 'ربح', 'خسارة', 'ميزانية'];
+      
+      const isFinancialData = bulletPoints.some(insight => 
+        financeKeywords.some(keyword => insight.toLowerCase().includes(keyword))
+      );
+      
+      // If refreshing non-financial data, restore previous insights instead of showing new ones
+      // Only do this when there are previous insights and this is a refresh operation
+      if (isRefresh && !isFinancialData && previousInsights.length > 0) {
+        // For non-financial data, always preserve the original 9 cards
+        previousInsights.forEach(insightData => {
+          // Skip financial category insights
+          if (insightData.category === 'Financial') {
+            return;
           }
           
-          return;
-        }
-        
-        // Limit to only 9 insights maximum - select them smartly
-        let selectedInsights = [];
-        
-        if (bulletPoints.length <= 9) {
-          // If we have 9 or fewer insights, use all of them
-          selectedInsights = bulletPoints;
-        } else {
-          // Ensure we get a balanced selection from different categories if possible
-          
-          // First, categorize insights
-          const categorizedInsights = {
-            dataQuality: [],
-            distribution: [],
-            correlation: [],
-            trend: [],
-            business: []
-          };
-          
-          bulletPoints.forEach(insight => {
-            const lowerInsight = insight.toLowerCase();
-            
-            if (lowerInsight.includes('missing') || lowerInsight.includes('outlier') || lowerInsight.includes('quality')) {
-              categorizedInsights.dataQuality.push(insight);
-            } else if (lowerInsight.includes('average') || lowerInsight.includes('median') || lowerInsight.includes('distribution')) {
-              categorizedInsights.distribution.push(insight);
-            } else if (lowerInsight.includes('correlation') || lowerInsight.includes('related') || lowerInsight.includes('association')) {
-              categorizedInsights.correlation.push(insight);
-            } else if (lowerInsight.includes('increase') || lowerInsight.includes('decrease') || lowerInsight.includes('trend') ||
-                      lowerInsight.includes('time') || lowerInsight.includes('date') || lowerInsight.includes('month')) {
-              categorizedInsights.trend.push(insight);
-            } else if (lowerInsight.includes('recommend') || lowerInsight.includes('opportunity') || lowerInsight.includes('strategy')) {
-              categorizedInsights.business.push(insight);
-            } else {
-              // If can't categorize, put in distribution as default
-              categorizedInsights.distribution.push(insight);
-            }
-          });
-          
-          // Determine how many insights to take from each category
-          // Try to balance across categories, prioritizing business insights
-          const categoryOrder = ['business', 'dataQuality', 'correlation', 'trend', 'distribution'];
-          const target = Math.min(9, bulletPoints.length);
-          let remaining = target;
-          
-          // First pass: try to get at least 1 from each non-empty category
-          for (const category of categoryOrder) {
-            if (categorizedInsights[category].length > 0 && remaining > 0) {
-              selectedInsights.push(categorizedInsights[category][0]);
-              categorizedInsights[category].shift(); // Remove the one we just added
-              remaining--;
-            }
-          }
-          
-          // Second pass: distribute remaining slots proportionally
-          if (remaining > 0) {
-            // Count how many insights remain in all categories
-            const totalRemaining = Object.values(categorizedInsights)
-              .reduce((sum, arr) => sum + arr.length, 0);
-            
-            if (totalRemaining > 0) {
-              // Distribute remaining slots across categories based on their size
-              for (const category of categoryOrder) {
-                const share = Math.floor((categorizedInsights[category].length / totalRemaining) * remaining);
-                for (let i = 0; i < share && categorizedInsights[category].length > 0; i++) {
-                  selectedInsights.push(categorizedInsights[category][0]);
-                  categorizedInsights[category].shift();
-                  remaining--;
-                }
-              }
-            }
-          }
-          
-          // Third pass: fill any remaining slots with whatever insights are left
-          if (remaining > 0) {
-            for (const category of categoryOrder) {
-              while (remaining > 0 && categorizedInsights[category].length > 0) {
-                selectedInsights.push(categorizedInsights[category][0]);
-                categorizedInsights[category].shift();
-                remaining--;
-              }
-            }
-          }
-        }
-        
-        // Add the selected insights to the grid
-        selectedInsights.forEach((insight, index) => {
-          // Determine category based on content
-          let categoryIndex = index % categories.length;
-          
-          // Try to determine a better category
-          const lowerInsight = insight.toLowerCase();
-          if (lowerInsight.includes('missing') || lowerInsight.includes('outlier') || lowerInsight.includes('quality')) {
-            categoryIndex = 0; // Data Quality
-          } else if (lowerInsight.includes('average') || lowerInsight.includes('median') || lowerInsight.includes('distribution')) {
-            categoryIndex = 1; // Distribution
-          } else if (lowerInsight.includes('correlation') || lowerInsight.includes('related') || lowerInsight.includes('association')) {
-            categoryIndex = 2; // Correlation
-          } else if (lowerInsight.includes('increase') || lowerInsight.includes('decrease') || lowerInsight.includes('trend') ||
-                    lowerInsight.includes('time') || lowerInsight.includes('date') || lowerInsight.includes('month')) {
-            categoryIndex = 3; // Trend
-          } else if (lowerInsight.includes('recommend') || lowerInsight.includes('opportunity') || lowerInsight.includes('strategy')) {
-            categoryIndex = 4; // Business
-          }
-          
-          const category = categories[categoryIndex];
-          
-          // Determine severity based on wording
-          let severity = 'medium';
-          if (lowerInsight.includes('critical') || lowerInsight.includes('significant') || 
-              lowerInsight.includes('major') || lowerInsight.includes('important') ||
-              lowerInsight.includes('high ')) {
-            severity = 'high';
-          } else if (lowerInsight.includes('minor') || lowerInsight.includes('slight') || 
-                    lowerInsight.includes('small') || lowerInsight.includes('low ')) {
-            severity = 'low';
-          }
+          const category = categories.find(c => c.name === insightData.category) || categories[0];
+          const severity = insightData.severity || 'medium';
           
           // Create the card with appropriate styling
           const card = document.createElement('div');
@@ -2344,211 +2273,415 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${severity.charAt(0).toUpperCase() + severity.slice(1)} Priority
               </span>
             </div>
-            <p class="text-gray-700 text-sm mt-2">${insight}</p>
+            <p class="text-gray-700 text-sm mt-2">${insightData.message}</p>
             
             <!-- Store the insight data -->
-            <div class="hidden insight-data">${JSON.stringify({
-              type: `${category.name.toLowerCase()}_insight`,
-              message: insight,
-              severity: severity,
-              category: category.name
-            })}</div>
+            <div class="hidden insight-data">${JSON.stringify(insightData)}</div>
           `;
           
           insightsContainer.appendChild(card);
         });
         
-        // Initialize click handlers for insight cards
-        document.querySelectorAll('.insight-card').forEach(card => {
-          card.addEventListener('click', function() {
-            try {
-              const insightDataString = $(this).find('.insight-data').text();
-              const insightData = JSON.parse(insightDataString);
-              
-              // Check if the modal exists, if not create it
-              let modal = document.getElementById('insightModal');
-              if (!modal) {
-                modal = createInsightModal();
-              }
-              
-              // Populate and show modal
-              document.getElementById('modalTitle').textContent = insightData.category + ' INSIGHT';
-              document.getElementById('modalBody').innerHTML = generateModalContent(insightData);
-              modal.classList.remove('hidden');
-              document.body.classList.add('modal-open');
-              
-              // Resize plots if any
-              setTimeout(function() {
-                if (window.Plotly) {
-                  document.querySelectorAll('.js-plotly-plot').forEach(plot => {
-                    if (plot._fullLayout) {
-                      Plotly.Plots.resize(plot);
-                    }
-                  });
-                }
-              }, 100);
-            } catch (error) {
-              console.error('Error processing insight:', error);
-            }
-          });
-        });
+        // Reset button after restoring previous insights
+        if (generateBtn) {
+          generateBtn.innerHTML = originalBtnText;
+          generateBtn.disabled = false;
+        }
         
-        // Initialize filter buttons
-        document.querySelectorAll('.severity-filter').forEach(button => {
-          button.addEventListener('click', function() {
-            // Remove active class from all buttons
-            document.querySelectorAll('.severity-filter').forEach(btn => {
-              btn.classList.remove('active');
-              if (btn.classList.contains('bg-gray-300')) {
-                btn.classList.remove('bg-gray-300');
-                btn.classList.add('bg-gray-200');
-              }
-            });
-            
-            // Add active class to clicked button
-            this.classList.add('active');
-            if (this.classList.contains('bg-gray-200')) {
-              this.classList.remove('bg-gray-200');
-              this.classList.add('bg-gray-300');
-            }
-            
-            // Filter the insights
-            const severity = this.getAttribute('data-severity');
-            document.querySelectorAll('.insight-card').forEach(card => {
-              if (severity === 'all' || card.dataset.severity === severity) {
-                card.classList.remove('hidden');
-              } else {
-                card.classList.add('hidden');
-              }
-            });
-          });
-        });
-      } else {
-        // Handle API error
-        document.querySelector('.insights-grid').innerHTML = `
-          <div class="col-span-full text-center py-8 bg-gray-50 rounded-lg">
-            <p class="text-red-500">Error generating insights: ${data.message || 'Unknown error'}</p>
-            <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onclick="generateAndDisplayInsights(true)">
-              Try Again
-            </button>
-          </div>
-        `;
+        // Initialize event listeners for restored cards
+        initializeInsightCardListeners();
+        
+        // Show/hide finance alert
+        toggleFinanceAlert(isFinancialData);
+        
+        return;
       }
       
-      // If refreshing, reset the button
-      if (isRefresh && generateBtn) {
-        generateBtn.innerHTML = originalBtnText;
-        generateBtn.disabled = false;
+      // Always target exactly 9 cards for all data types
+      const targetCards = 9;
+      
+      // Categorize insights, but exclude financial category
+      const categorizedInsights = {
+        dataQuality: [],
+        distribution: [],
+        correlation: [],
+        trend: [],
+        business: []
+      };
+      
+      bulletPoints.forEach(insight => {
+        const lowerInsight = insight.toLowerCase();
+        
+        // Categorize without the financial category
+        if (lowerInsight.includes('missing') || lowerInsight.includes('outlier') || lowerInsight.includes('quality')) {
+          categorizedInsights.dataQuality.push(insight);
+        } else if (lowerInsight.includes('average') || lowerInsight.includes('median') || lowerInsight.includes('distribution')) {
+          categorizedInsights.distribution.push(insight);
+        } else if (lowerInsight.includes('correlation') || lowerInsight.includes('related') || lowerInsight.includes('association')) {
+          categorizedInsights.correlation.push(insight);
+        } else if (lowerInsight.includes('increase') || lowerInsight.includes('decrease') || lowerInsight.includes('trend') ||
+                  lowerInsight.includes('time') || lowerInsight.includes('date') || lowerInsight.includes('month')) {
+          categorizedInsights.trend.push(insight);
+        } else if (lowerInsight.includes('recommend') || lowerInsight.includes('opportunity') || lowerInsight.includes('strategy')) {
+          categorizedInsights.business.push(insight);
+        } else {
+          // If can't categorize, put in distribution as default
+          // Including financial insights here instead of separate category
+          categorizedInsights.distribution.push(insight);
+        }
+      });
+      
+      // Select insights for display - aim for exactly 9 cards
+      let selectedInsights = [];
+      
+      // Take insights from all categories evenly to reach 9 cards
+      if (bulletPoints.length <= 9) {
+        // If we have 9 or fewer insights, use all of them
+        selectedInsights = bulletPoints;
+      } else {
+        // Determine how many insights to take from each category
+        // Try to balance across categories, prioritizing business insights
+        const categoryOrder = ['business', 'dataQuality', 'correlation', 'trend', 'distribution'];
+        const target = 9; // Ensure we always try to get 9 cards
+        let remaining = target;
+        
+        // First pass: try to get at least 1 from each non-empty category
+        for (const category of categoryOrder) {
+          if (categorizedInsights[category].length > 0 && remaining > 0) {
+            selectedInsights.push(categorizedInsights[category][0]);
+            categorizedInsights[category].shift(); // Remove the one we just added
+            remaining--;
+          }
+        }
+        
+        // Second pass: distribute remaining slots proportionally
+        if (remaining > 0) {
+          // Count how many insights remain in all categories
+          const totalRemaining = Object.values(categorizedInsights)
+            .reduce((sum, arr) => sum + arr.length, 0);
+          
+          if (totalRemaining > 0) {
+            // Distribute remaining slots across categories based on their size
+            for (const category of categoryOrder) {
+              const share = Math.floor((categorizedInsights[category].length / totalRemaining) * remaining);
+              for (let i = 0; i < share && categorizedInsights[category].length > 0; i++) {
+                selectedInsights.push(categorizedInsights[category][0]);
+                categorizedInsights[category].shift();
+                remaining--;
+              }
+            }
+          }
+        }
+        
+        // Third pass: fill any remaining slots with whatever insights are left
+        if (remaining > 0) {
+          for (const category of categoryOrder) {
+            while (remaining > 0 && categorizedInsights[category].length > 0) {
+              selectedInsights.push(categorizedInsights[category][0]);
+              categorizedInsights[category].shift();
+              remaining--;
+            }
+          }
+        }
       }
-    })
-    .catch(error => {
-      console.error('Error generating AI insights:', error);
+      
+      // If still less than 9 insights, duplicate some to make up to 9
+      if (selectedInsights.length < 9 && selectedInsights.length > 0) {
+        const originalLength = selectedInsights.length;
+        for (let i = 0; i < 9 - originalLength; i++) {
+          selectedInsights.push(selectedInsights[i % originalLength]);
+        }
+      }
+      
+      // Add the selected insights to the grid
+      selectedInsights.forEach((insight, index) => {
+        // Determine category based on content
+        let categoryIndex = index % categories.length;
+        
+        // Try to determine a better category
+        const lowerInsight = insight.toLowerCase();
+        
+        // Map to one of the 5 categories
+        if (lowerInsight.includes('missing') || lowerInsight.includes('outlier') || lowerInsight.includes('quality')) {
+          categoryIndex = 0; // Data Quality
+        } else if (lowerInsight.includes('average') || lowerInsight.includes('median') || lowerInsight.includes('distribution')) {
+          categoryIndex = 1; // Distribution
+        } else if (lowerInsight.includes('correlation') || lowerInsight.includes('related') || lowerInsight.includes('association')) {
+          categoryIndex = 2; // Correlation
+        } else if (lowerInsight.includes('increase') || lowerInsight.includes('decrease') || lowerInsight.includes('trend') ||
+                  lowerInsight.includes('time') || lowerInsight.includes('date') || lowerInsight.includes('month')) {
+          categoryIndex = 3; // Trend
+        } else if (lowerInsight.includes('recommend') || lowerInsight.includes('opportunity') || lowerInsight.includes('strategy')) {
+          categoryIndex = 4; // Business
+        }
+        
+        const category = categories[categoryIndex];
+        
+        // Determine severity based on wording
+        let severity = 'medium';
+        if (lowerInsight.includes('critical') || lowerInsight.includes('significant') || 
+            lowerInsight.includes('major') || lowerInsight.includes('important') ||
+            lowerInsight.includes('high ')) {
+          severity = 'high';
+        } else if (lowerInsight.includes('minor') || lowerInsight.includes('slight') || 
+                  lowerInsight.includes('small') || lowerInsight.includes('low ')) {
+          severity = 'low';
+        }
+        
+        // Create the card with appropriate styling
+        const card = document.createElement('div');
+        card.className = `insight-card cursor-pointer bg-white rounded-lg border p-4 hover:shadow-lg transition-all duration-200 border-${category.color}-400 bg-${category.color}-50`;
+        card.dataset.severity = severity;
+        
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-sm font-semibold px-2 py-1 rounded bg-${category.color}-200 text-${category.color}-800">
+              ${category.name}
+            </span>
+            <span class="text-sm font-semibold px-2 py-1 rounded 
+              ${severity === 'high' ? 'bg-red-200 text-red-800' : 
+               severity === 'medium' ? 'bg-yellow-200 text-yellow-800' : 
+               'bg-blue-200 text-blue-800'}">
+              ${severity.charAt(0).toUpperCase() + severity.slice(1)} Priority
+            </span>
+          </div>
+          <p class="text-gray-700 text-sm mt-2">${insight}</p>
+          
+          <!-- Store the insight data -->
+          <div class="hidden insight-data">${JSON.stringify({
+            type: `${category.name.toLowerCase()}_insight`,
+            message: insight,
+            severity: severity,
+            category: category.name
+          })}</div>
+        `;
+        
+        insightsContainer.appendChild(card);
+      });
+      
+      // Show or hide finance alert based on content
+      toggleFinanceAlert(isFinancialData);
+
+      // Initialize click handlers for insight cards
+      initializeInsightCardListeners();
+    } else {
+      // Handle API error
       document.querySelector('.insights-grid').innerHTML = `
         <div class="col-span-full text-center py-8 bg-gray-50 rounded-lg">
-          <p class="text-red-500">Failed to connect to the insights service. Please try again.</p>
+          <p class="text-red-500">Error generating insights: ${data.message || 'Unknown error'}</p>
           <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onclick="generateAndDisplayInsights(true)">
             Try Again
           </button>
         </div>
       `;
-      
-      // Reset button if refreshing
-      if (isRefresh && generateBtn) {
-        generateBtn.innerHTML = originalBtnText;
-        generateBtn.disabled = false;
-      }
-    });
-  }
-  
-  // Helper function to generate modal content
-  function generateModalContent(insightData) {
-    return `
-      <div class="insight-modal-content">
-        <p class="text-lg mb-4">${insightData.message}</p>
-        <div class="mt-4 p-4 bg-gray-100 rounded-lg">
-          <h3 class="font-semibold mb-2">Why This Matters:</h3>
-          <p>This ${insightData.category.toLowerCase()} insight helps you understand patterns in your data and can inform your decision-making process.</p>
-          
-          <h3 class="font-semibold mt-4 mb-2">Recommended Action:</h3>
-          <p>
-            ${insightData.severity === 'high' 
-              ? 'This is a high priority insight that requires immediate attention.' 
-              : insightData.severity === 'medium'
-                ? 'Consider addressing this insight in your analysis and planning.'
-                : 'Keep this insight in mind for future reference.'}
-          </p>
-        </div>
+    }
+    
+    // If refreshing, reset the button
+    if (isRefresh && generateBtn) {
+      generateBtn.innerHTML = originalBtnText;
+      generateBtn.disabled = false;
+    }
+  })
+  .catch(error => {
+    console.error('Error generating AI insights:', error);
+    document.querySelector('.insights-grid').innerHTML = `
+      <div class="col-span-full text-center py-8 bg-gray-50 rounded-lg">
+        <p class="text-red-500">Failed to connect to the insights service. Please try again.</p>
+        <button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onclick="generateAndDisplayInsights(true)">
+          Try Again
+        </button>
       </div>
     `;
-  }
-  
-  // Helper function to create modal if it doesn't exist
-  function createInsightModal() {
-    const modal = document.createElement('div');
-    modal.id = 'insightModal';
-    modal.className = 'fixed inset-0 z-50 overflow-y-auto hidden';
-    modal.setAttribute('aria-labelledby', 'modal-title');
-    modal.setAttribute('role', 'dialog');
-    modal.setAttribute('aria-modal', 'true');
     
-    modal.innerHTML = `
-      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="sm:flex sm:items-start">
-              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">
-                  Insight Details
-                </h3>
-                <div class="mt-2" id="modalBody">
-                  <p class="text-sm text-gray-500">جاري تحميل التفاصيل...</p>
-                </div>
+    // Reset button if refreshing
+    if (isRefresh && generateBtn) {
+      generateBtn.innerHTML = originalBtnText;
+      generateBtn.disabled = false;
+    }
+  });
+}
+
+// Helper function to initialize insight card listeners
+function initializeInsightCardListeners() {
+  document.querySelectorAll('.insight-card').forEach(card => {
+    card.addEventListener('click', function() {
+      try {
+        const insightDataString = this.querySelector('.insight-data').textContent;
+        const insightData = JSON.parse(insightDataString);
+        
+        // Check if the modal exists, if not create it
+        let modal = document.getElementById('insightModal');
+        if (!modal) {
+          modal = createInsightModal();
+        }
+        
+        // Populate and show modal
+        document.getElementById('modalTitle').textContent = insightData.category + ' INSIGHT';
+        document.getElementById('modalBody').innerHTML = generateModalContent(insightData);
+        modal.classList.remove('hidden');
+        document.body.classList.add('modal-open');
+        
+        // Resize plots if any
+        setTimeout(function() {
+          if (window.Plotly) {
+            document.querySelectorAll('.js-plotly-plot').forEach(plot => {
+              if (plot._fullLayout) {
+                Plotly.Plots.resize(plot);
+              }
+            });
+          }
+        }, 100);
+      } catch (error) {
+        console.error('Error processing insight:', error);
+      }
+    });
+  });
+  
+  // Initialize filter buttons
+  document.querySelectorAll('.severity-filter').forEach(button => {
+    button.addEventListener('click', function() {
+      // Remove active class from all buttons
+      document.querySelectorAll('.severity-filter').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.classList.contains('bg-gray-300')) {
+          btn.classList.remove('bg-gray-300');
+          btn.classList.add('bg-gray-200');
+        }
+      });
+      
+      // Add active class to clicked button
+      this.classList.add('active');
+      if (this.classList.contains('bg-gray-200')) {
+        this.classList.remove('bg-gray-200');
+        this.classList.add('bg-gray-300');
+      }
+      
+      // Filter the insights
+      const severity = this.getAttribute('data-severity');
+      document.querySelectorAll('.insight-card').forEach(card => {
+        if (severity === 'all' || card.dataset.severity === severity) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+}
+
+// Helper function to generate modal content
+function generateModalContent(insightData) {
+  let modalContent = `
+    <div class="insight-modal-content">
+      <p class="text-lg mb-4">${insightData.message}</p>
+      <div class="mt-4 p-4 bg-gray-100 rounded-lg">
+        <h3 class="font-semibold mb-2">Why This Matters:</h3>
+  `;
+  
+  // Customize the "Why This Matters" section based on the insight category
+  // Removed Financial-specific content
+  modalContent += `
+    <p>This ${insightData.category.toLowerCase()} insight helps you understand patterns in your data and can inform your decision-making process.</p>
+    
+    <h3 class="font-semibold mt-4 mb-2">Recommended Action:</h3>
+    <p>
+      ${insightData.severity === 'high' 
+        ? 'This is a high priority insight that requires immediate attention.' 
+        : insightData.severity === 'medium'
+          ? 'Consider addressing this insight in your analysis and planning.'
+          : 'Keep this insight in mind for future reference.'}
+    </p>
+  `;
+  
+  modalContent += `
+      </div>
+    </div>
+  `;
+  
+  return modalContent;
+}
+
+// Helper function to create modal if it doesn't exist
+function createInsightModal() {
+  const modal = document.createElement('div');
+  modal.id = 'insightModal';
+  modal.className = 'fixed inset-0 z-50 overflow-y-auto hidden';
+  modal.setAttribute('aria-labelledby', 'modal-title');
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  
+  modal.innerHTML = `
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+      <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div class="sm:flex sm:items-start">
+            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+              <h3 class="text-lg leading-6 font-medium text-gray-900" id="modalTitle">
+                Insight Details
+              </h3>
+              <div class="mt-2" id="modalBody">
+                <p class="text-sm text-gray-500">جاري تحميل التفاصيل...</p>
               </div>
             </div>
           </div>
-          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm modal-close">
-              اغلاق
-            </button>
-          </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm modal-close">
+            اغلاق
+          </button>
         </div>
       </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // Add event listener to close button
-    modal.querySelector('.modal-close').addEventListener('click', function() {
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Add event listener to close button
+  modal.querySelector('.modal-close').addEventListener('click', function() {
+    modal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  });
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', function(event) {
+    if (event.target === modal) {
       modal.classList.add('hidden');
       document.body.classList.remove('modal-open');
-    });
-    
-    // Close modal when clicking outside
-    modal.addEventListener('click', function(event) {
-      if (event.target === modal) {
-        modal.classList.add('hidden');
-        document.body.classList.remove('modal-open');
-      }
-    });
-    
-    return modal;
-  }
-  
-  // Initialize everything when the page loads
-  document.addEventListener('DOMContentLoaded', function() {
-    // Generate insights automatically when page loads
-    generateAndDisplayInsights();
-    
-    // Setup refresh button
-    const generateInsightsBtn = document.getElementById('generateAIInsights');
-    if (generateInsightsBtn) {
-      generateInsightsBtn.addEventListener('click', function() {
-        generateAndDisplayInsights(true);
-      });
     }
   });
+  
+  return modal;
+}
+
+// Function to handle finance alert
+function toggleFinanceAlert(shouldShow) {
+  const alertBox = document.getElementById('finance-alert');
+  if (!alertBox) return;
+
+  if (shouldShow) {
+    alertBox.classList.remove('hidden');
+    alertBox.classList.add('block');
+  } else {
+    alertBox.classList.add('hidden');
+    alertBox.classList.remove('block');
+  }
+}
+
+// Initialize everything when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  // Generate insights automatically when page loads
+  generateAndDisplayInsights();
+  
+  // Setup refresh button
+  const generateInsightsBtn = document.getElementById('generateAIInsights');
+  if (generateInsightsBtn) {
+    generateInsightsBtn.addEventListener('click', function() {
+      generateAndDisplayInsights(true);
+    });
+  }
+});
 </script>
 <style>
   /* Add any additional styles you need */
