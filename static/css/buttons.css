@@ -1,0 +1,573 @@
+
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.1s;
+  }
+  
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+  
+
+  .do-action-btn {
+    padding: 0.5rem 1.5rem;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.do-action-btn a{
+    text-decoration: none;
+    color: white;
+}
+
+.do-action-btn:hover {
+    background-color: #0b5ed7;
+}
+
+.pdf-btn{
+    padding: 0.5rem 1.5rem;
+    background-color: #c92d06;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.pdf-btn:hover{
+    background-color: #a32405;
+}
+
+.excel-btn{
+    padding: 0.5rem 1.5rem;
+    background-color: #149931;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.4s;
+}
+
+.excel-btn:hover{
+    background-color: #0e7a26;
+}
+
+
+
+.form-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.form-actions .btn i {
+    font-size: 1.1rem;
+}
+
+.form-actions .btn-primary {
+    background-color: #0d6efd;
+    border: none;
+    color: white;
+}
+
+.form-actions .btn-primary:hover {
+    background-color: #0b5ed7;
+}
+
+.form-actions .btn-secondary {
+    background-color: #6c757d;
+    border: none;
+    color: white;
+}
+
+.form-actions .btn-secondary:hover {
+    background-color: #5c636a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-actions .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+
+
+.action-buttons .view-btn:hover {
+    background: #e3f2fd;
+    color: #1976d2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.action-buttons .delete-btn:hover {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+.action-buttons .copy-btn:hover {
+    background: #abe2f3;
+    color: #8d88d8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+
+
+.document-detail .action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.document-detail .action-buttons .btn i {
+    font-size: 1rem;
+}
+
+.document-detail .action-buttons .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-danger:hover {
+    background-color: #bb2d3b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-secondary:hover {
+    background-color: #5c636a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+
+/* Delete Button */
+#deleteBtn {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+#deleteBtn:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+}
+
+
+.action-controls .btn {
+    padding: 0.5rem 1.5rem;
+}
+
+.action-controls .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.document-detail .action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.document-detail .action-buttons .btn i {
+    font-size: 1rem;
+}
+
+.document-detail .action-buttons .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-danger:hover {
+    background-color: #bb2d3b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-secondary:hover {
+    background-color: #5c636a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+
+/* Delete Button */
+#deleteBtn {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+#deleteBtn:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+}
+
+
+.action-controls .btn {
+    padding: 0.5rem 1.5rem;
+}
+
+.action-controls .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+
+
+
+/* Button Styles */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #e9ecef;
+    color: #495057;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background-color: #dee2e6;
+    color: #212529;
+}
+
+
+
+.document-detail .action-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.document-detail .action-buttons .btn i {
+    font-size: 1rem;
+}
+
+.document-detail .action-buttons .btn-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-primary:hover {
+    background-color: #0b5ed7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-danger:hover {
+    background-color: #bb2d3b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.document-detail .action-buttons .btn-secondary:hover {
+    background-color: #5c636a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.document-detail .action-buttons .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+
+
+/* Delete Button */
+#deleteBtn {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+#deleteBtn:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+}
+
+
+.action-controls .btn {
+    padding: 0.5rem 1.5rem;
+}
+
+.action-controls .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.action-btn i {
+    font-size: 1.1rem;
+}
+
+.download-btn {
+    background-color: var(--bs-success);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.download-btn:hover {
+    background-color: var(--bs-success);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.edit-btn {
+    background-color: var(--bs-primary);
+    color: white;
+}
+
+.edit-btn:hover {
+    background-color: #0d6efd;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.delete-btn {
+    background-color: var(--bs-danger);
+    color: white;
+}
+
+.delete-btn:hover {
+    background-color: #dc3545;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.share-btn {
+    background-color: var(--bs-secondary);
+    color: white;
+}
+
+.share-btn:hover {
+    background-color: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+
+.settings-form .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.settings-form .btn-primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.settings-form .btn-primary:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+
+
+
+.delete-form .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+}
+
+.delete-form .btn-danger {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.delete-form .btn-danger:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(220, 53, 69, 0.2);
+}
+
+.delete-form .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+}
+
+.delete-form .btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(108, 117, 125, 0.2);
+}
+
+
+.kanban-filter-navbar .btn-secondary {
+    padding: 0.5rem 1rem;
+    border: none;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+}
+
+.kanban-filter-navbar .btn-secondary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .settings-form .btn {
+    width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+
+
+@media (max-width: 768px) {
+    .view-controls .btn {
+        width: 100%;
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .delete-form .btn {
+        width: 100%;
+    }
+}

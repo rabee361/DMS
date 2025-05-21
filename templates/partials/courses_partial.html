@@ -9,17 +9,17 @@
 </thead>
 
 <tbody>
-    {% for course in courses %}
-    <tr onclick="clickHandler(event)" data-link="{% url 'department_info' department.id %}">
+    {% for course in courses %} 
+    <tr onclick="clickHandler(event)" data-link="{% url 'course_info' course.id %}">
         <td onclick="event.stopPropagation();">
-            <input type="checkbox" class="item-checkbox" value="{{ department.id }}">
+            <input type="checkbox" class="item-checkbox" value="{{ course.id }}">
         </td>
-        <td>{{ department.id }}</td>
-        <td>{{ department.name }}</td>
-        <td>{{ department.work_hours }}</td>
+        <td>{{ course.id }}</td>
+        <td>{{ course.name }}</td>
+        <td>{{ course.subject }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">
-                <a href="{% url 'delete_department' department.id %}" class="delete-btn">
+                <a href="{% url 'delete_course' course.id %}" class="delete-btn">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>

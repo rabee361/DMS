@@ -9,17 +9,17 @@
 </thead>
 
 <tbody>
-    {% for employee in course.employees %}
+    {% for employee in employees %}
     <tr>
         <td onclick="event.stopPropagation();">
             <input type="checkbox" class="item-checkbox" value="{{ employee.id }}">
         </td>
         <td>{{ employee.id }}</td>
-        <td>{{ employee.name }}</td>
+        <td>{{ employee.employee.username }}</td>
         <td>{{ employee.gpa }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">
-                <a href="{% url 'delete_employee' department.id %}" class="delete-btn">
+                <a href="#" class="delete-btn">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>

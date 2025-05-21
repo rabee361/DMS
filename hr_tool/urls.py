@@ -66,10 +66,11 @@ urlpatterns = [
 
     path('courses/' , views.ListCoursesView.as_view() , name="courses"),
     path('courses/add' , views.CreateCourseView.as_view() , name="create_course"),
-    path('courses/add/employee/<str:id>' , views.CreateCourseEmployeeView.as_view() , name="create_course_employee"),
+    path('courses/add/employee/<int:id>' , views.CreateCourseEmployeeView.as_view() , name="create_course_employee"),
+    path('courses/delete/employee/<int:id>' , views.DeleteCourseEmployeeView.as_view() , name="delete_employee_course"),
     path('courses/action' , views.CoursesActionView.as_view() , name="courses_action"),
-    path('courses/<str:id>' , views.CourseDetailView.as_view() , name="course_info"),
-    path('courses/<str:id>/delete' , views.DeleteCourseView.as_view() , name="delete_course"),
+    path('courses/<int:id>' , views.CourseDetailView.as_view() , name="course_info"),
+    path('courses/<int:id>/delete' , views.DeleteCourseView.as_view() , name="delete_course"),
 
     path('loans/' , views.ListHRLoansView.as_view() , name="hr_loans"),
     path('loans/add' , views.CreateHRLoanView.as_view() , name="create_hr_loan"),

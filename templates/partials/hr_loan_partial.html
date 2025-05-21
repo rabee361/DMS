@@ -14,18 +14,22 @@
     </tr>
 </thead>
 <tbody>
-    {% for account in accounts %}
-    <tr onclick="clickHandler(event)" data-link="{% url 'account_info' account.id %}">
+    {% for loan in hr_loans %}
+    <tr onclick="clickHandler(event)" data-link="{% url 'loan_info' loan.id %}">
         <td onclick="event.stopPropagation();">
-            <input type="checkbox" class="item-checkbox" value="{{ account.id }}">
+            <input type="checkbox" class="item-checkbox" value="{{ loan.id }}">
         </td>
-        <td>{{ account.id }}</td>
-        <td>{{ account.name }}</td>
-        <td>{{ account.parent.name }}</td>
-        <td>{{ account.final }}</td>
+        <td>{{ loan.id }}</td>
+        <td>{{ loan.name }}</td>
+        <td>{{ loan.account.name }}</td>
+        <td>{{ loan.opposite_account.name }}</td>
+        <td>{{ loan.currency }}</td>
+        <td>{{ loan.amount }}</td>
+        <td>{{ loan.dicsount }}</td>
+        <td>{{ loan.name }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">
-                <a href="{% url 'delete_account' account.id %}" class="delete-btn" data-id="{{ account.id }}" data-name="{{ account.name }}">
+                <a href="{% url 'delete_loan' loan.id %}" class="delete-btn" data-id="{{ loan.id }}" data-name="{{ loan.name }}">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>

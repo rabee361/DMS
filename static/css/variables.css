@@ -1,0 +1,102 @@
+/* Theme Colors */
+:root {
+    /* Primary Colors */
+    --primary: #3498db;
+    --primary-dark: #2980b9;
+    --primary-light: #e3f2fd;
+    
+    /* Secondary Colors */
+    --secondary: #6c757d;
+    --secondary-dark: #5c636a;
+    --secondary-light: #f8f9fa;
+    
+    /* Success Colors */
+    --success: #2e7d32;
+    --success-light: #e8f5e9;
+    
+    /* Danger Colors */
+    --danger: #dc3545;
+    --danger-dark: #c82333;
+    --danger-light: #ffebee;
+    
+    /* Warning Colors */
+    --warning: #ff9800;
+    --warning-dark: #f57c00;
+    --warning-light: #fff3cd;
+    
+    /* Info Colors */
+    --info: #0d6efd;
+    --info-dark: #0b5ed7;
+    --info-light: #cce5ff;
+    
+    /* Neutral Colors */
+    --text-primary: #2c3e50;
+    --text-secondary: #6c757d;
+    --text-muted: #95a5a6;
+    
+    /* Background Colors */
+    --bg-primary: #f5f6fa;
+    --bg-secondary: #ffffff;
+    --bg-sidebar: ##10202f ;
+    
+    /* Border Colors */
+    --border-color: #eee;
+    --border-color-dark: #dee2e6;
+    
+    /* Shadow */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+  }
+  
+  /* Dark Theme Colors */
+  [data-theme="dark"] {
+    /* Primary Colors */
+    --primary: #3498db;
+    --primary-dark: #2980b9;
+    --primary-light: rgba(52, 152, 219, 0.2);
+    
+    /* Secondary Colors */
+    --secondary: #95a5a6;
+    --secondary-dark: #7f8c8d;
+    --secondary-light: #2c3e50;
+    
+    /* Success Colors */
+    --success: #00e676;
+    --success-light: rgba(0, 230, 118, 0.2);
+    
+    /* Danger Colors */
+    --danger: #ff5252;
+    --danger-dark: #d32f2f;
+    --danger-light: rgba(255, 82, 82, 0.2);
+    
+    /* Warning Colors */
+    --warning: #ffd740;
+    --warning-dark: #ffc400;
+    --warning-light: rgba(255, 215, 64, 0.2);
+    
+    /* Info Colors */
+    --info: #40c4ff;
+    --info-dark: #00b0ff;
+    --info-light: rgba(64, 196, 255, 0.2);
+    
+    /* Neutral Colors */
+    --text-primary: #ecf0f1;
+    --text-secondary: #bdc3c7;
+    --text-muted: #95a5a6;
+    
+    /* Background Colors */
+    --bg-primary: #1a1a1a;
+    --bg-secondary: #2c2c2c;
+    --bg-sidebar: #000000;
+    
+    /* Border Colors */
+    --border-color: #3d3d3d;
+    --border-color-dark: #4a4a4a;
+    
+    /* Shadow */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.4);
+    --shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+  }
+

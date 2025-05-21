@@ -7,12 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}لوحة التحكم{% endblock %}</title>
 
-    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
     <script src="{% static 'js/htmx.min.js' %}"></script>
     <script src="{% static 'js/modal.js' %}"></script>
     <script src="{% static 'js/toast.js' %}"></script>
     <!-- Custom styles -->
-    <link href="{% static 'css/dashboard.css' %}" rel="stylesheet">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/modal.css' %}">
     <link rel="stylesheet" href="{% static 'css/toast.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -69,11 +69,11 @@
                 <i class="bi bi-person-workspace"></i> الموارد البشرية
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'warehouses' %}">
+            <!-- <li class="nav-item">
+              <a class="nav-link" href="#">
                 <i class="bi bi-house"></i> المستودعات
               </a>
-            </li>
+            </li> -->
             <li class="nav-item">
               <a class="nav-link" href="{% url 'finance' %}">
                 <i class="bi bi-currency-exchange"></i> المالية
@@ -130,7 +130,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="{% static 'js/dashboard.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
     <script>
       // Add toggle functionality
       document.getElementById('sidebarToggle').addEventListener('click', function() {

@@ -12,4 +12,8 @@ admin.site.register(Department)
 admin.site.register(Position)
 admin.site.register(EmployeeCertificate)
 admin.site.register(Payroll)
+admin.site.register(Course)
+admin.site.register(CourseEmployee)
+admin.site.register(HRLoan)
+admin.site.register(HRLoanPayment)
 
