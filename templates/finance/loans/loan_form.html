@@ -109,17 +109,17 @@
 
     <div class="styled-form">
         <div class="form-header">
-            <h2>الموظفين  </h2>
+            <h2>دفعات السلفة  </h2>
         </div>
         <div class="table-controls">
-            <form method="post" action="{% url 'courses' %}" class="action-form" id="actionForm">
+            <form method="post" action="#" class="action-form" id="actionForm">
                 {% csrf_token %}
                 <div class="search-controls">
                     <input type="text" name="q" class="search-input" placeholder="البحث بالاسم...">
                 </div>
                 <select name="action" class="action-select">
                     <option value="">اختر إجراء</option>
-                    <option value="delete">حذف القسم المحددين</option>
+                    <option value="delete">حذف دفعة السلفة المحددة</option>
                     <option value="export_excel">تصدير إلى إكسل</option>
                 </select>
                 <button type="submit" class="do-action-btn">تنفيذ الإجراء</button>
@@ -128,8 +128,14 @@
             </form>
         </div>
         <table class="data-table">
-            {% include 'partials/courses_partial.html' %}
+            {% include 'partials/loan_payments_partial.html' %}
         </table>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">حفظ</button>
+            <a href="{% url 'hr_loans' %}" class="btn btn-secondary">
+                إلغاء
+            </a>
+        </div>
     </div>
 
 

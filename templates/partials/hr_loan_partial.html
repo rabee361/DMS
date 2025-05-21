@@ -15,21 +15,22 @@
 </thead>
 <tbody>
     {% for loan in hr_loans %}
-    <tr onclick="clickHandler(event)" data-link="{% url 'loan_info' loan.id %}">
+    <tr onclick="clickHandler(event)" data-link="{% url 'hr_loan_info' loan.id %}">
         <td onclick="event.stopPropagation();">
             <input type="checkbox" class="item-checkbox" value="{{ loan.id }}">
         </td>
         <td>{{ loan.id }}</td>
-        <td>{{ loan.name }}</td>
+        <td>{{ loan.employee.username }}</td>
         <td>{{ loan.account.name }}</td>
         <td>{{ loan.opposite_account.name }}</td>
-        <td>{{ loan.currency }}</td>
+        <td>{{ loan.payment_cycle }}</td>
         <td>{{ loan.amount }}</td>
-        <td>{{ loan.dicsount }}</td>
-        <td>{{ loan.name }}</td>
+        <td>{{ loan.dicount_amount }}</td>
+        <td>{{ loan.currency }}</td>
+        <td>{{ loan.created }}</td>
         <td onclick="event.stopPropagation();">
             <div class="action-buttons">
-                <a href="{% url 'delete_loan' loan.id %}" class="delete-btn" data-id="{{ loan.id }}" data-name="{{ loan.name }}">
+                <a href="{% url 'delete_hr_loan' loan.id %}" class="delete-btn" data-id="{{ loan.id }}" data-name="{{ loan.name }}">
                     <i class="bi bi-trash"></i>
                 </a>
             </div>

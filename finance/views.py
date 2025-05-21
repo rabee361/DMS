@@ -326,7 +326,8 @@ class CalculateSalaryView(View):
         employees = Employee.objects.all().prefetch_related(
             'additiondiscount_set',
             'holiday_set',
-            'extrawork_set'
+            'extrawork_set',
+            'hrloan_set'
         )
         # For each employee, gather related extras, leaves, and addition-discounts
         employee_data = []
@@ -334,6 +335,7 @@ class CalculateSalaryView(View):
             additions_discounts = employee.additiondiscount_set.all()
             holidays = employee.holiday_set.all()
             extras = employee.extrawork_set.all()
+            hr_loans = employee.hrloan_set.all()
             # Calculate total extra work value (value * days for each extra)
             total_extra_work_value = sum(
                 (getattr(extra, 'value', 0) or 0) * (getattr(extra, 'days', 0) or 0)
@@ -344,11 +346,103 @@ class CalculateSalaryView(View):
                 'additions_discounts': additions_discounts,
                 'holidays': holidays,
                 'extras': extras,
+                'hr_loans': hr_loans,
                 'total_extra_work_value': total_extra_work_value,
             })
         return render(request, 'finance/salaries/salaries.html', {
             'employee_data': employee_data,
         })
+
+    def post(self, request):
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        # Check if button is for distributing salaries
+        if 'صرف الرواتب' in request.POST.get('submit_btn', ''):
+            employees = Employee.objects.all().prefetch_related(
+                'additiondiscount_set',
+                'holiday_set',
+                'extrawork_set',
+                'hrloan_set'
+            )
+            
+            # Create a salary block for each employee
+            for employee in employees:
+                # Calculate net salary
+                base_salary = employee.base_salary or 0
+                
+                # Get related data
+                additions_discounts = employee.additiondiscount_set.all()
+                holidays = employee.holiday_set.all()
+                extras = employee.extrawork_set.all()
+                hr_loans = employee.hrloan_set.all()
+                
+                # Calculate total additions
+                total_additions = 0
+                # Add extras
+                for extra in extras:
+                    extra_value = (getattr(extra, 'value', 0) or 0) * (getattr(extra, 'days', 0) or 0)
+                    total_additions += extra_value
+                
+                # Add other additions
+                for ad in additions_discounts:
+                    if ad.type == "إضافة":
+                        total_additions += (ad.value or 0)
+                
+                # Calculate total deductions
+                total_deductions = 0
+                # Add unpaid holidays
+                for holiday in holidays:
+                    if not holiday.paid:
+                        total_deductions += (holiday.holiday_discount or 0)
+                
+                # Add other deductions
+                for ad in additions_discounts:
+                    if ad.type == "خصم":
+                        total_deductions += (ad.value or 0)
+                
+                # Calculate final salary
+                final_salary = base_salary + total_additions - total_deductions
+                
+                # Create the salary block
+                salary_block = SalaryBlock.objects.create(
+                    employee=employee,
+                    amount=final_salary,
+                )
+                
+                # Create salary block entries for details
+                # Base salary entry
+                SalaryBlockEntry.objects.create(
+                    salary_block=salary_block,
+                    name="الراتب الأساسي",
+                    amount=base_salary
+                )
+                
+                # Additions entries
+                if total_additions > 0:
+                    SalaryBlockEntry.objects.create(
+                        salary_block=salary_block,
+                        name="إجمالي الإضافات",
+                        amount=total_additions
+                    )
+                
+                # Deductions entries
+                if total_deductions > 0:
+                    SalaryBlockEntry.objects.create(
+                        salary_block=salary_block,
+                        name="إجمالي الخصومات",
+                        amount=-total_deductions  # Stored as negative value
+                    )
+            
+            # Redirect to salaries page
+            return redirect('salaries')
+        else:
+            # Regular form handling for normal calculation
+            form = SalaryBlockForm(request.POST)
+            if form.is_valid():
+                salary_block = form.save()
+                return redirect('salaries')
+
 
 @method_decorator(login_required, name='dispatch')
 class CalculateSalariesHtmxView(View):

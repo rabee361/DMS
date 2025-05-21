@@ -69,3 +69,10 @@ class AccountMovementForm(forms.ModelForm):
             'date': forms.DateTimeInput(attrs={'type': 'date'}),
         }
 
+
+
+class SalaryBlockForm(forms.ModelForm):
+    class Meta:
+        model = SalaryBlock
+        fields = '__all__'
+

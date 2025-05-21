@@ -696,11 +696,15 @@ class HRLoanDetailView(UpdateView):
 
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
 class DeleteHRLoanView(DeleteView):
-    model = HRLoan
-    template_name = 'hr_tool/hr_loans/delete_hr_loan.html'
-    success_url = reverse_lazy('hr_loans')
-    context_object_name = 'loan'
+    def get(self, request, id):
+        loan = get_object_or_404(HRLoan, pk=id)
+        form = HRLoanForm(instance=loan)
+        return render(request, 'hr_tool/hr_loans/hr_loan_form.html', {'form': form , 'payments':loan.payments})
 
+    def post(self, request, id):
+        loan = get_object_or_404(HRLoan, pk=id)
+        loan.delete()
+        return redirect('hr_loans')
 
 @method_decorator(user_passes_test(hr_criteria_delete_perm), name='dispatch')
 class HRLoansActionView(View):

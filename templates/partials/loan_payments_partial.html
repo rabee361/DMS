@@ -1,0 +1,33 @@
+<thead>
+    <tr>
+        <th><input type="checkbox" id="select-all"></th>
+        <th>الرقم التعريفي</th>
+        <th>الكمية </th>
+        <th>العملة</th>
+        <th>الحساب</th>
+        <th>الحساب المقابل</th>
+        <th>الإجراءات</th>
+    </tr>
+</thead>
+
+<tbody>
+    {% for payment in payments %}
+    <tr>
+        <td onclick="event.stopPropagation();">
+            <input type="checkbox" class="item-checkbox" value="{{ payment.id }}">
+        </td>
+        <td>{{ payment.id }}</td>
+        <td>{{ payment.amount }}</td>
+        <td>{{ payment.currency.name }}</td>
+        <td>{{ payment.account }}</td>
+        <td>{{ payment.opposite_account }}</td>
+        <td onclick="event.stopPropagation();">
+            <div class="action-buttons">
+                <a href="#" class="delete-btn">
+                    <i class="bi bi-trash"></i>
+                </a>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>

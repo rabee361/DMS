@@ -75,8 +75,8 @@ urlpatterns = [
     path('loans/' , views.ListHRLoansView.as_view() , name="hr_loans"),
     path('loans/add' , views.CreateHRLoanView.as_view() , name="create_hr_loan"),
     path('loans/action' , views.HRLoansActionView.as_view() , name="hr_loans_action"),
-    path('loans/<str:pk>' , views.HRLoanDetailView.as_view() , name="hr_loan_info"),
-    path('loans/<str:pk>/delete' , views.DeleteHRLoanView.as_view() , name="delete_hr_loan"),
+    path('loans/<int:id>' , views.HRLoanDetailView.as_view() , name="hr_loan_info"),
+    path('loans/<int:id>/delete' , views.DeleteHRLoanView.as_view() , name="delete_hr_loan"),
 
     path('hr_settings/' , views.SettingsView.as_view() , name="hr_settings")
     

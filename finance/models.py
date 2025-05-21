@@ -65,7 +65,7 @@ class SalaryBlock(models.Model):
 
     def __str__(self):
         # Import Employee only when needed to avoid circular import
-        return f'{self.employee.name}-{self.amount}-{self.date}'
+        return f'{self.employee.username}-{self.amount}-{self.date}'
 
 
 class SalaryBlockEntry(models.Model):
