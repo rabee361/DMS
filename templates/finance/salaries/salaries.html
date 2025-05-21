@@ -242,7 +242,7 @@
 
 <div class="tree-container">
     <div class="tree-controls">
-        <form class="date-range-form" id="salaryCalculationForm" hx-post="{% url 'salaries' %}" hx-target="#departmentsTree" hx-indicator=".htmx-indicator">
+        <form class="date-range-form" id="salaryCalculationForm" method="post" action="{% url 'salaries' %}">
             {% csrf_token %}
             <div class="date-input-group">
                 <label for="start_date" class="date-label">تاريخ البداية</label>
@@ -262,7 +262,7 @@
             <button type="submit" name="submit_btn" value="صرف الرواتب" class="calculate-btn">
                 <i class="bi bi-cash"></i> صرف الرواتب
             </button>
-            <div class="htmx-indicator" style="display: none;">جاري الحساب...</div>
+
         </form>
     </div>
 
@@ -305,6 +305,8 @@
                                         </span>
                                     </div>
                                 {% endif %}
+                                {% empty %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد إضافات للموظف  </span></div>
                             {% endfor %}
                         </div>
                         <div class="detail-section">
@@ -322,6 +324,32 @@
                             {% empty %}
                                 <div class="detail-item"><span class="detail-label">لا يوجد إجازة غير مدفوعة</span></div>
                             {% endfor %}
+                            {% for absence in absences %}
+                                {% if not absence.paid %}
+                                    <div class="detail-item">
+                                        <span class="detail-label">غياب({{ absence.start }})</span>
+                                        <span class="detail-value deduction-amount" data-amount="{{ absence.absence_discount|floatformat:2 }}">
+                                            - {{ absence.absence_discount|floatformat:2 }} 
+                                            {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% empty %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد غياب</span></div>
+                            {% endfor %}
+                            {% for loan in loans %}
+                                {% if loan.paid %}
+                                    <div class="detail-item">
+                                        <span class="detail-label"> دفعة سلفة ({{ loan.start }})</span>
+                                        <span class="detail-value deduction-amount" data-amount="{{ loan.loan_discount|floatformat:2 }}">
+                                            - {{ loan.discount_amount|floatformat:2 }} 
+                                            {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% empty %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد سلف للموظف  </span></div>
+                            {% endfor %}
                             {% for ad in additions_discounts %}
                                 {% if ad.type == "خصم" %}
                                     <div class="detail-item">
@@ -332,6 +360,8 @@
                                         </span>
                                     </div>
                                 {% endif %}
+                                {% empty %}
+                                <div class="detail-item"><span class="detail-label">لا يوجد خصومات للموظف  </span></div>
                             {% endfor %}
                         </div>
                     </div>
@@ -347,71 +377,24 @@
                             <div class="summary-label">الإضافات</div>
                             <div class="summary-value">
                                 {# مجموع الإضافات #}
-                                {% with total_add=0 %}
-                                    {% for extra in extras %}
-                                        {% with total_add=total_add|add:extra.total_extra_work_value %}
-                                        {% endwith %}
-                                    {% endfor %}
-                                    {% for ad in additions_discounts %}
-                                        {% if ad.type == "ADDITION" %}
-                                            {% with total_add=total_add|add:ad.value %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    {{ total_add|floatformat:2 }} 
-                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
-                                {% endwith %}
+                                {{ data.total_additions|floatformat:2 }}
+                                {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
                             </div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">الخصومات</div>
                             <div class="summary-value">
                                 {# مجموع الخصومات #}
-                                {% with total_deduct=0 %}
-                                    {% for ad in additions_discounts %}
-                                        {% if ad.type == "خصم" %}
-                                            {% with total_deduct=total_deduct|add:ad.value %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% for holiday in holidays %}
-                                        {% if not holiday.paid %}
-                                            {% with total_deduct=total_deduct|add:holiday.holiday_discount %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    {{ total_deduct|floatformat:2 }} 
-                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
-                                {% endwith %}
+                                {{ data.total_discounts|floatformat:2 }}
+                                {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
                             </div>
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">الصافي</div>
                             <div class="summary-value net-salary-value">
                                 {# الصافي = الراتب الأساسي + الإضافات - الخصومات #}
-                                {% with total_add=0 total_deduct=0 %}
-                                    {% for extra in extras %}
-                                        {% with total_add=total_add|add:extra.total_extra_work_value %}
-                                        {% endwith %}
-                                    {% endfor %}
-                                    {% for ad in additions_discounts %}
-                                        {% if ad.type == "إضافة" %}
-                                            {% with total_add=total_add|add:ad.value %}
-                                            {% endwith %}
-                                        {% elif ad.type == "خصم" %}
-                                            {% with total_deduct=total_deduct|add:ad.value %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    {% for holiday in holidays %}
-                                        {% if not holiday.paid %}
-                                            {% with total_deduct=total_deduct|add:holiday.holiday_discount %}
-                                            {% endwith %}
-                                        {% endif %}
-                                    {% endfor %}
-                                    {{ employee.base_salary|add:total_add|floatformat:2|add:"-"|add:total_deduct|floatformat:2 }} 
-                                    {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
-                                {% endwith %}
+                                {{ data.total_salary|floatformat:2 }}
+                                {% if employee.salary_currency %}{{ employee.salary_currency.name }}{% else %}ريال{% endif %}
                             </div>
                         </div>
                     </div>

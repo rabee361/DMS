@@ -56,6 +56,8 @@ class Employee(User):
     address = models.CharField(max_length=100)
     base_salary = models.FloatField(validators=[MinValueValidator(0)])
     salary_currency = models.ForeignKey(Currency , on_delete=models.CASCADE , blank=True , null=True)
+    account = models.ForeignKey(Account, on_delete=models.CASCADE ,related_name='employee_account', null=True, blank=True)
+    opposite_account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='employee_opposite_account', null=True, blank=True)
     social_status = models.CharField(max_length=50,choices=SocialStatus)
     start_date = models.DateField(null=True , blank=True)
     class Meta:
