@@ -89,7 +89,8 @@ def generate_plot(df, column):
             fig = px.bar(x=value_counts.index, 
                         y=value_counts.values,
                         title=f"المخطط العمودي لأكثر 10 قيم في {column}")
-        fig.update_layout(xaxis_title=column, yaxis_title="Count")
+        fig.update_layout(xaxis_title=column, yaxis_title="Count",
+                          xaxis_title_standoff=40, yaxis_title_standoff=40)
 
     print(f"{column} is {type}")
     fig.update_layout(
