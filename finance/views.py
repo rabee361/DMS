@@ -4,6 +4,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from .models import *
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import *
 from hr_tool.models import *
@@ -323,42 +324,66 @@ class CreateSalaryView(View):
 @method_decorator(login_required, name='dispatch')
 class CalculateSalaryView(View):
     def get(self, request):
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        
         employees = Employee.objects.all().prefetch_related(
             'additiondiscount_set',
             'holiday_set',
             'extrawork_set',
             'hrloan_set'
         )
-        # For each employee, gather related extras, leaves, and addition-discounts
         employee_data = []
+        
         for employee in employees:
             additions_discounts = employee.additiondiscount_set.all()
             holidays = employee.holiday_set.all()
             extras = employee.extrawork_set.all()
             hr_loans = employee.hrloan_set.all()
-            # Calculate total extra work value (value * days for each extra)
-            total_extra_work_value = sum(
-                (getattr(extra, 'value', 0) or 0) * (getattr(extra, 'days', 0) or 0)
-                for extra in extras
-            )
+            
+            # Calculate extras
+            extra_work_value = sum((extra.total_extra_work_value or 0) for extra in extras)
+            
+            # Calculate additions and discounts
+            additions = sum(ad.value for ad in additions_discounts if ad.type == 'إضافة')
+            discounts = sum(ad.value for ad in additions_discounts if ad.type == 'خصم')
+            
+            # Calculate holiday discounts
+            holiday_discounts = sum(holiday.holiday_discount for holiday in holidays if not holiday.paid)
+            
+            # Calculate loan discounts
+            loan_discounts = sum(loan.discount_amount for loan in hr_loans)
+            
+            # Total calculations
+            total_additions = extra_work_value + additions
+            total_discounts = discounts + holiday_discounts + loan_discounts
+            total_salary = employee.base_salary + total_additions - total_discounts
+            
             employee_data.append({
                 'employee': employee,
                 'additions_discounts': additions_discounts,
                 'holidays': holidays,
                 'extras': extras,
                 'hr_loans': hr_loans,
-                'total_extra_work_value': total_extra_work_value,
+                'total_extra_work_value': extra_work_value,
+                'total_additions': total_additions,
+                'total_discounts': total_discounts,
+                'total_salary': total_salary
             })
+
         return render(request, 'finance/salaries/salaries.html', {
             'employee_data': employee_data,
+            'start_date': start_date,
+            'end_date': end_date,
         })
 
     def post(self, request):
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
+        submit_btn = request.POST.get('submit_btn', '')
 
-        # Check if button is for distributing salaries
-        if 'صرف الرواتب' in request.POST.get('submit_btn', ''):
+        if 'صرف الرواتب' in submit_btn:
+            # try:
             employees = Employee.objects.all().prefetch_related(
                 'additiondiscount_set',
                 'holiday_set',
@@ -366,82 +391,96 @@ class CalculateSalaryView(View):
                 'hrloan_set'
             )
             
-            # Create a salary block for each employee
             for employee in employees:
                 # Calculate net salary
                 base_salary = employee.base_salary or 0
                 
-                # Get related data
-                additions_discounts = employee.additiondiscount_set.all()
-                holidays = employee.holiday_set.all()
-                extras = employee.extrawork_set.all()
-                hr_loans = employee.hrloan_set.all()
+                # Get related data within date range
+                additions_discounts = employee.additiondiscount_set.filter(
+                    created__range=[start_date, end_date]
+                )
+                holidays = employee.holiday_set.filter(
+                    start__range=[start_date, end_date]
+                )
+                extras = employee.extrawork_set.filter(
+                    start__range=[start_date, end_date]
+                )
+                hr_loans = employee.hrloan_set.filter(
+                    created__range=[start_date, end_date]
+                )
                 
-                # Calculate total additions
-                total_additions = 0
-                # Add extras
-                for extra in extras:
-                    extra_value = (getattr(extra, 'value', 0) or 0) * (getattr(extra, 'days', 0) or 0)
-                    total_additions += extra_value
+                # Calculate additions
+                total_additions = sum(extra.total_extra_work_value or 0 for extra in extras)
+                total_additions += sum(ad.value for ad in additions_discounts if ad.type == "إضافة")
                 
-                # Add other additions
-                for ad in additions_discounts:
-                    if ad.type == "إضافة":
-                        total_additions += (ad.value or 0)
-                
-                # Calculate total deductions
-                total_deductions = 0
-                # Add unpaid holidays
-                for holiday in holidays:
-                    if not holiday.paid:
-                        total_deductions += (holiday.holiday_discount or 0)
-                
-                # Add other deductions
-                for ad in additions_discounts:
-                    if ad.type == "خصم":
-                        total_deductions += (ad.value or 0)
+                # Calculate deductions
+                total_deductions = sum(holiday.holiday_discount or 0 for holiday in holidays if not holiday.paid)
+                total_deductions += sum(loan.discount_amount or 0 for loan in hr_loans)
+                total_deductions += sum(ad.value for ad in additions_discounts if ad.type == "خصم")
                 
                 # Calculate final salary
                 final_salary = base_salary + total_additions - total_deductions
                 
-                # Create the salary block
+                # Create salary block
                 salary_block = SalaryBlock.objects.create(
                     employee=employee,
                     amount=final_salary,
                 )
                 
-                # Create salary block entries for details
-                # Base salary entry
-                SalaryBlockEntry.objects.create(
+                # Create entries
+                entry_id = SalaryBlockEntry.objects.create(
                     salary_block=salary_block,
                     name="الراتب الأساسي",
                     amount=base_salary
                 )
+                if entry_id:
+                    AccountMovement.objects.create(
+                        from_account=employee.account,
+                        to_account=employee.opposite_account,
+                        amount=base_salary,
+                        origin_type="صرف راتب الموظف",
+                        currency=employee.salary_currency,
+                        origin_id=entry_id
+                    )
                 
-                # Additions entries
+                
                 if total_additions > 0:
-                    SalaryBlockEntry.objects.create(
+                    entry_id = SalaryBlockEntry.objects.create(
                         salary_block=salary_block,
                         name="إجمالي الإضافات",
                         amount=total_additions
                     )
+                    if entry_id:
+                        AccountMovement.objects.create(
+                            from_account=employee.account,
+                            to_account=employee.opposite_account,
+                            amount=total_additions,
+                            origin_type="صرف اضافات الموظف",
+                            currency=employee.salary_currency,
+                            origin_id=entry_id
+                        )
                 
-                # Deductions entries
                 if total_deductions > 0:
-                    SalaryBlockEntry.objects.create(
+                    entry_id = SalaryBlockEntry.objects.create(
                         salary_block=salary_block,
                         name="إجمالي الخصومات",
-                        amount=-total_deductions  # Stored as negative value
+                        amount=-total_deductions
                     )
-            
-            # Redirect to salaries page
-            return redirect('salaries')
-        else:
-            # Regular form handling for normal calculation
-            form = SalaryBlockForm(request.POST)
-            if form.is_valid():
-                salary_block = form.save()
-                return redirect('salaries')
+                    if entry_id:
+                        AccountMovement.objects.create(
+                            from_account=employee.account,
+                            to_account=employee.opposite_account,
+                            amount=total_deductions,
+                            origin_type="صرف خصومات الموظف",
+                            currency=employee.salary_currency,
+                            origin_id=entry_id
+                        )
+            messages.success(request, 'تم صرف الرواتب بنجاح')
+            # except Exception as e:
+            #     messages.error(request, f'حدث خطأ أثناء صرف الرواتب: {str(e)}')
+        
+        # Always redirect back to salaries page with date parameters
+        return redirect(f'{reverse_lazy("salaries")}?start_date={start_date}&end_date={end_date}')
 
 
 @method_decorator(login_required, name='dispatch')

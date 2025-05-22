@@ -74,7 +74,7 @@ class SalaryBlockEntry(models.Model):
     amount = models.FloatField()
 
     def __str__(self):
-        return f'{self.salary_block.employee.name}-{self.name}-{self.amount}'
+        return f'{self.salary_block.employee.username}-{self.name}-{self.amount}'
 
 
 

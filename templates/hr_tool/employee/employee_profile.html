@@ -79,6 +79,22 @@
                             <div class="form-error">{{ form.salary_currency.errors }}</div>
                         {% endif %}
                     </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.account.id_for_label }}">الحساب</label>
+                        {{ form.account }}
+                        {% if form.account.errors %}
+                            <div class="form-error">{{ form.account.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.opposite_account.id_for_label }}">الحساب المقابل</label>
+                        {{ form.opposite_account }}
+                        {% if form.opposite_account.errors %}
+                            <div class="form-error">{{ form.opposite_account.errors }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -100,7 +116,7 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="{{ form.start_date.id_for_label }}">العنوان</label>
+                        <label for="{{ form.start_date.id_for_label }}">تاريخ البدء</label>
                         {{ form.start_date }}
                         {% if form.start_date.errors %}
                             <div class="form-error">{{ form.start_date.errors }}</div>

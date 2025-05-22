@@ -33,6 +33,12 @@
                     </div>
                 </div>
             </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">حفظ</button>
+                <a href="{% url 'courses' %}" class="btn btn-secondary">
+                    إلغاء
+                </a>
+            </div>
         </form>
     </div>
 
@@ -54,17 +60,13 @@
                 <button type="submit" class="do-action-btn">تنفيذ الإجراء</button>
                 <!-- Add hidden input for selected items -->
                 <input type="hidden" name="selected_items" id="selectedItems">
+
             </form>
         </div>
         <table class="data-table">
             {% include 'partials/courses_employees_partial.html' %}
         </table>
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary">حفظ</button>
-            <a href="{% url 'courses' %}" class="btn btn-secondary">
-                إلغاء
-            </a>
-        </div>
+
     </div>
 
 </div>

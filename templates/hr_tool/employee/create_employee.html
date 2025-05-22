@@ -115,6 +115,27 @@
                             <div class="form-error">{{ form.base_salary.errors }}</div>
                         {% endif %}
                     </div>
+                    <div class="form-group">
+                        <label for="{{ form.salary_currency.id_for_label }}">عملة الراتب</label>
+                        {{ form.salary_currency }}
+                        {% if form.salary_currency.errors %}
+                            <div class="form-error">{{ form.salary_currency.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.account.id_for_label }}">الحساب </label>
+                        {{ form.account }}
+                        {% if form.account.errors %}
+                            <div class="form-error">{{ form.account.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.opposite_account.id_for_label }}">الحساب المقابل</label>
+                        {{ form.opposite_account }}
+                        {% if form.opposite_account.errors %}
+                            <div class="form-error">{{ form.opposite_account.errors }}</div>
+                        {% endif %}
+                    </div>
                 </div>
 
             </div>
