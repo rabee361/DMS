@@ -1,0 +1,405 @@
+/**
+ * DMS - Login Glossy CSS
+ * This file contains styles for the glossy login page.
+ */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap');
+
+/* Base Styles */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  min-height: 100%;
+  font-family: 'Cairo', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Fix for iOS height issues */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    height: -webkit-fill-available;
+  }
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-700), var(--primary-900));
+  color: var(--text-primary);
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+/* Dark mode overrides */
+.dark-mode body {
+  background: linear-gradient(135deg, var(--primary-900), #000);
+}
+
+/* Login Container */
+.login-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--glass-border);
+  text-align: center;
+  position: relative;
+  z-index: 10;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Dark mode login container */
+.dark-mode .login-container {
+  background: var(--glass-bg-dark);
+  border-color: var(--glass-border-dark);
+}
+
+/* Login Logo */
+.login-logo {
+  margin-bottom: 1.5rem;
+}
+
+.login-logo img {
+  max-width: 120px;
+  height: auto;
+  border-radius: 50%;
+  box-shadow: var(--shadow-md);
+  border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Login Title */
+.login-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* Login Form */
+.login-form {
+  text-align: right;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary-400);
+  background: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.25);
+}
+
+/* Remember Me Styling */
+.remember-me-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.remember-me-checkbox {
+  width: auto;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.remember-me-label {
+  margin-bottom: 0;
+  cursor: pointer;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+/* Dark mode form controls */
+.dark-mode .form-control {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary-dark);
+}
+
+.dark-mode .form-control:focus {
+  border-color: var(--primary-300);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Login Button */
+.btn-login {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-600);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  margin-top: 0.5rem;
+}
+
+.btn-login:hover {
+  background: var(--primary-700);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-login:active {
+  transform: translateY(0);
+}
+
+/* Error Message */
+.error-message {
+  color: var(--danger-500);
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.dark-mode .error-message {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: rgba(244, 67, 54, 0.4);
+  color: var(--danger-300);
+}
+
+/* Login Footer */
+.login-footer {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.theme-toggle:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
+}
+
+.dark-mode .theme-toggle {
+  background: rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dark-icon,
+.light-icon {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  transition: all var(--transition-normal);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .login-container {
+    max-width: 90%;
+    padding: 2rem;
+  }
+
+  .login-title {
+    font-size: 1.6rem;
+  }
+
+  .login-logo img {
+    max-width: 110px;
+  }
+
+  .form-control {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-login {
+    padding: 0.7rem 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    max-width: 95%;
+    padding: 1.5rem 1.2rem;
+    margin: 0 10px;
+  }
+
+  .login-title {
+    font-size: 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .login-logo img {
+    max-width: 90px;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-login {
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .login-footer {
+    margin-top: 1.5rem;
+    font-size: 0.8rem;
+  }
+
+  /* Remember me adjustments for small screens */
+  .remember-me-container {
+    justify-content: flex-end;
+  }
+
+  .remember-me-label {
+    font-size: 0.85rem;
+  }
+
+  /* Fix for theme toggle button on small screens */
+  .theme-toggle {
+    bottom: 15px;
+    right: 15px;
+    width: 36px;
+    height: 36px;
+  }
+
+  [dir="rtl"] .theme-toggle {
+    right: auto;
+    left: 15px;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .login-container {
+    padding: 1.2rem 1rem;
+    max-width: 100%;
+    margin: 0 5px;
+  }
+
+  .login-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .login-logo img {
+    max-width: 80px;
+  }
+
+  .form-control {
+    padding: 0.5rem 0.7rem;
+  }
+
+  .remember-me-container {
+    justify-content: flex-end;
+  }
+
+  .remember-me-label {
+    font-size: 0.8rem;
+  }
+
+  .theme-toggle {
+    bottom: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+  }
+
+  [dir="rtl"] .theme-toggle {
+    right: auto;
+    left: 10px;
+  }
+
+  .dark-icon,
+  .light-icon {
+    font-size: 1rem;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .login-form {
+  text-align: right;
+}
+
+[dir="rtl"] .theme-toggle {
+  right: auto;
+  left: 20px;
+}
