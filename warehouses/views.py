@@ -16,7 +16,7 @@ from collections import defaultdict
 
 from .models import (
     Material, Category, Unit, UnitConversion, Warehouse, MaterialStock,
-    Customer, Supplier, Invoice, SalesInvoice, PurchaseInvoice,
+    Customer, Supplier, Invoice, SalesInvoice, PurchaseInvoice, Unit, Category,
     SalesReturnInvoice, PurchaseReturnInvoice, InvoiceItem, MaterialMove
 )
 from .forms import (
@@ -40,6 +40,8 @@ class WarehouseDashboardView(TemplateView):
             'total_warehouses': Warehouse.objects.count(),
             'total_customers': Customer.objects.count(),
             'total_suppliers': Supplier.objects.count(),
+            'total_units': Unit.objects.count(),
+            'total_categories': Category.objects.count(),
             'total_invoices': Invoice.objects.count(),
             'total_sales': SalesInvoice.objects.count(),
             'total_purchases': PurchaseInvoice.objects.count(),
