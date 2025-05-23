@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}لوحة تحكم تحليلات المستودعات{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/warehouse-visualizations.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">تحليلات المستودعات</h1>
+    <p>رسوم بيانية متقدمة وتحليلات مرئية للمخزون وحركة المواد</p>
+</div>
+
+<!-- Visualization Tabs -->
+<div class="table-glass p-3 mb-4">
+    <ul class="nav nav-tabs" id="visualizationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory-tab-pane" type="button" role="tab" aria-controls="inventory-tab-pane" aria-selected="true">
+                <i class="bi bi-bar-chart-line"></i> تحليل المخزون
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="heatmap-tab" data-bs-toggle="tab" data-bs-target="#heatmap-tab-pane" type="button" role="tab" aria-controls="heatmap-tab-pane" aria-selected="false">
+                <i class="bi bi-grid-3x3"></i> خريطة استخدام المستودعات
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="timeline-tab" data-bs-toggle="tab" data-bs-target="#timeline-tab-pane" type="button" role="tab" aria-controls="timeline-tab-pane" aria-selected="false">
+                <i class="bi bi-clock-history"></i> حركة المواد
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content pt-3" id="visualizationTabContent">
+        <!-- Inventory Analysis Tab -->
+        <div class="tab-pane fade show active" id="inventory-tab-pane" role="tabpanel" aria-labelledby="inventory-tab" tabindex="0">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="inventory-filters">
+                        <select class="inventory-filter-select" id="categoryFilter">
+                            <option value="all">جميع الفئات</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="inventory-filter-select" id="warehouseFilter">
+                            <option value="all">جميع المستودعات</option>
+                            {% for warehouse in warehouses %}
+                            <option value="{{ warehouse.id }}">{{ warehouse.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <select class="inventory-filter-select" id="sortFilter">
+                            <option value="quantity">ترتيب حسب الكمية</option>
+                            <option value="value">ترتيب حسب القيمة</option>
+                            <option value="name">ترتيب حسب الاسم</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="chart-container inventory-analysis-container">
+                        <h5 class="chart-title"><i class="bi bi-bar-chart-line"></i> تحليل المخزون حسب الفئة</h5>
+                        <canvas id="inventoryAnalysisChart"
+                                data-categories="{{ category_names|safe }}"
+                                data-quantities="{{ category_quantities|safe }}"
+                                data-values="{{ category_values|safe }}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="chart-title"><i class="bi bi-pie-chart"></i> توزيع المخزون حسب المستودع</h5>
+                        <canvas id="inventoryDistributionChart"
+                                data-warehouses="{{ warehouse_names|safe }}"
+                                data-stock="{{ warehouse_stock|safe }}"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="chart-title"><i class="bi bi-exclamation-triangle"></i> المواد منخفضة المخزون</h5>
+                        <canvas id="lowStockChart"
+                                data-materials="{{ low_stock_names|safe }}"
+                                data-current="{{ low_stock_current|safe }}"
+                                data-minimum="{{ low_stock_minimum|safe }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Utilization Heatmap Tab -->
+        <div class="tab-pane fade" id="heatmap-tab-pane" role="tabpanel" aria-labelledby="heatmap-tab" tabindex="0">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-end">
+                        <a href="{% url 'warehouse_heatmap' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-grid-3x3"></i> عرض خريطة المستودعات التفاعلية
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="chart-container heatmap-container">
+                        <h5 class="chart-title"><i class="bi bi-grid-3x3"></i> نسبة استخدام المستودعات</h5>
+                        <canvas id="warehouseUtilizationHeatmap"
+                                data-warehouses="{{ warehouse_names|safe }}"
+                                data-utilization="{{ warehouse_utilization|safe }}"></canvas>
+                        <div class="heatmap-legend">
+                            <div class="heatmap-legend-item">
+                                <div class="heatmap-legend-color low"></div>
+                                <span>منخفض (أقل من 30%)</span>
+                            </div>
+                            <div class="heatmap-legend-item">
+                                <div class="heatmap-legend-color medium"></div>
+                                <span>متوسط (30% - 70%)</span>
+                            </div>
+                            <div class="heatmap-legend-item">
+                                <div class="heatmap-legend-color high"></div>
+                                <span>مرتفع (أكثر من 70%)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="chart-title"><i class="bi bi-box"></i> توزيع المواد حسب المستودع</h5>
+                        <canvas id="materialDistributionChart"
+                                data-warehouses="{{ warehouse_names|safe }}"
+                                data-material_counts="{{ warehouse_material_counts|safe }}"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="chart-title"><i class="bi bi-building"></i> استخدام المستودعات حسب النوع</h5>
+                        <canvas id="warehouseTypeUtilizationChart"
+                                data-types="{{ warehouse_types|safe }}"
+                                data-utilization="{{ warehouse_type_utilization|safe }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Material Movement Timeline Tab -->
+        <div class="tab-pane fade" id="timeline-tab-pane" role="tabpanel" aria-labelledby="timeline-tab" tabindex="0">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="timeline-filters">
+                            <button class="timeline-filter-btn active" data-period="week">آخر أسبوع</button>
+                            <button class="timeline-filter-btn" data-period="month">آخر شهر</button>
+                            <button class="timeline-filter-btn" data-period="quarter">آخر 3 أشهر</button>
+                            <button class="timeline-filter-btn" data-period="year">آخر سنة</button>
+                        </div>
+                        <a href="{% url 'material_timeline' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-clock-history"></i> عرض الجدول الزمني التفاعلي
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="chart-container timeline-container">
+                        <h5 class="chart-title"><i class="bi bi-clock-history"></i> حركة المواد عبر الزمن</h5>
+                        <canvas id="materialMovementTimeline"
+                                data-dates="{{ movement_dates|safe }}"
+                                data-incoming="{{ movement_incoming|safe }}"
+                                data-outgoing="{{ movement_outgoing|safe }}"
+                                data-transfers="{{ movement_transfers|safe }}"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="chart-title"><i class="bi bi-arrow-left-right"></i> أنواع حركات المواد</h5>
+                        <canvas id="movementTypesChart"
+                                data-types="{{ movement_types|safe }}"
+                                data-counts="{{ movement_type_counts|safe }}"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="chart-container">
+                        <h5 class="chart-title"><i class="bi bi-box-seam"></i> المواد الأكثر حركة</h5>
+                        <canvas id="topMovedMaterialsChart"
+                                data-materials="{{ top_moved_materials|safe }}"
+                                data-counts="{{ top_moved_counts|safe }}"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{% endblock %}

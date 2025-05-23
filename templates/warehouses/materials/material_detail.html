@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block title %}{{ material.name }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">{{ material.name }}</h1>
+    <p>تفاصيل المادة ومخزونها</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="table-glass p-4">
+            <h3 class="h4 mb-3">معلومات المادة</h3>
+            <table class="table">
+                <tr>
+                    <th style="width: 30%">الاسم:</th>
+                    <td>{{ material.name }}</td>
+                </tr>
+                <tr>
+                    <th>الكود:</th>
+                    <td>{{ material.code }}</td>
+                </tr>
+                <tr>
+                    <th>الباركود:</th>
+                    <td>{{ material.barcode|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>الفئة:</th>
+                    <td>{{ material.category.name|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>وحدة القياس:</th>
+                    <td>{{ material.unit.name }} ({{ material.unit.symbol }})</td>
+                </tr>
+                <tr>
+                    <th>الوصف:</th>
+                    <td>{{ material.description|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>الحالة:</th>
+                    <td>
+                        {% if material.is_active %}
+                        <span class="badge bg-success">نشط</span>
+                        {% else %}
+                        <span class="badge bg-danger">غير نشط</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+            
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'materials' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> العودة
+                </a>
+                <div>
+                    <a href="{% url 'material_detail' material.id %}?edit=true" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> تعديل
+                    </a>
+                    <a href="{% url 'delete_material' material.id %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> حذف
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="table-glass p-4">
+            <h3 class="h4 mb-3">معلومات التسعير والمخزون</h3>
+            <table class="table">
+                <tr>
+                    <th style="width: 40%">سعر التكلفة:</th>
+                    <td>{{ material.cost_price }}</td>
+                </tr>
+                <tr>
+                    <th>سعر البيع:</th>
+                    <td>{{ material.selling_price }}</td>
+                </tr>
+                <tr>
+                    <th>الحد الأدنى للمخزون:</th>
+                    <td>{{ material.min_stock_level }} {{ material.unit.symbol }}</td>
+                </tr>
+                <tr>
+                    <th>إجمالي المخزون:</th>
+                    <td>{{ total_stock }} {{ material.unit.symbol }}</td>
+                </tr>
+                <tr>
+                    <th>القيمة الإجمالية:</th>
+                    <td>{{ total_value|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <th>حالة المخزون:</th>
+                    <td>
+                        {% if total_stock <= 0 %}
+                        <span class="badge bg-danger">نفاذ المخزون</span>
+                        {% elif total_stock < material.min_stock_level %}
+                        <span class="badge bg-warning">منخفض</span>
+                        {% else %}
+                        <span class="badge bg-success">متوفر</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+            
+            <div class="d-grid gap-2 mt-3">
+                <a href="{% url 'create_movement' %}?type=adjustment&material={{ material.id }}" class="btn btn-success">
+                    <i class="bi bi-pencil"></i> تعديل المخزون
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="table-glass p-4">
+            <h3 class="h4 mb-3">المخزون في المستودعات</h3>
+            <div class="table-responsive">
+                <table class="table data-table">
+                    <thead>
+                        <tr>
+                            <th>المستودع</th>
+                            <th>الموقع</th>
+                            <th>الكمية</th>
+                            <th>الحالة</th>
+                            <th>آخر تحديث</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in stocks %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'warehouse_detail' stock.warehouse.id %}" class="text-decoration-none">
+                                    {{ stock.warehouse.name }}
+                                </a>
+                            </td>
+                            <td>{{ stock.warehouse.location|default:"-" }}</td>
+                            <td>{{ stock.quantity }} {{ material.unit.symbol }}</td>
+                            <td>
+                                {% if stock.quantity <= 0 %}
+                                <span class="badge bg-danger">نفاذ المخزون</span>
+                                {% elif stock.quantity < material.min_stock_level %}
+                                <span class="badge bg-warning">منخفض</span>
+                                {% else %}
+                                <span class="badge bg-success">متوفر</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ stock.updated_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'warehouse_detail' stock.warehouse.id %}" class="view-btn" title="عرض المستودع">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'create_movement' %}?type=adjustment&warehouse={{ stock.warehouse.id }}&material={{ material.id }}" class="edit-btn" title="تعديل المخزون">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">لا يوجد مخزون لهذه المادة في أي مستودع</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="table-glass p-4">
+            <h3 class="h4 mb-3">آخر حركات المادة</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>التاريخ</th>
+                            <th>نوع الحركة</th>
+                            <th>الكمية</th>
+                            <th>المستودع المصدر</th>
+                            <th>المستودع الوجهة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement in recent_movements %}
+                        <tr>
+                            <td>{{ movement.id }}</td>
+                            <td>{{ movement.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                {% if movement.move_type == 'in' %}
+                                <span class="badge bg-success">إدخال</span>
+                                {% elif movement.move_type == 'out' %}
+                                <span class="badge bg-danger">إخراج</span>
+                                {% elif movement.move_type == 'transfer' %}
+                                <span class="badge bg-primary">نقل</span>
+                                {% elif movement.move_type == 'adjustment' %}
+                                <span class="badge bg-warning">تعديل</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ movement.quantity }} {{ material.unit.symbol }}</td>
+                            <td>{{ movement.source_warehouse.name|default:"-" }}</td>
+                            <td>{{ movement.destination_warehouse.name|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">لا توجد حركات لهذه المادة</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="text-end mt-3">
+                <a href="{% url 'movements' %}?material={{ material.id }}" class="btn btn-primary">
+                    عرض كل الحركات <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

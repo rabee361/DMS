@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if form.instance.id %}تعديل حركة{% else %}إنشاء حركة جديدة{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">
+        {% if form.instance.id %}
+            تعديل حركة #{{ form.instance.id }}
+        {% else %}
+            إنشاء {{ movement_type_display }}
+        {% endif %}
+    </h1>
+</div>
+
+<div class="movement-form">
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h3 class="h4">معلومات الحركة</h3>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.material.id_for_label }}" class="form-label">المادة *</label>
+                    {{ form.material }}
+                    {% if form.material.errors %}
+                    <div class="invalid-feedback d-block">{{ form.material.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.quantity.id_for_label }}" class="form-label">الكمية *</label>
+                    {{ form.quantity }}
+                    {% if form.quantity.errors %}
+                    <div class="invalid-feedback d-block">{{ form.quantity.errors }}</div>
+                    {% endif %}
+                </div>
+
+                {% if movement_type == 'adjustment' %}
+                <div class="form-group mb-3">
+                    <label for="{{ form.source_warehouse.id_for_label }}" class="form-label">المستودع *</label>
+                    {{ form.source_warehouse }}
+                    {% if form.source_warehouse.errors %}
+                    <div class="invalid-feedback d-block">{{ form.source_warehouse.errors }}</div>
+                    {% endif %}
+                </div>
+                {% else %}
+                    {% if movement_type == 'in' or movement_type == 'transfer' %}
+                    <div class="form-group mb-3">
+                        <label for="{{ form.destination_warehouse.id_for_label }}" class="form-label">المستودع الهدف *</label>
+                        {{ form.destination_warehouse }}
+                        {% if form.destination_warehouse.errors %}
+                        <div class="invalid-feedback d-block">{{ form.destination_warehouse.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if movement_type == 'out' or movement_type == 'transfer' %}
+                    <div class="form-group mb-3">
+                        <label for="{{ form.source_warehouse.id_for_label }}" class="form-label">المستودع المصدر *</label>
+                        {{ form.source_warehouse }}
+                        {% if form.source_warehouse.errors %}
+                        <div class="invalid-feedback d-block">{{ form.source_warehouse.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endif %}
+
+                <!-- Warehouse field is now handled above -->
+            </div>
+
+            <div class="col-md-6">
+                <h3 class="h4">معلومات إضافية</h3>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.reference_invoice.id_for_label }}" class="form-label">الفاتورة المرتبطة</label>
+                    {{ form.reference_invoice }}
+                    {% if form.reference_invoice.errors %}
+                    <div class="invalid-feedback d-block">{{ form.reference_invoice.errors }}</div>
+                    {% endif %}
+                    <small class="form-text text-muted">اختياري: يمكنك ربط هذه الحركة بفاتورة</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="{{ form.notes.id_for_label }}" class="form-label">ملاحظات</label>
+                    {{ form.notes }}
+                    {% if form.notes.errors %}
+                    <div class="invalid-feedback d-block">{{ form.notes.errors }}</div>
+                    {% endif %}
+                </div>
+
+                {% if movement_type == 'adjustment' %}
+                <div class="alert alert-warning">
+                    <strong>تنبيه:</strong> سيؤدي تعديل المخزون إلى تغيير كمية المادة في المستودع المحدد. يرجى التأكد من صحة البيانات.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{% url 'movements' %}" class="btn btn-secondary">إلغاء</a>
+            <button type="submit" class="btn btn-primary">حفظ</button>
+        </div>
+    </form>
+</div>
+
+<div class="mt-4">
+    <div class="movement-form">
+        <h3 class="h4">المخزون الحالي للمادة</h3>
+        <div class="table-responsive">
+            <table class="movements-table">
+                <thead>
+                    <tr>
+                        <th>المستودع</th>
+                        <th>الكمية المتاحة</th>
+                        <th>الحالة</th>
+                    </tr>
+                </thead>
+                <tbody id="stock-info">
+                    <tr>
+                        <td colspan="3" class="text-center">يرجى اختيار مادة لعرض المخزون المتاح</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Update available stock when material changes
+    const materialSelect = document.querySelector('[name="material"]');
+    if (materialSelect) {
+        materialSelect.addEventListener('change', function() {
+            const materialId = this.value;
+            if (materialId) {
+                fetch(`/dms/warehouses/api/material-stock/${materialId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const stockTable = document.getElementById('stock-info');
+                        if (stockTable) {
+                            let html = '';
+                            if (data.stocks && data.stocks.length > 0) {
+                                data.stocks.forEach(stock => {
+                                    // Use the status from the API
+                                    let statusHtml = '';
+                                    if (stock.status === 'out') {
+                                        statusHtml = '<span class="badge bg-danger">نفاذ المخزون</span>';
+                                    } else if (stock.status === 'low') {
+                                        statusHtml = '<span class="badge bg-warning">منخفض</span>';
+                                    } else {
+                                        statusHtml = '<span class="badge bg-success">متوفر</span>';
+                                    }
+
+                                    html += `<tr>
+                                        <td>${stock.warehouse_name}</td>
+                                        <td>${stock.quantity} ${data.unit_symbol}</td>
+                                        <td>${statusHtml}</td>
+                                    </tr>`;
+                                });
+                            } else {
+                                html = `<tr><td colspan="3" class="text-center">لا يوجد مخزون متاح لهذه المادة</td></tr>`;
+                            }
+                            stockTable.innerHTML = html;
+                        }
+                    })
+                    .catch(error => console.error('Error fetching stock data:', error));
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if form.instance.id %}تعديل فئة{% else %}إضافة فئة جديدة{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">{% if form.instance.id %}تعديل فئة{% else %}إضافة فئة جديدة{% endif %}</h1>
+    <p>{% if form.instance.id %}تعديل بيانات الفئة{% else %}إضافة فئة جديدة للمواد{% endif %}</p>
+</div>
+
+<div class="table-glass p-4">
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">اسم الفئة *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.parent.id_for_label }}" class="form-label">الفئة الأم</label>
+                    {{ form.parent }}
+                    {% if form.parent.errors %}
+                    <div class="invalid-feedback d-block">{{ form.parent.errors }}</div>
+                    {% endif %}
+                    <small class="form-text text-muted">اختياري: اختر فئة أم لإنشاء تسلسل هرمي للفئات</small>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">الوصف</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'categories' %}" class="btn btn-secondary">إلغاء</a>
+            <button type="submit" class="btn btn-primary">حفظ</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

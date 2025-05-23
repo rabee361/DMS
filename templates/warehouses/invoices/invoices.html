@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}الفواتير{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">الفواتير</h1>
+    <a href="{% url 'create_sales_invoice' %}" class="btn btn-primary">إضافة +</a>
+</div>
+
+<div class="table-container">
+    <div class="table-controls">
+        <div class="search-controls">
+            <input type="text" name="q" class="search-input" placeholder="ابحث برقم الفاتورة أو العميل..." value="{{ request.GET.q }}"/>
+        </div>
+        <div class="action-controls">
+            <select id="bulkAction" name="action" class="action-select">
+                <option value="" selected disabled>اختر الإجراء</option>
+                <option value="delete">حذف الفواتير المحددة</option>
+                <option value="mark_paid">تعليم كمدفوعة</option>
+                <option value="mark_partial">تعليم كمدفوعة جزئياً</option>
+                <option value="mark_pending">تعليم كقيد الانتظار</option>
+            </select>
+            <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
+        </div>
+    </div>
+    
+
+    <form method="post" action="{% url 'invoice_action' %}" id="bulkActionForm">
+        {% csrf_token %}
+        <input type="hidden" name="selected_ids" id="selectedIds">
+        <input type="hidden" name="action" id="selectedAction">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>رقم الفاتورة</th>
+                        <th>النوع</th>
+                        <th>التاريخ</th>
+                        <th>العميل/المورد</th>
+                        <th>المبلغ</th>
+                        <th>حالة الدفع</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in invoices %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_ids" value="{{ invoice.id }}"></td>
+                        <td>{{ invoice.invoice_number }}</td>
+                        <td>{{ invoice.get_invoice_type_display }}</td>
+                        <td>{{ invoice.date|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            {% if invoice.invoice_type == 'sales' or invoice.invoice_type == 'sales_return' %}
+                                {{ invoice.salesinvoice.customer.name|default:"-" }}
+                            {% elif invoice.invoice_type == 'purchase' or invoice.invoice_type == 'purchase_return' %}
+                                {{ invoice.purchaseinvoice.supplier.name|default:"-" }}
+                            {% endif %}
+                        </td>
+                        <td>{{ invoice.total_amount }}</td>
+                        <td>
+                            {% if invoice.payment_status == 'paid' %}
+                            <span class="badge bg-success">مدفوعة</span>
+                            {% elif invoice.payment_status == 'partial' %}
+                            <span class="badge bg-warning">مدفوعة جزئياً</span>
+                            {% elif invoice.payment_status == 'overdue' %}
+                            <span class="badge bg-danger">متأخرة</span>
+                            {% else %}
+                            <span class="badge bg-secondary">قيد الانتظار</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'invoice_detail' invoice.id %}" class="view-btn" title="عرض">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'print_invoice' invoice.id %}" class="print-btn" title="طباعة">
+                                    <i class="bi bi-printer"></i>
+                                </a>
+                                <a href="{% url 'delete_invoice' invoice.id %}" class="delete-btn" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الفاتورة؟')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">لا توجد فواتير</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% include "pagination.html" with page=invoices %}
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('select-all').addEventListener('change', function() {
+        var checkboxes = document.getElementsByName('selected_ids');
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = this.checked;
+        }
+    });
+    
+    // Function to execute bulk actions
+    function executeBulkAction() {
+        const selectedAction = document.getElementById('bulkAction').value;
+        if (!selectedAction) {
+            alert('يرجى اختيار إجراء');
+            return;
+        }
+        
+        const checkboxes = document.querySelectorAll('input[name="selected_ids"]:checked');
+        if (checkboxes.length === 0) {
+            alert('يرجى تحديد فاتورة واحدة على الأقل');
+            return;
+        }
+        
+        const selectedIds = Array.from(checkboxes).map(cb => cb.value).join(',');
+        document.getElementById('selectedIds').value = selectedIds;
+        document.getElementById('selectedAction').value = selectedAction;
+        
+        if (selectedAction === 'delete' && !confirm('هل أنت متأكد من حذف الفواتير المحددة؟')) {
+            return;
+        }
+        
+        document.getElementById('bulkActionForm').submit();
+    }
+</script>
+{% endblock %}

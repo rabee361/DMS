@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقرير المخزون</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            direction: rtl;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .report-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .report-header p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
+        .filters {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .filters span {
+            margin-left: 15px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+            font-size: 12px;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .text-end {
+            text-align: left;
+        }
+        .total-row {
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        .print-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .print-button button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .stock-status {
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: white;
+            display: inline-block;
+        }
+        .status-out {
+            background-color: #e74c3c;
+        }
+        .status-low {
+            background-color: #f39c12;
+        }
+        .status-ok {
+            background-color: #2ecc71;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>تقرير المخزون</h1>
+        <p>تاريخ التقرير: {{ today|date:"Y-m-d" }}</p>
+    </div>
+    
+    <div class="filters">
+        {% if request.GET.q %}<span>بحث: {{ request.GET.q }}</span>{% endif %}
+        {% if selected_category %}<span>الفئة: {{ selected_category.name }}</span>{% endif %}
+        {% if selected_warehouse %}<span>المستودع: {{ selected_warehouse.name }}</span>{% endif %}
+        {% if request.GET.stock_status == 'low' %}<span>حالة المخزون: منخفض</span>{% endif %}
+        {% if request.GET.stock_status == 'out' %}<span>حالة المخزون: نفاذ المخزون</span>{% endif %}
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>الكود</th>
+                <th>المادة</th>
+                <th>الفئة</th>
+                <th>المستودع</th>
+                <th>الكمية</th>
+                <th>الوحدة</th>
+                <th>الحد الأدنى</th>
+                <th>حالة المخزون</th>
+                <th>سعر التكلفة</th>
+                <th>القيمة الإجمالية</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in inventory_items %}
+            <tr>
+                <td>{{ item.material.code }}</td>
+                <td>{{ item.material.name }}</td>
+                <td>{{ item.material.category.name|default:"-" }}</td>
+                <td>{{ item.warehouse.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.material.unit.symbol }}</td>
+                <td>{{ item.material.min_stock_level }}</td>
+                <td>
+                    {% if item.quantity <= 0 %}
+                    <span class="stock-status status-out">نفاذ المخزون</span>
+                    {% elif item.quantity < item.material.min_stock_level %}
+                    <span class="stock-status status-low">منخفض</span>
+                    {% else %}
+                    <span class="stock-status status-ok">متوفر</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.material.cost_price }}</td>
+                <td>{{ item.total_value }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" style="text-align: center;">لا توجد بيانات</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="9" class="text-end">إجمالي القيمة:</td>
+                <td>{{ total_value }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <div class="footer">
+        <p>تم إنشاء هذا التقرير بواسطة نظام إدارة المستودعات</p>
+        <p>عدد المواد: {{ inventory_items.count }}</p>
+    </div>
+    
+    <div class="print-button">
+        <button onclick="window.print()">طباعة التقرير</button>
+    </div>
+</body>
+</html>

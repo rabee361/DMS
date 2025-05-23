@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block title %}حذف المستودع{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="delete-confirmation">
+        <div class="delete-header">
+            <i class="bi bi-exclamation-triangle-fill warning-icon"></i>
+            <h2>حذف المستودع</h2>
+            <p class="delete-subtitle">هذا الإجراء لا يمكن التراجع عنه</p>
+        </div>
+
+        <div class="delete-content">
+            <p class="confirmation-text">
+                هل أنت متأكد أنك تريد حذف المستودع "<span class="highlight">{{ warehouse.name }}</span>"؟
+            </p>
+            
+            {% if warehouse.materialstock_set.exists %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-circle"></i>
+                <strong>تحذير:</strong> هذا المستودع يحتوي على مواد. يجب نقل جميع المواد أو حذفها قبل حذف المستودع.
+            </div>
+            
+            <div class="materials-list mt-3">
+                <h5>المواد الموجودة في المستودع:</h5>
+                <ul>
+                    {% for stock in warehouse.materialstock_set.all %}
+                    <li>{{ stock.material.name }} - الكمية: {{ stock.quantity }} {{ stock.material.unit.symbol }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger" {% if warehouse.materialstock_set.exists %}disabled{% endif %}>
+                    <i class="bi bi-trash"></i>
+                    تأكيد الحذف
+                </button>
+                <a href="{% url 'warehouses_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-x"></i>
+                    إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

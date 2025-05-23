@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل الحركة{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">تفاصيل الحركة #{{ movement.id }}</h1>
+    <p>
+        {% if movement.move_type == 'in' %}
+            إدخال مواد
+        {% elif movement.move_type == 'out' %}
+            إخراج مواد
+        {% elif movement.move_type == 'transfer' %}
+            نقل مواد
+        {% elif movement.move_type == 'adjustment' %}
+            تعديل مخزون
+        {% endif %}
+    </p>
+</div>
+
+<div class="movement-form">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h3 class="h4">معلومات الحركة</h3>
+            <table class="movements-table">
+                <tr>
+                    <th>رقم الحركة:</th>
+                    <td>{{ movement.id }}</td>
+                </tr>
+                <tr>
+                    <th>نوع الحركة:</th>
+                    <td>
+                        {% if movement.move_type == 'in' %}
+                        <span class="badge bg-success">إدخال</span>
+                        {% elif movement.move_type == 'out' %}
+                        <span class="badge bg-danger">إخراج</span>
+                        {% elif movement.move_type == 'transfer' %}
+                        <span class="badge bg-primary">نقل</span>
+                        {% elif movement.move_type == 'adjustment' %}
+                        <span class="badge bg-warning">تعديل</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>التاريخ:</th>
+                    <td>{{ movement.created_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                <tr>
+                    <th>المستخدم:</th>
+                    <td>{{ movement.created_by.username }}</td>
+                </tr>
+                {% if movement.reference_invoice %}
+                <tr>
+                    <th>الفاتورة المرتبطة:</th>
+                    <td>
+                        <a href="{% url 'invoice_detail' movement.reference_invoice.id %}">
+                            {{ movement.reference_invoice.invoice_number }}
+                        </a>
+                    </td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h3 class="h4">معلومات المادة والمستودعات</h3>
+            <table class="movements-table">
+                <tr>
+                    <th>المادة:</th>
+                    <td>{{ movement.material.name }}</td>
+                </tr>
+                <tr>
+                    <th>الكمية:</th>
+                    <td>{{ movement.quantity }} {{ movement.material.unit.symbol }}</td>
+                </tr>
+                {% if movement.source_warehouse %}
+                <tr>
+                    <th>المستودع المصدر:</th>
+                    <td>{{ movement.source_warehouse.name }}</td>
+                </tr>
+                {% endif %}
+                {% if movement.destination_warehouse %}
+                <tr>
+                    <th>المستودع الهدف:</th>
+                    <td>{{ movement.destination_warehouse.name }}</td>
+                </tr>
+                {% endif %}
+                {% if movement.move_type == 'adjustment' %}
+                <tr>
+                    <th>الكمية قبل التعديل:</th>
+                    <td>{{ movement.previous_quantity }} {{ movement.material.unit.symbol }}</td>
+                </tr>
+                <tr>
+                    <th>الكمية بعد التعديل:</th>
+                    <td>{{ movement.new_quantity }} {{ movement.material.unit.symbol }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    {% if movement.notes %}
+    <div class="mt-3">
+        <h3 class="h4">ملاحظات</h3>
+        <p>{{ movement.notes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            <a href="{% url 'movements' %}" class="btn btn-secondary">العودة إلى الحركات</a>
+        </div>
+        <div>
+            <a href="{% url 'delete_movement' movement.id %}" class="btn btn-danger" onclick="return confirm('هل أنت متأكد من حذف هذه الحركة؟')">
+                <i class="bi bi-trash"></i> حذف الحركة
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

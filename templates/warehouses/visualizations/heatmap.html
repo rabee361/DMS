@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}خريطة استخدام المستودعات{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/warehouse-visualizations.css' %}">
+<link rel="stylesheet" href="{% static 'css/warehouse-heatmap.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">خريطة استخدام المستودعات</h1>
+    <p>عرض مرئي لنسبة استخدام المستودعات وتوزيع المخزون</p>
+</div>
+
+<div class="table-glass p-3 mb-4">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="h5 mb-0">نسبة استخدام المستودعات</h3>
+                <div class="heatmap-legend">
+                    <div class="heatmap-legend-item">
+                        <div class="heatmap-legend-color low"></div>
+                        <span>منخفض (أقل من 30%)</span>
+                    </div>
+                    <div class="heatmap-legend-item">
+                        <div class="heatmap-legend-color medium"></div>
+                        <span>متوسط (30% - 70%)</span>
+                    </div>
+                    <div class="heatmap-legend-item">
+                        <div class="heatmap-legend-color high"></div>
+                        <span>مرتفع (أكثر من 70%)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="heatmap-container">
+                <div class="heatmap-grid" id="warehouseHeatmap">
+                    {% for warehouse in warehouses %}
+                    <div class="heatmap-cell {% if warehouse.capacity_usage < 30 %}low{% elif warehouse.capacity_usage < 70 %}medium{% else %}high{% endif %}" 
+                         data-warehouse-id="{{ warehouse.id }}"
+                         data-bs-toggle="tooltip"
+                         data-bs-placement="top"
+                         title="السعة: {{ warehouse.capacity }} | المخزون: {{ warehouse.total_quantity }} | عدد المواد: {{ warehouse.total_items }}">
+                        <div class="heatmap-cell-name">{{ warehouse.name }}</div>
+                        <div class="heatmap-cell-value">{{ warehouse.capacity_usage }}%</div>
+                        <div class="heatmap-cell-type">{{ warehouse.get_warehouse_type_display }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="table-glass p-3 mb-4">
+            <h3 class="h5 mb-3">توزيع المستودعات حسب النوع</h3>
+            <div class="chart-container">
+                <canvas id="warehouseTypeChart" 
+                        data-types="{{ warehouse_types|safe }}" 
+                        data-counts="{{ warehouse_type_counts|safe }}"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-glass p-3 mb-4">
+            <h3 class="h5 mb-3">توزيع المخزون حسب المستودع</h3>
+            <div class="chart-container">
+                <canvas id="stockDistributionChart" 
+                        data-warehouses="{{ warehouse_names|safe }}" 
+                        data-stock="{{ warehouse_stock|safe }}"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-glass p-3 mb-4">
+    <h3 class="h5 mb-3">تفاصيل استخدام المستودعات</h3>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>المستودع</th>
+                    <th>النوع</th>
+                    <th>الموقع</th>
+                    <th>السعة</th>
+                    <th>المخزون</th>
+                    <th>نسبة الاستخدام</th>
+                    <th>عدد المواد</th>
+                    <th>الحالة</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for warehouse in warehouses %}
+                <tr>
+                    <td>
+                        <a href="{% url 'warehouse_detail' warehouse.id %}" class="text-decoration-none">
+                            {{ warehouse.name }}
+                        </a>
+                    </td>
+                    <td>{{ warehouse.get_warehouse_type_display }}</td>
+                    <td>{{ warehouse.location }}</td>
+                    <td>{{ warehouse.capacity }}</td>
+                    <td>{{ warehouse.total_quantity }}</td>
+                    <td>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar {% if warehouse.capacity_usage < 30 %}bg-success{% elif warehouse.capacity_usage < 70 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ warehouse.capacity_usage }}%;" 
+                                 aria-valuenow="{{ warehouse.capacity_usage }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted">{{ warehouse.capacity_usage }}%</small>
+                    </td>
+                    <td>{{ warehouse.total_items }}</td>
+                    <td>
+                        <span class="badge {% if warehouse.status == 'active' %}bg-success{% elif warehouse.status == 'maintenance' %}bg-warning{% else %}bg-danger{% endif %}">
+                            {{ warehouse.get_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Warehouse Type Chart
+        const typeCtx = document.getElementById('warehouseTypeChart');
+        if (typeCtx) {
+            const types = JSON.parse(typeCtx.dataset.types || '[]');
+            const counts = JSON.parse(typeCtx.dataset.counts || '[]');
+            
+            new Chart(typeCtx, {
+                type: 'pie',
+                data: {
+                    labels: types,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(230, 126, 34, 0.7)',
+                            'rgba(149, 165, 166, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(52, 152, 219, 0.9)',
+                            'rgba(46, 204, 113, 0.9)',
+                            'rgba(155, 89, 182, 0.9)',
+                            'rgba(230, 126, 34, 0.9)',
+                            'rgba(149, 165, 166, 0.9)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Stock Distribution Chart
+        const stockCtx = document.getElementById('stockDistributionChart');
+        if (stockCtx) {
+            const warehouses = JSON.parse(stockCtx.dataset.warehouses || '[]');
+            const stock = JSON.parse(stockCtx.dataset.stock || '[]');
+            
+            new Chart(stockCtx, {
+                type: 'bar',
+                data: {
+                    labels: warehouses,
+                    datasets: [{
+                        label: 'المخزون',
+                        data: stock,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 0.9)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Make heatmap cells clickable
+        const heatmapCells = document.querySelectorAll('.heatmap-cell');
+        heatmapCells.forEach(cell => {
+            cell.addEventListener('click', function() {
+                const warehouseId = this.getAttribute('data-warehouse-id');
+                window.location.href = `/dms/warehouses/warehouses/${warehouseId}/`;
+            });
+        });
+    });
+</script>
+{% endblock %}

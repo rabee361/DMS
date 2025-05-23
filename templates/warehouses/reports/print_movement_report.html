@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقرير حركة المواد</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            direction: rtl;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .report-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .report-header p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
+        .filters {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .filters span {
+            margin-left: 15px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+            font-size: 12px;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        .print-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .print-button button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .move-type {
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: white;
+            display: inline-block;
+        }
+        .type-in {
+            background-color: #2ecc71;
+        }
+        .type-out {
+            background-color: #e74c3c;
+        }
+        .type-transfer {
+            background-color: #3498db;
+        }
+        .type-adjustment {
+            background-color: #f39c12;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>تقرير حركة المواد</h1>
+        <p>تاريخ التقرير: {{ today|date:"Y-m-d" }}</p>
+    </div>
+    
+    <div class="filters">
+        {% if request.GET.q %}<span>بحث: {{ request.GET.q }}</span>{% endif %}
+        {% if request.GET.material %}<span>المادة: {{ movements.0.material.name }}</span>{% endif %}
+        {% if request.GET.warehouse %}
+            {% for warehouse in warehouses %}
+                {% if warehouse.id|stringformat:"i" == request.GET.warehouse %}
+                    <span>المستودع: {{ warehouse.name }}</span>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if request.GET.move_type == 'in' %}<span>نوع الحركة: إدخال</span>{% endif %}
+        {% if request.GET.move_type == 'out' %}<span>نوع الحركة: إخراج</span>{% endif %}
+        {% if request.GET.move_type == 'transfer' %}<span>نوع الحركة: نقل</span>{% endif %}
+        {% if request.GET.move_type == 'adjustment' %}<span>نوع الحركة: تعديل</span>{% endif %}
+        {% if request.GET.start_date %}<span>من تاريخ: {{ request.GET.start_date }}</span>{% endif %}
+        {% if request.GET.end_date %}<span>إلى تاريخ: {{ request.GET.end_date }}</span>{% endif %}
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>رقم الحركة</th>
+                <th>المادة</th>
+                <th>نوع الحركة</th>
+                <th>الكمية</th>
+                <th>المستودع المصدر</th>
+                <th>المستودع الهدف</th>
+                <th>الفاتورة المرتبطة</th>
+                <th>التاريخ</th>
+                <th>المستخدم</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movement in movements %}
+            <tr>
+                <td>{{ movement.id }}</td>
+                <td>{{ movement.material.name }}</td>
+                <td>
+                    {% if movement.move_type == 'in' %}
+                    <span class="move-type type-in">إدخال</span>
+                    {% elif movement.move_type == 'out' %}
+                    <span class="move-type type-out">إخراج</span>
+                    {% elif movement.move_type == 'transfer' %}
+                    <span class="move-type type-transfer">نقل</span>
+                    {% elif movement.move_type == 'adjustment' %}
+                    <span class="move-type type-adjustment">تعديل</span>
+                    {% endif %}
+                </td>
+                <td>{{ movement.quantity }} {{ movement.material.unit.symbol }}</td>
+                <td>{{ movement.source_warehouse.name|default:"-" }}</td>
+                <td>{{ movement.destination_warehouse.name|default:"-" }}</td>
+                <td>
+                    {% if movement.reference_invoice %}
+                    {{ movement.reference_invoice.invoice_number }}
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+                <td>{{ movement.created_at|date:"Y-m-d H:i" }}</td>
+                <td>{{ movement.created_by.username }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align: center;">لا توجد بيانات</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="footer">
+        <p>تم إنشاء هذا التقرير بواسطة نظام إدارة المستودعات</p>
+        <p>عدد الحركات: {{ movements.count }}</p>
+    </div>
+    
+    <div class="print-button">
+        <button onclick="window.print()">طباعة التقرير</button>
+    </div>
+</body>
+</html>

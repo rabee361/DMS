@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if form.instance.id %}تعديل وحدة قياس{% else %}إضافة وحدة قياس جديدة{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">{% if form.instance.id %}تعديل وحدة قياس{% else %}إضافة وحدة قياس جديدة{% endif %}</h1>
+    <p>{% if form.instance.id %}تعديل بيانات وحدة القياس{% else %}إضافة وحدة قياس جديدة للمواد{% endif %}</p>
+</div>
+
+<div class="table-glass p-4">
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">اسم الوحدة *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                    {% endif %}
+                    <small class="form-text text-muted">مثال: كيلوغرام، متر، قطعة</small>
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.symbol.id_for_label }}" class="form-label">الرمز *</label>
+                    {{ form.symbol }}
+                    {% if form.symbol.errors %}
+                    <div class="invalid-feedback d-block">{{ form.symbol.errors }}</div>
+                    {% endif %}
+                    <small class="form-text text-muted">مثال: كغ، م، قطعة</small>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="{{ form.description.id_for_label }}" class="form-label">الوصف</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="invalid-feedback d-block">{{ form.description.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'units' %}" class="btn btn-secondary">إلغاء</a>
+            <button type="submit" class="btn btn-primary">حفظ</button>
+        </div>
+    </form>
+</div>
+
+{% if form.instance.id %}
+<div class="mt-4">
+    <div class="dashboard-header">
+        <h2 class="h3">تحويلات الوحدة</h2>
+        <p>تحويلات مرتبطة بوحدة "{{ form.instance.name }}"</p>
+    </div>
+    
+    <div class="table-glass p-3">
+        <div class="table-responsive">
+            <table class="table data-table">
+                <thead>
+                    <tr>
+                        <th>من</th>
+                        <th>إلى</th>
+                        <th>معامل التحويل</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for conversion in form.instance.from_conversions.all %}
+                    <tr>
+                        <td>{{ conversion.from_unit.name }} ({{ conversion.from_unit.symbol }})</td>
+                        <td>{{ conversion.to_unit.name }} ({{ conversion.to_unit.symbol }})</td>
+                        <td>1 {{ conversion.from_unit.symbol }} = {{ conversion.conversion_factor }} {{ conversion.to_unit.symbol }}</td>
+                    </tr>
+                    {% endfor %}
+                    
+                    {% for conversion in form.instance.to_conversions.all %}
+                    <tr>
+                        <td>{{ conversion.from_unit.name }} ({{ conversion.from_unit.symbol }})</td>
+                        <td>{{ conversion.to_unit.name }} ({{ conversion.to_unit.symbol }})</td>
+                        <td>1 {{ conversion.from_unit.symbol }} = {{ conversion.conversion_factor }} {{ conversion.to_unit.symbol }}</td>
+                    </tr>
+                    {% endfor %}
+                    
+                    {% if not form.instance.from_conversions.all and not form.instance.to_conversions.all %}
+                    <tr>
+                        <td colspan="3" class="text-center">لا توجد تحويلات مرتبطة بهذه الوحدة</td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="d-flex justify-content-end mt-3">
+            <a href="{% url 'unit_conversions' %}" class="btn btn-primary">
+                <i class="bi bi-arrow-left-right"></i> إدارة تحويلات الوحدات
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

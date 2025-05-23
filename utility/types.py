@@ -26,6 +26,21 @@ class AdditionDiscountType(models.TextChoices):
     ADDITION = 'إضافة'
     DISCOUNT = 'خصم'
         
+class INVOICE_TYPES(models.TextChoices):
+    SALES = 'Sales Invoice'
+    PURCHASE = 'Purchase Invoice'
+    SALES_RETURN = 'Sales Return Invoice'
+    PURCHASE_RETURN = 'Purchase Return Invoice'
+
+class CLIENT_TYPES(models.TextChoices):
+    CUSTOMER = 'Customer'
+    SUPPLIER = 'Supplier'
+
+class PaymentStatus(models.TextChoices):
+    PENDING = 'Pending'
+    PARTIAL = 'Partially Paid'
+    PAID = 'Paid'
+    OVERDUE = 'Overdue'
 
 class OriginType(models.TextChoices):
     SALARY = 'راتب'

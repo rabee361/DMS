@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if form.instance.id %}تعديل عميل{% else %}إضافة عميل جديد{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">{% if form.instance.id %}تعديل عميل{% else %}إضافة عميل جديد{% endif %}</h1>
+    <p>{% if form.instance.id %}تعديل بيانات العميل{% else %}إضافة عميل جديد للنظام{% endif %}</p>
+</div>
+
+<div class="table-glass p-4">
+    <form method="post">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <strong>يرجى تصحيح الأخطاء التالية:</strong>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="{{ form.name.id_for_label }}" class="form-label">اسم العميل *</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="invalid-feedback d-block">{{ form.name.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.contact_person.id_for_label }}" class="form-label">جهة الاتصال</label>
+                    {{ form.contact_person }}
+                    {% if form.contact_person.errors %}
+                    <div class="invalid-feedback d-block">{{ form.contact_person.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">البريد الإلكتروني</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                    <div class="invalid-feedback d-block">{{ form.email.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label for="{{ form.phone.id_for_label }}" class="form-label">الهاتف</label>
+                    {{ form.phone }}
+                    {% if form.phone.errors %}
+                    <div class="invalid-feedback d-block">{{ form.phone.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group mb-3">
+                    <label for="{{ form.address.id_for_label }}" class="form-label">العنوان</label>
+                    {{ form.address }}
+                    {% if form.address.errors %}
+                    <div class="invalid-feedback d-block">{{ form.address.errors }}</div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-check mb-3">
+                    {{ form.is_active }}
+                    <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                        نشط
+                    </label>
+                    {% if form.is_active.errors %}
+                    <div class="invalid-feedback d-block">{{ form.is_active.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <a href="{% url 'customers' %}" class="btn btn-secondary">إلغاء</a>
+            <button type="submit" class="btn btn-primary">حفظ</button>
+        </div>
+    </form>
+</div>
+
+{% if form.instance.id %}
+<div class="mt-4">
+    <div class="dashboard-header">
+        <h2 class="h3">فواتير العميل</h2>
+        <p>فواتير المبيعات للعميل "{{ form.instance.name }}"</p>
+    </div>
+    
+    <div class="table-glass p-3">
+        <div class="table-responsive">
+            <table class="table data-table">
+                <thead>
+                    <tr>
+                        <th>رقم الفاتورة</th>
+                        <th>التاريخ</th>
+                        <th>المبلغ</th>
+                        <th>حالة الدفع</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for invoice in form.instance.salesinvoice_set.all %}
+                    <tr>
+                        <td>{{ invoice.invoice.invoice_number }}</td>
+                        <td>{{ invoice.invoice.date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ invoice.invoice.total_amount }}</td>
+                        <td>
+                            {% if invoice.invoice.payment_status == 'paid' %}
+                            <span class="badge bg-success">مدفوعة</span>
+                            {% elif invoice.invoice.payment_status == 'partial' %}
+                            <span class="badge bg-warning">مدفوعة جزئياً</span>
+                            {% else %}
+                            <span class="badge bg-danger">غير مدفوعة</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">لا توجد فواتير لهذا العميل</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}تحويلات الوحدات{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">تحويلات الوحدات</h1>
+    <p>إدارة تحويلات بين وحدات القياس المختلفة</p>
+</div>
+
+<div class="alert alert-info">
+    <h4 class="alert-heading">قريباً!</h4>
+    <p>هذه الصفحة قيد التطوير حالياً. سيتم إضافة وظائف تحويلات الوحدات قريباً.</p>
+    <hr>
+    <p class="mb-0">يمكنك العودة إلى <a href="{% url 'units' %}" class="alert-link">وحدات القياس</a> للاطلاع على الميزات المتاحة حالياً.</p>
+</div>
+
+<div class="d-flex justify-content-between">
+    <a href="{% url 'units' %}" class="btn-glass card-action">العودة إلى وحدات القياس</a>
+</div>
+{% endblock %}

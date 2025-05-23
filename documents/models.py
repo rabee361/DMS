@@ -1,10 +1,12 @@
 # documents/models.py
 
+from email.policy import default
 from django.db import models
 from django.contrib.auth import get_user_model
 # from django.utils.text import humanize
 from utility.types import *
-
+from utility.helper import generate_slug
+from django.urls import reverse_lazy
 
 User = get_user_model()
 
@@ -18,6 +20,7 @@ class Document(models.Model):
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE , null=True)
     upload_date = models.DateTimeField(auto_now_add=True)
     comment = models.TextField(null=True,blank=True)
+    slug = models.SlugField(max_length=100, default=generate_slug)
     description = models.TextField(blank=True, null=True)
     language = models.CharField(max_length=2, choices=Language, default='en')
     size = models.IntegerField(default=0) # size in MB
@@ -52,6 +55,9 @@ class Document(models.Model):
             
         super().save(*args, **kwargs)
 
+    @property
+    def get_absolute_url(self):
+        return f"145.223.80.125/dms/documents/url/{self.slug}"
 
     def has_access(self, user):
         # Check user permissions here 

@@ -82,7 +82,11 @@
                     <td>{{ document.upload_date|date:"M d, Y H:i" }}</td>
                     <td>
                         <div class="action-buttons">
-                            <a href="{{ document.file.url }}" class="view-btn" target="_blank" title="عرض">
+                            <a href="#" class="copy-btn" data-url="{{ document.get_absolute_url }}">
+                                <i class="bi bi-clipboard"></i>
+                            </a>
+                            
+                            <a href="{{ document.get_absolute_url }}" class="view-btn">
                                 <i class="bi bi-eye"></i>
                             </a>
 
@@ -116,5 +120,11 @@
         </ul>
     </div>
 </div>
+
+<!-- Toast notification for copy feedback -->
+<div id="toast" class="toast-notification">
+    <div class="toast-content"></div>
+</div>
+
 
 {% endblock %}

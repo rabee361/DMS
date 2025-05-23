@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}تفاصيل الفاتورة{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">تفاصيل الفاتورة #{{ invoice.invoice_number }}</h1>
+    <p>{{ invoice.get_invoice_type_display }}</p>
+</div>
+
+<div class="table-glass p-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h3 class="h4">معلومات الفاتورة</h3>
+            <table class="table">
+                <tr>
+                    <th>رقم الفاتورة:</th>
+                    <td>{{ invoice.invoice_number }}</td>
+                </tr>
+                <tr>
+                    <th>نوع الفاتورة:</th>
+                    <td>{{ invoice.get_invoice_type_display }}</td>
+                </tr>
+                <tr>
+                    <th>التاريخ:</th>
+                    <td>{{ invoice.date|date:"Y-m-d H:i" }}</td>
+                </tr>
+                <tr>
+                    <th>حالة الدفع:</th>
+                    <td>
+                        {% if invoice.payment_status == 'paid' %}
+                        <span class="badge bg-success">مدفوعة</span>
+                        {% elif invoice.payment_status == 'partial' %}
+                        <span class="badge bg-warning">مدفوعة جزئياً</span>
+                        {% elif invoice.payment_status == 'overdue' %}
+                        <span class="badge bg-danger">متأخرة</span>
+                        {% else %}
+                        <span class="badge bg-secondary">قيد الانتظار</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>المبلغ الإجمالي:</th>
+                    <td>{{ invoice.total_amount }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-6">
+            <h3 class="h4">معلومات {% if invoice.invoice_type == 'sales' or invoice.invoice_type == 'sales_return' %}العميل{% else %}المورد{% endif %}</h3>
+            <table class="table">
+                {% if invoice.invoice_type == 'sales' or invoice.invoice_type == 'sales_return' %}
+                <tr>
+                    <th>العميل:</th>
+                    <td>{{ invoice.salesinvoice.customer.name }}</td>
+                </tr>
+                <tr>
+                    <th>جهة الاتصال:</th>
+                    <td>{{ invoice.salesinvoice.customer.contact_person|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>الهاتف:</th>
+                    <td>{{ invoice.salesinvoice.customer.phone|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>البريد الإلكتروني:</th>
+                    <td>{{ invoice.salesinvoice.customer.email|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>المستودع:</th>
+                    <td>{{ invoice.salesinvoice.warehouse.name }}</td>
+                </tr>
+                {% elif invoice.invoice_type == 'purchase' or invoice.invoice_type == 'purchase_return' %}
+                <tr>
+                    <th>المورد:</th>
+                    <td>{{ invoice.purchaseinvoice.supplier.name }}</td>
+                </tr>
+                <tr>
+                    <th>جهة الاتصال:</th>
+                    <td>{{ invoice.purchaseinvoice.supplier.contact_person|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>الهاتف:</th>
+                    <td>{{ invoice.purchaseinvoice.supplier.phone|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>البريد الإلكتروني:</th>
+                    <td>{{ invoice.purchaseinvoice.supplier.email|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>المستودع:</th>
+                    <td>{{ invoice.purchaseinvoice.warehouse.name }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <h3 class="h4">بنود الفاتورة</h3>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>المادة</th>
+                    <th>الكمية</th>
+                    <th>سعر الوحدة</th>
+                    <th>المبلغ الإجمالي</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.items.all %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.material.name }}</td>
+                    <td>{{ item.quantity }} {{ item.material.unit.symbol }}</td>
+                    <td>{{ item.unit_price }}</td>
+                    <td>{{ item.total_price }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">لا توجد بنود في هذه الفاتورة</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="4" class="text-end">المبلغ الإجمالي:</th>
+                    <th>{{ invoice.total_amount }}</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    {% if invoice.notes %}
+    <div class="mt-3">
+        <h3 class="h4">ملاحظات</h3>
+        <p>{{ invoice.notes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            <a href="{% url 'invoices' %}" class="btn btn-secondary">العودة إلى الفواتير</a>
+        </div>
+        <div>
+            <a href="{% url 'print_invoice' invoice.id %}" class="btn btn-primary">
+                <i class="bi bi-printer"></i> طباعة الفاتورة
+            </a>
+            <a href="{% url 'update_invoice_status' invoice.id %}" class="btn btn-success">
+                <i class="bi bi-check-circle"></i> تحديث حالة الدفع
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

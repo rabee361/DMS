@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}حركة المواد عبر الزمن{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/warehouse-visualizations.css' %}">
+<link rel="stylesheet" href="{% static 'css/warehouse-timeline.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">حركة المواد عبر الزمن</h1>
+    <p>عرض مرئي لحركة المواد بين المستودعات</p>
+</div>
+
+<div class="table-glass p-3 mb-4">
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="timeline-filters">
+                <button class="timeline-filter-btn active" data-period="week">آخر أسبوع</button>
+                <button class="timeline-filter-btn" data-period="month">آخر شهر</button>
+                <button class="timeline-filter-btn" data-period="quarter">آخر 3 أشهر</button>
+                <button class="timeline-filter-btn" data-period="year">آخر سنة</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-container timeline-container">
+                <h5 class="chart-title"><i class="bi bi-clock-history"></i> حركة المواد عبر الزمن</h5>
+                <canvas id="materialMovementTimeline" 
+                        data-dates="{{ movement_dates|safe }}" 
+                        data-incoming="{{ movement_incoming|safe }}"
+                        data-outgoing="{{ movement_outgoing|safe }}"
+                        data-transfers="{{ movement_transfers|safe }}"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="table-glass p-3 mb-4">
+            <h3 class="h5 mb-3">أنواع حركات المواد</h3>
+            <div class="chart-container">
+                <canvas id="movementTypesChart" 
+                        data-types="{{ movement_types|safe }}" 
+                        data-counts="{{ movement_type_counts|safe }}"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="table-glass p-3 mb-4">
+            <h3 class="h5 mb-3">المواد الأكثر حركة</h3>
+            <div class="chart-container">
+                <canvas id="topMovedMaterialsChart" 
+                        data-materials="{{ top_moved_materials|safe }}" 
+                        data-counts="{{ top_moved_counts|safe }}"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="table-glass p-3 mb-4">
+    <h3 class="h5 mb-3">آخر حركات المواد</h3>
+    <div class="timeline-events">
+        {% for movement in recent_movements %}
+        <div class="timeline-event {% if movement.move_type in 'purchase,return_in' %}incoming{% elif movement.move_type in 'sale,return_out' %}outgoing{% else %}transfer{% endif %}">
+            <div class="timeline-event-header">
+                <div class="timeline-event-title">{{ movement.material.name }}</div>
+                <div class="timeline-event-date">{{ movement.created_at|date:"Y-m-d H:i" }}</div>
+            </div>
+            <div class="timeline-event-details">
+                {% if movement.move_type == 'transfer' %}
+                    من {{ movement.source_warehouse.name }} إلى {{ movement.destination_warehouse.name }}
+                {% elif movement.move_type in 'sale,return_out' %}
+                    من {{ movement.source_warehouse.name }} إلى العميل
+                {% elif movement.move_type in 'purchase,return_in' %}
+                    من المورد إلى {{ movement.destination_warehouse.name }}
+                {% else %}
+                    تعديل في {{ movement.source_warehouse.name|default:movement.destination_warehouse.name }}
+                {% endif %}
+                - الكمية: {{ movement.quantity }} {{ movement.material.unit.symbol }}
+            </div>
+            <div class="timeline-event-type {% if movement.move_type in 'purchase,return_in' %}incoming{% elif movement.move_type in 'sale,return_out' %}outgoing{% else %}transfer{% endif %}">
+                {% if movement.move_type == 'purchase' %}
+                    شراء
+                {% elif movement.move_type == 'sale' %}
+                    بيع
+                {% elif movement.move_type == 'return_in' %}
+                    مرتجع وارد
+                {% elif movement.move_type == 'return_out' %}
+                    مرتجع صادر
+                {% elif movement.move_type == 'transfer' %}
+                    نقل
+                {% else %}
+                    تعديل
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Movement Types Chart
+        const typesCtx = document.getElementById('movementTypesChart');
+        if (typesCtx) {
+            const types = JSON.parse(typesCtx.dataset.types || '[]');
+            const counts = JSON.parse(typesCtx.dataset.counts || '[]');
+            
+            new Chart(typesCtx, {
+                type: 'pie',
+                data: {
+                    labels: types,
+                    datasets: [{
+                        data: counts,
+                        backgroundColor: [
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(231, 76, 60, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(149, 165, 166, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(46, 204, 113, 0.9)',
+                            'rgba(231, 76, 60, 0.9)',
+                            'rgba(155, 89, 182, 0.9)',
+                            'rgba(52, 152, 219, 0.9)',
+                            'rgba(243, 156, 18, 0.9)',
+                            'rgba(149, 165, 166, 0.9)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Top Moved Materials Chart
+        const materialsCtx = document.getElementById('topMovedMaterialsChart');
+        if (materialsCtx) {
+            const materials = JSON.parse(materialsCtx.dataset.materials || '[]');
+            const counts = JSON.parse(materialsCtx.dataset.counts || '[]');
+            
+            new Chart(materialsCtx, {
+                type: 'bar',
+                data: {
+                    labels: materials,
+                    datasets: [{
+                        label: 'عدد الحركات',
+                        data: counts,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 0.9)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Timeline period filters
+        const timelineFilters = document.querySelectorAll('.timeline-filter-btn');
+        timelineFilters.forEach(filter => {
+            filter.addEventListener('click', function() {
+                // Remove active class from all filters
+                timelineFilters.forEach(f => f.classList.remove('active'));
+                // Add active class to clicked filter
+                this.classList.add('active');
+                
+                // Update timeline chart based on selected period
+                const period = this.getAttribute('data-period');
+                updateTimelineChart(period);
+            });
+        });
+        
+        function updateTimelineChart(period) {
+            // This would typically fetch new data from the server
+            // For now, we'll just simulate a loading state
+            const timelineChart = Chart.getChart('materialMovementTimeline');
+            if (timelineChart) {
+                timelineChart.data.datasets.forEach(dataset => {
+                    dataset.data = dataset.data.map(() => Math.floor(Math.random() * 10));
+                });
+                timelineChart.update();
+            }
+        }
+    });
+</script>
+{% endblock %}

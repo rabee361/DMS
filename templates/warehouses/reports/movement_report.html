@@ -1,0 +1,127 @@
+{% extends "warehouses/reports/reports.html" %}
+
+{% block report_content %}
+<h3 class="h4 mb-3">تقرير حركة المواد</h3>
+
+<div class="table-glass mb-3 p-3">
+    <h5 class="h6 mb-3 text-muted"><i class="bi bi-funnel me-1 opacity-75"></i> تصفية النتائج</h5>
+    <form method="get">
+        <div class="row g-2">
+            <div class="col-md-2">
+                <input type="text" name="q" class="form-control" placeholder="بحث..." value="{{ request.GET.q }}">
+            </div>
+            <div class="col-md-2">
+                <select name="material" class="form-select">
+                    <option value="">كل المواد</option>
+                    {% for material in materials %}
+                    <option value="{{ material.id }}" {% if request.GET.material == material.id|stringformat:"i" %}selected{% endif %}>{{ material.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="warehouse" class="form-select">
+                    <option value="">كل المستودعات</option>
+                    {% for warehouse in warehouses %}
+                    <option value="{{ warehouse.id }}" {% if request.GET.warehouse == warehouse.id|stringformat:"i" %}selected{% endif %}>{{ warehouse.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-1">
+                <select name="move_type" class="form-select">
+                    <option value="">الكل</option>
+                    <option value="in" {% if request.GET.move_type == 'in' %}selected{% endif %}>إدخال</option>
+                    <option value="out" {% if request.GET.move_type == 'out' %}selected{% endif %}>إخراج</option>
+                    <option value="transfer" {% if request.GET.move_type == 'transfer' %}selected{% endif %}>نقل</option>
+                    <option value="adjustment" {% if request.GET.move_type == 'adjustment' %}selected{% endif %}>تعديل</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="start_date" class="form-control" placeholder="من تاريخ" value="{{ request.GET.start_date }}">
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="end_date" class="form-control" placeholder="إلى تاريخ" value="{{ request.GET.end_date }}">
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">بحث</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="mb-0"><i class="bi bi-arrow-left-right me-1 text-primary"></i> إجمالي الحركات: <span class="badge bg-primary">{{ movements.count }}</span></h5>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'export_movement_report' %}?{{ request.GET.urlencode }}" class="btn btn-success btn-sm">
+            <i class="bi bi-file-excel me-1"></i> تصدير إلى Excel
+        </a>
+        <a href="{% url 'print_movement_report' %}?{{ request.GET.urlencode }}" class="btn btn-primary btn-sm" target="_blank">
+            <i class="bi bi-printer me-1"></i> طباعة
+        </a>
+    </div>
+</div>
+
+<div class="table-glass p-3">
+    <div class="table-responsive">
+        <table class="table data-table">
+            <thead>
+                <tr>
+                    <th>رقم الحركة</th>
+                    <th>المادة</th>
+                    <th>نوع الحركة</th>
+                    <th>الكمية</th>
+                    <th>المستودع المصدر</th>
+                    <th>المستودع الهدف</th>
+                    <th>الفاتورة المرتبطة</th>
+                    <th>التاريخ</th>
+                    <th>المستخدم</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in movements %}
+                <tr>
+                    <td>{{ movement.id }}</td>
+                    <td>{{ movement.material.name }}</td>
+                    <td>
+                        {% if movement.move_type == 'in' %}
+                        <span class="badge bg-success">إدخال</span>
+                        {% elif movement.move_type == 'out' %}
+                        <span class="badge bg-danger">إخراج</span>
+                        {% elif movement.move_type == 'transfer' %}
+                        <span class="badge bg-primary">نقل</span>
+                        {% elif movement.move_type == 'adjustment' %}
+                        <span class="badge bg-warning">تعديل</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ movement.quantity }} {{ movement.material.unit.symbol }}</td>
+                    <td>{{ movement.source_warehouse.name|default:"-" }}</td>
+                    <td>{{ movement.destination_warehouse.name|default:"-" }}</td>
+                    <td>
+                        {% if movement.reference_invoice %}
+                        <a href="{% url 'invoice_detail' movement.reference_invoice.id %}" class="view-btn">
+                            {{ movement.reference_invoice.invoice_number }}
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>{{ movement.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>{{ movement.created_by.username }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">لا توجد بيانات</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-flex justify-content-center mt-3">
+    <div class="table-glass py-2 px-3">
+        {% include "pagination.html" with page=movements %}
+    </div>
+</div>
+{% endblock %}

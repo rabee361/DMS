@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فاتورة #{{ invoice.invoice_number }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            direction: rtl;
+        }
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .invoice-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .invoice-header p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
+        .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .invoice-info-box {
+            width: 48%;
+        }
+        .invoice-info-box h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            color: #2c3e50;
+        }
+        .info-row {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        .info-label {
+            font-weight: bold;
+            width: 40%;
+        }
+        .info-value {
+            width: 60%;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .text-end {
+            text-align: left;
+        }
+        .total-row {
+            font-weight: bold;
+        }
+        .notes {
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+        .notes h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        .print-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .print-button button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-header">
+        <h1>{{ invoice.get_invoice_type_display }}</h1>
+        <p>رقم الفاتورة: {{ invoice.invoice_number }}</p>
+        <p>التاريخ: {{ invoice.date|date:"Y-m-d H:i" }}</p>
+    </div>
+    
+    <div class="invoice-info">
+        <div class="invoice-info-box">
+            <h3>معلومات الشركة</h3>
+            <div class="info-row">
+                <div class="info-label">اسم الشركة:</div>
+                <div class="info-value">نظام إدارة المستودعات</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">العنوان:</div>
+                <div class="info-value">الرياض، المملكة العربية السعودية</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">الهاتف:</div>
+                <div class="info-value">+966 12 345 6789</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">البريد الإلكتروني:</div>
+                <div class="info-value">info@example.com</div>
+            </div>
+        </div>
+        
+        <div class="invoice-info-box">
+            <h3>
+                {% if invoice.invoice_type == 'sales' or invoice.invoice_type == 'sales_return' %}
+                    معلومات العميل
+                {% else %}
+                    معلومات المورد
+                {% endif %}
+            </h3>
+            {% if invoice.invoice_type == 'sales' or invoice.invoice_type == 'sales_return' %}
+            <div class="info-row">
+                <div class="info-label">العميل:</div>
+                <div class="info-value">{{ invoice.salesinvoice.customer.name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">جهة الاتصال:</div>
+                <div class="info-value">{{ invoice.salesinvoice.customer.contact_person|default:"-" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">الهاتف:</div>
+                <div class="info-value">{{ invoice.salesinvoice.customer.phone|default:"-" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">العنوان:</div>
+                <div class="info-value">{{ invoice.salesinvoice.customer.address|default:"-" }}</div>
+            </div>
+            {% elif invoice.invoice_type == 'purchase' or invoice.invoice_type == 'purchase_return' %}
+            <div class="info-row">
+                <div class="info-label">المورد:</div>
+                <div class="info-value">{{ invoice.purchaseinvoice.supplier.name }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">جهة الاتصال:</div>
+                <div class="info-value">{{ invoice.purchaseinvoice.supplier.contact_person|default:"-" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">الهاتف:</div>
+                <div class="info-value">{{ invoice.purchaseinvoice.supplier.phone|default:"-" }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">العنوان:</div>
+                <div class="info-value">{{ invoice.purchaseinvoice.supplier.address|default:"-" }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>المادة</th>
+                <th>الكمية</th>
+                <th>سعر الوحدة</th>
+                <th>المبلغ الإجمالي</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items.all %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.material.name }}</td>
+                <td>{{ item.quantity }} {{ item.material.unit.symbol }}</td>
+                <td>{{ item.unit_price }}</td>
+                <td>{{ item.total_price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="4" class="text-end">المبلغ الإجمالي:</td>
+                <td>{{ invoice.total_amount }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    {% if invoice.notes %}
+    <div class="notes">
+        <h3>ملاحظات</h3>
+        <p>{{ invoice.notes }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        <p>شكراً لتعاملكم معنا</p>
+        <p>تم إنشاء هذه الفاتورة بواسطة نظام إدارة المستودعات</p>
+    </div>
+    
+    <div class="print-button">
+        <button onclick="window.print()">طباعة الفاتورة</button>
+    </div>
+</body>
+</html>

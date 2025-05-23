@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load warehouse_extras %}
+
+{% block title %}{{ warehouse.name }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">{{ warehouse.name }}</h1>
+    <p>تفاصيل المستودع ومحتوياته</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="warehouse-form">
+            <h3 class="h4 mb-3">معلومات المستودع</h3>
+            <table class="warehouse-table">
+                <tr>
+                    <th style="width: 30%">الاسم:</th>
+                    <td>{{ warehouse.name }}</td>
+                </tr>
+                <tr>
+                    <th>الرمز:</th>
+                    <td>{{ warehouse.code }}</td>
+                </tr>
+                <tr>
+                    <th>النوع:</th>
+                    <td>
+                        <span class="badge rounded-pill bg-{% if warehouse.warehouse_type == 'main' %}primary{% elif warehouse.warehouse_type == 'branch' %}info{% elif warehouse.warehouse_type == 'factory' %}success{% elif warehouse.warehouse_type == 'distribution' %}warning{% else %}secondary{% endif %}">
+                            {{ warehouse_type_display }}
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>الموقع:</th>
+                    <td>{{ warehouse.location|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>المنطقة:</th>
+                    <td>{{ region_display }}</td>
+                </tr>
+                <tr>
+                    <th>المدير المسؤول:</th>
+                    <td>{{ warehouse.manager|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>الوصف:</th>
+                    <td>{{ warehouse.description|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th>الحالة:</th>
+                    <td>
+                        <span class="badge rounded-pill bg-{% if warehouse.status == 'active' %}success{% elif warehouse.status == 'maintenance' %}warning{% elif warehouse.status == 'full' %}danger{% else %}secondary{% endif %}">
+                            {{ status_display }}
+                        </span>
+                        {% if warehouse.is_active %}
+                        <span class="badge bg-success ms-1">نشط</span>
+                        {% else %}
+                        <span class="badge bg-danger ms-1">غير نشط</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th>تاريخ الإنشاء:</th>
+                    <td>{{ warehouse.created_at|date:"Y-m-d" }}</td>
+                </tr>
+                <tr>
+                    <th>آخر تحديث:</th>
+                    <td>{{ warehouse.updated_at|date:"Y-m-d" }}</td>
+                </tr>
+                <tr>
+                    <th>السعة الكلية:</th>
+                    <td>{{ warehouse.capacity|floatformat:2 }} متر مكعب</td>
+                </tr>
+                <tr>
+                    <th>استخدام السعة:</th>
+                    <td>
+                        <div class="progress-slim">
+                            <div class="progress-bar-slim {% if warehouse.capacity_usage > 90 %}bg-danger{% elif warehouse.capacity_usage > 70 %}bg-warning{% elif warehouse.capacity_usage > 50 %}bg-info{% else %}bg-success{% endif %}" style="width: {{ warehouse.capacity_usage }}%"></div>
+                        </div>
+                        <small class="text-muted">{{ warehouse.capacity_usage }}%</small>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'warehouses_list' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> العودة
+                </a>
+                <div>
+                    <a href="{% url 'warehouse_detail' warehouse.id %}?edit=true" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> تعديل
+                    </a>
+                    <a href="{% url 'delete_warehouse' warehouse.id %}" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> حذف
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="warehouse-form">
+            <h3 class="h4 mb-3">إحصائيات المستودع</h3>
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <div class="warehouse-stat-card">
+                        <div class="warehouse-stat-title">عدد المواد</div>
+                        <div class="warehouse-stat-value">{{ warehouse.total_items }}</div>
+                        <!-- Stock status distribution -->
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div class="progress-slim w-100">
+                                <div class="progress-bar-slim bg-success" style="width: {{ normal_stock_percentage }}%"></div>
+                                <div class="progress-bar-slim bg-warning" style="width: {{ low_stock_percentage }}%"></div>
+                                <div class="progress-bar-slim bg-danger" style="width: {{ out_of_stock_percentage }}%"></div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-1">
+                            <small class="text-muted">متوفر: {{ normal_stock_percentage }}%</small>
+                            <small class="text-muted">منخفض: {{ low_stock_percentage }}%</small>
+                            <small class="text-muted">نافذ: {{ out_of_stock_percentage }}%</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="warehouse-stat-card">
+                        <div class="warehouse-stat-title">إجمالي الكميات</div>
+                        <div class="warehouse-stat-value">{{ warehouse.total_quantity|floatformat:2 }}</div>
+                        <!-- Progress indicator -->
+                        <div class="progress-slim">
+                            <div class="progress-bar-slim {% if warehouse.capacity_usage > 90 %}bg-danger{% elif warehouse.capacity_usage > 70 %}bg-warning{% elif warehouse.capacity_usage > 50 %}bg-info{% else %}bg-success{% endif %}" style="width: {{ warehouse.capacity_usage }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ warehouse.capacity_usage }}% من السعة الكلية</small>
+                            <small class="text-muted">{{ warehouse.capacity|floatformat:0 }} م³</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="warehouse-stat-card">
+                        <div class="warehouse-stat-title">القيمة الإجمالية</div>
+                        <div class="warehouse-stat-value">{{ total_value|floatformat:2 }} ريال</div>
+                        <!-- Top materials by value -->
+                        <div class="mt-2">
+                            {% if top_materials %}
+                            <small class="text-muted d-block">أعلى المواد قيمة:</small>
+                            <div class="mt-1">
+                                {% for material in top_materials|slice:":3" %}
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-truncate" style="max-width: 70%;">{{ material.material.name }}</small>
+                                    <small class="text-muted">{{ material.total_value|floatformat:0 }}</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 mb-3">
+                    <div class="warehouse-stat-card">
+                        <div class="warehouse-stat-title">حركات اليوم</div>
+                        <div class="warehouse-stat-value">{{ today_movements_count }}</div>
+                        <!-- Movement types -->
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div>
+                                <span class="badge bg-success rounded-pill">+{{ today_incoming }}</span>
+                                <small class="text-muted d-block mt-1">إدخال</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-danger rounded-pill">-{{ today_outgoing }}</span>
+                                <small class="text-muted d-block mt-1">إخراج</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-info rounded-pill">{{ today_transfers }}</span>
+                                <small class="text-muted d-block mt-1">تحويل</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="warehouse-form">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h4 mb-0">المواد في المستودع</h3>
+                <a href="{% url 'create_movement' %}?type=adjustment&warehouse={{ warehouse.id }}" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> تعديل المخزون
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="warehouse-table">
+                    <thead>
+                        <tr>
+                            <th>الكود</th>
+                            <th>المادة</th>
+                            <th>الفئة</th>
+                            <th>الكمية</th>
+                            <th>الوحدة</th>
+                            <th>الحد الأدنى</th>
+                            <th>حالة المخزون</th>
+                            <th>القيمة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stock in stocks %}
+                        <tr>
+                            <td>{{ stock.material.code }}</td>
+                            <td>{{ stock.material.name }}</td>
+                            <td>{{ stock.material.category.name|default:"-" }}</td>
+                            <td>{{ stock.quantity }}</td>
+                            <td>{{ stock.material.unit.symbol }}</td>
+                            <td>{{ stock.material.min_stock_level }}</td>
+                            <td>
+                                {% if stock.status == 'out_of_stock' %}
+                                <span class="badge bg-danger">{{ stock.status_text }}</span>
+                                {% elif stock.status == 'low_stock' %}
+                                <span class="badge bg-warning">{{ stock.status_text }}</span>
+                                {% else %}
+                                <span class="badge bg-success">{{ stock.status_text }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ stock.total_value|floatformat:2 }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{% url 'material_detail' stock.material.id %}" class="view-btn" title="عرض المادة">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'create_movement' %}?type=adjustment&warehouse={{ warehouse.id }}&material={{ stock.material.id }}" class="edit-btn" title="تعديل المخزون">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center">لا توجد مواد في هذا المستودع</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="warehouse-form">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="h4 mb-0">آخر حركات المستودع</h3>
+                <div>
+                    <span class="badge bg-info me-2">اليوم: {{ today_movements_count }}</span>
+                    <span class="badge bg-primary">الشهر: {{ month_movements_count }}</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="warehouse-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>التاريخ</th>
+                            <th>المادة</th>
+                            <th>نوع الحركة</th>
+                            <th>الكمية</th>
+                            <th>المستودع المصدر</th>
+                            <th>المستودع الوجهة</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for movement in recent_movements %}
+                        <tr>
+                            <td>{{ movement.id }}</td>
+                            <td>{{ movement.created_at|date:"Y-m-d H:i" }}</td>
+                            <td>{{ movement.material.name }}</td>
+                            <td>
+                                {% if movement.move_type == 'in' %}
+                                <span class="badge bg-success">إدخال</span>
+                                {% elif movement.move_type == 'out' %}
+                                <span class="badge bg-danger">إخراج</span>
+                                {% elif movement.move_type == 'transfer' %}
+                                <span class="badge bg-primary">نقل</span>
+                                {% elif movement.move_type == 'adjustment' %}
+                                <span class="badge bg-warning">تعديل</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ movement.quantity }} {{ movement.material.unit.symbol }}</td>
+                            <td>{{ movement.source_warehouse.name|default:"-" }}</td>
+                            <td>{{ movement.destination_warehouse.name|default:"-" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center">لا توجد حركات لهذا المستودع</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="text-end mt-3">
+                <a href="{% url 'movements' %}?warehouse={{ warehouse.id }}" class="btn btn-primary">
+                    عرض كل الحركات <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

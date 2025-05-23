@@ -13,6 +13,7 @@ urlpatterns = [
     path('group/action/' , views.GroupActionView.as_view() , name="group_action"),
 
     path('list/', views.DocumentListView.as_view(), name='document_list'),
+    path('url/<slug:slug>/', views.DocumentURLView.as_view(), name='document_url'),
     path('upload/', views.UploadDocumentView.as_view(), name='upload_document'),
     path('<int:pk>/delete/', views.DeleteDocumentView.as_view(), name='delete_document'),
     path('<int:document_id>/download/', views.DownloadDocumentView.as_view(), name='download_document'),

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}لوحة تحكم المستودعات والفواتير{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">المستودعات والفواتير</h1>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Materials Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-box"></i>
+        </div>
+        <div class="card-content">
+            <h3>المواد</h3>
+            <p>إدارة المواد والمنتجات في المستودعات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_materials }}</span>
+                    <span class="stat-label">إجمالي المواد</span>
+                </div>
+            </div>
+
+
+            <a href="{% url 'materials' %}" class="card-action btn-glass">الذهاب إلى المواد <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+    <!-- Warehouses Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-building"></i>
+        </div>
+        <div class="card-content">
+            <h3>المستودعات</h3>
+            <p>إدارة المستودعات ومواقع التخزين.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_warehouses }}</span>
+                    <span class="stat-label">إجمالي المستودعات</span>
+                </div>
+            </div>
+            <a href="{% url 'warehouses_list' %}" class="card-action btn-glass">الذهاب إلى المستودعات <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+<!-- Categories Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-building"></i>
+        </div>
+        <div class="card-content">
+            <h3>الفئات</h3>
+            <p>إدارة الفئات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_categories }}</span>
+                    <span class="stat-label">إجمالي الفئات</span>
+                </div>
+            </div>
+
+
+            <a href="{% url 'categories' %}" class="card-action btn-glass">الذهاب إلى الفئات <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+    <!-- Units Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-building"></i>
+        </div>
+        <div class="card-content">
+            <h3>الواحدات</h3>
+            <p>إدارة الواحدات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_units }}</span>
+                    <span class="stat-label">إجمالي الواحدات</span>
+                </div>
+            </div>
+
+            <a href="{% url 'units' %}" class="card-action btn-glass">الذهاب إلى الفئات <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+    <!-- Invoices Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-receipt"></i>
+        </div>
+        <div class="card-content">
+            <h3>الفواتير</h3>
+            <p>إدارة فواتير المبيعات والمشتريات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_invoices }}</span>
+                    <span class="stat-label">إجمالي الفواتير</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ total_sales }}</span>
+                    <span class="stat-label">فواتير المبيعات</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value">{{ total_purchases }}</span>
+                    <span class="stat-label">فواتير المشتريات</span>
+                </div>
+            </div>
+
+
+            <a href="{% url 'invoices' %}" class="card-action btn-glass">الذهاب إلى الفواتير <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+    <!-- Customers Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <div class="card-content">
+            <h3>العملاء</h3>
+            <p>إدارة بيانات العملاء.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_customers }}</span>
+                    <span class="stat-label">إجمالي العملاء</span>
+                </div>
+            </div>
+
+
+            <a href="{% url 'customers' %}" class="card-action btn-glass">الذهاب إلى العملاء <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+    <!-- Suppliers Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-truck"></i>
+        </div>
+        <div class="card-content">
+            <h3>الموردين</h3>
+            <p>إدارة بيانات الموردين.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_suppliers }}</span>
+                    <span class="stat-label">إجمالي الموردين</span>
+                </div>
+            </div>
+
+
+            <a href="{% url 'suppliers' %}" class="card-action btn-glass">الذهاب إلى الموردين <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+    <!-- Material Movements Card -->
+    <div class="dashboard-card glass-blur">
+        <div class="card-icon">
+            <i class="bi bi-arrow-left-right"></i>
+        </div>
+        <div class="card-content">
+            <h3>حركة المواد</h3>
+            <p>تتبع حركة المواد بين المستودعات.</p>
+            <div class="card-stats">
+                <div class="stat">
+                    <span class="stat-value">{{ total_movements }}</span>
+                    <span class="stat-label">إجمالي الحركات</span>
+                </div>
+            </div>
+
+
+            <a href="{% url 'movements' %}" class="card-action btn-glass">الذهاب إلى حركة المواد <i class="bi bi-arrow-left"></i></a>
+        </div>
+    </div>
+
+</div>
+
+
+{% endblock %}

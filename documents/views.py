@@ -71,11 +71,18 @@ class GroupActionView(generic.View):
 class DocumentListView(generic.ListView):
     model = Document
     paginate_by = 10
-    fields = ['id' ,'group', 'file' , 'type' , 'uploaded_by' , 'upload_date']
+    fields = ['id' ,'group', 'file' , 'type' , 'uploaded_by' , 'upload_date','get_absolute_url']
     template_name = 'documents/documents_list.html'
     context_object_name = 'documents'
     paginate_by = 10
 
+
+class DocumentURLView(View):
+    def get(self,request,slug):
+        document = get_object_or_404(Document,slug=slug)
+        response = HttpResponse(document.file, content_type=mimetypes.guess_type(document.file.name)[0])
+        response['Content-Disposition'] = f'inline; filename="{document.title}.{document.file.name.split(".")[-1]}"'
+        return response
 
 
 @method_decorator([login_required, add_perm_decorator], name='dispatch')

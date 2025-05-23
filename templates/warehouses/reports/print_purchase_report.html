@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقرير المشتريات</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+            direction: rtl;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .report-header h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .report-header p {
+            margin: 5px 0;
+            color: #7f8c8d;
+        }
+        .filters {
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .filters span {
+            margin-left: 15px;
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+            font-size: 12px;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .text-end {
+            text-align: left;
+        }
+        .total-row {
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        .print-button {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .print-button button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .payment-status {
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            color: white;
+            display: inline-block;
+        }
+        .status-paid {
+            background-color: #2ecc71;
+        }
+        .status-partial {
+            background-color: #f39c12;
+        }
+        .status-pending {
+            background-color: #95a5a6;
+        }
+        .status-overdue {
+            background-color: #e74c3c;
+        }
+        @media print {
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>تقرير المشتريات</h1>
+        <p>تاريخ التقرير: {{ today|date:"Y-m-d" }}</p>
+    </div>
+    
+    <div class="filters">
+        {% if request.GET.q %}<span>بحث: {{ request.GET.q }}</span>{% endif %}
+        {% if request.GET.supplier %}
+            {% for supplier in suppliers %}
+                {% if supplier.id|stringformat:"i" == request.GET.supplier %}
+                    <span>المورد: {{ supplier.name }}</span>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if request.GET.warehouse %}
+            {% for warehouse in warehouses %}
+                {% if warehouse.id|stringformat:"i" == request.GET.warehouse %}
+                    <span>المستودع: {{ warehouse.name }}</span>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% if request.GET.payment_status == 'pending' %}<span>حالة الدفع: قيد الانتظار</span>{% endif %}
+        {% if request.GET.payment_status == 'partial' %}<span>حالة الدفع: مدفوعة جزئياً</span>{% endif %}
+        {% if request.GET.payment_status == 'paid' %}<span>حالة الدفع: مدفوعة</span>{% endif %}
+        {% if request.GET.payment_status == 'overdue' %}<span>حالة الدفع: متأخرة</span>{% endif %}
+        {% if request.GET.start_date %}<span>من تاريخ: {{ request.GET.start_date }}</span>{% endif %}
+        {% if request.GET.end_date %}<span>إلى تاريخ: {{ request.GET.end_date }}</span>{% endif %}
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>رقم الفاتورة</th>
+                <th>التاريخ</th>
+                <th>المورد</th>
+                <th>المستودع</th>
+                <th>المبلغ</th>
+                <th>حالة الدفع</th>
+                <th>عدد المواد</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.invoice_number }}</td>
+                <td>{{ invoice.date|date:"Y-m-d H:i" }}</td>
+                <td>{{ invoice.purchaseinvoice.supplier.name }}</td>
+                <td>{{ invoice.purchaseinvoice.warehouse.name }}</td>
+                <td>{{ invoice.total_amount }}</td>
+                <td>
+                    {% if invoice.payment_status == 'paid' %}
+                    <span class="payment-status status-paid">مدفوعة</span>
+                    {% elif invoice.payment_status == 'partial' %}
+                    <span class="payment-status status-partial">مدفوعة جزئياً</span>
+                    {% elif invoice.payment_status == 'overdue' %}
+                    <span class="payment-status status-overdue">متأخرة</span>
+                    {% else %}
+                    <span class="payment-status status-pending">قيد الانتظار</span>
+                    {% endif %}
+                </td>
+                <td>{{ invoice.items.count }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center;">لا توجد بيانات</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr class="total-row">
+                <td colspan="4" class="text-end">إجمالي المشتريات:</td>
+                <td>{{ total_purchases }}</td>
+                <td colspan="2"></td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <div class="footer">
+        <p>تم إنشاء هذا التقرير بواسطة نظام إدارة المستودعات</p>
+        <p>عدد الفواتير: {{ invoices.count }}</p>
+    </div>
+    
+    <div class="print-button">
+        <button onclick="window.print()">طباعة التقرير</button>
+    </div>
+</body>
+</html>

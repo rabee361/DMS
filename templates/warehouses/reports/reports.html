@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}التقارير{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reports-enhanced.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1 class="h2">التقارير</h1>
+    <p>عرض تقارير المخزون والمبيعات والمشتريات</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="table-glass p-3">
+            <h3 class="h5 mb-3">أنواع التقارير</h3>
+            <div class="list-group">
+                <a href="{% url 'inventory_report' %}" class="list-group-item list-group-item-action {% if report_type == 'inventory' %}active{% endif %}">
+                    <i class="bi bi-box"></i> تقرير المخزون
+                </a>
+                <a href="{% url 'movement_report' %}" class="list-group-item list-group-item-action {% if report_type == 'movement' %}active{% endif %}">
+                    <i class="bi bi-arrow-left-right"></i> تقرير حركة المواد
+                </a>
+                <a href="{% url 'sales_report' %}" class="list-group-item list-group-item-action {% if report_type == 'sales' %}active{% endif %}">
+                    <i class="bi bi-graph-up"></i> تقرير المبيعات
+                </a>
+                <a href="{% url 'purchase_report' %}" class="list-group-item list-group-item-action {% if report_type == 'purchase' %}active{% endif %}">
+                    <i class="bi bi-cart"></i> تقرير المشتريات
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="table-glass p-3">
+            {% block report_content %}
+            <div class="text-center py-4">
+                <i class="bi bi-bar-chart-line" style="font-size: 2.5rem; opacity: 0.7;"></i>
+                <h3 class="mt-3 h4">اختر نوع التقرير</h3>
+                <p class="text-muted">يرجى اختيار نوع التقرير من القائمة على اليمين</p>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

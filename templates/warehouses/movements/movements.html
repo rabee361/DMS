@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}حركة المواد{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">حركة المواد</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'create_movement' %}?type=in" class="btn btn-primary"><i class="bi bi-box-arrow-in-down me-1"></i> إدخال</a>
+        <a href="{% url 'create_movement' %}?type=out" class="btn btn-primary"><i class="bi bi-box-arrow-up me-1"></i> إخراج</a>
+        <a href="{% url 'create_movement' %}?type=transfer" class="btn btn-primary"><i class="bi bi-arrow-left-right me-1"></i> نقل</a>
+        <a href="{% url 'create_movement' %}?type=adjustment" class="btn btn-primary"><i class="bi bi-pencil me-1"></i> تعديل</a>
+    </div>
+</div>
+
+<div class="table-container">
+    <div class="table-controls">
+        <div class="search-controls">
+            <form method="get" class="d-flex flex-wrap">
+                <input type="text" name="q" class="search-input" placeholder="ابحث..." value="{{ request.GET.q }}"/>
+            </form>
+        </div>
+        <div class="action-controls">
+            <select id="bulkAction" name="action" class="action-select">
+                <option value="" selected disabled>اختر الإجراء</option>
+                <option value="delete">حذف الحركات المحددة</option>
+            </select>
+            <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
+        </div>
+    </div>
+    <form method="post" action="{% url 'movement_action' %}" id="bulkActionForm">
+        {% csrf_token %}
+        <input type="hidden" name="selected_ids" id="selectedIds">
+        <input type="hidden" name="action" id="selectedAction">
+        <table class="data-table" id="movements-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>رقم الحركة</th>
+                        <th>المادة</th>
+                        <th>نوع الحركة</th>
+                        <th>الكمية</th>
+                        <th>المستودع المصدر</th>
+                        <th>المستودع الهدف</th>
+                        <th>التاريخ</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in movements %}
+                    <tr class="movement-row">
+                        <td><input type="checkbox" name="selected_ids" value="{{ movement.id }}"></td>
+                        <td>{{ movement.id }}</td>
+                        <td>
+                            <a href="{% url 'material_detail' movement.material.id %}" class="fw-bold text-decoration-none">
+                                {{ movement.material.name }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if movement.move_type == 'in' %}
+                            <span class="badge bg-success">
+                                <i class="bi bi-box-arrow-in-down me-1"></i> إدخال
+                            </span>
+                            {% elif movement.move_type == 'out' %}
+                            <span class="badge bg-danger">
+                                <i class="bi bi-box-arrow-up me-1"></i> إخراج
+                            </span>
+                            {% elif movement.move_type == 'transfer' %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-arrow-left-right me-1"></i> نقل
+                            </span>
+                            {% elif movement.move_type == 'adjustment' %}
+                            <span class="badge bg-warning">
+                                <i class="bi bi-pencil me-1"></i> تعديل
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>{{ movement.quantity }} {{ movement.material.unit.symbol }}</td>
+                        <td>
+                            {% if movement.source_warehouse %}
+                            <a href="{% url 'warehouse_detail' movement.source_warehouse.id %}" class="text-decoration-none">
+                                {{ movement.source_warehouse.name }}
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if movement.destination_warehouse %}
+                            <a href="{% url 'warehouse_detail' movement.destination_warehouse.id %}" class="text-decoration-none">
+                                {{ movement.destination_warehouse.name }}
+                            </a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                        <td>{{ movement.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'movement_detail' movement.id %}" class="view-btn" title="عرض">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'delete_movement' movement.id %}" class="delete-btn" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذه الحركة؟')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
+                            لا توجد حركات
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% include "pagination.html" with page=movements %}
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all functionality with enhanced visual feedback
+        const selectAllCheckbox = document.getElementById('select-all');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const checkboxes = document.getElementsByName('selected_ids');
+                for (let i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = this.checked;
+
+                    // Add visual feedback to the row
+                    const row = checkboxes[i].closest('tr');
+                    if (row) {
+                        if (this.checked) {
+                            row.style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+                        } else {
+                            row.style.backgroundColor = '';
+                        }
+                    }
+                }
+            });
+
+            // Individual checkbox handling
+            const individualCheckboxes = document.getElementsByName('selected_ids');
+            individualCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const row = this.closest('tr');
+                    if (row) {
+                        if (this.checked) {
+                            row.style.backgroundColor = 'rgba(52, 152, 219, 0.05)';
+                        } else {
+                            row.style.backgroundColor = '';
+                        }
+                    }
+
+                    // Update select all checkbox
+                    let allChecked = true;
+                    individualCheckboxes.forEach(cb => {
+                        if (!cb.checked) allChecked = false;
+                    });
+                    selectAllCheckbox.checked = allChecked;
+                });
+            });
+        }
+
+        // Make rows clickable with enhanced interaction
+        const movementRows = document.querySelectorAll('.movement-row');
+        movementRows.forEach(row => {
+            // Add hover effect
+            row.addEventListener('mouseenter', function() {
+                if (!this.querySelector('input[type="checkbox"]').checked) {
+                    this.style.backgroundColor = 'rgba(255, 255, 255, 0.03)';
+                }
+            });
+
+            row.addEventListener('mouseleave', function() {
+                if (!this.querySelector('input[type="checkbox"]').checked) {
+                    this.style.backgroundColor = '';
+                }
+            });
+
+            // Add click effect
+            row.addEventListener('click', function(e) {
+                // Don't navigate if clicking on checkbox, button or link
+                if (e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'A' ||
+                    e.target.tagName === 'BUTTON' ||
+                    e.target.closest('a') ||
+                    e.target.closest('button')) {
+                    return;
+                }
+
+                // Get the view link from the row
+                const viewLink = this.querySelector('.view-btn');
+                if (viewLink) {
+                    // Add click effect with ripple
+                    this.style.transform = 'scale(0.99)';
+
+                    // Create ripple effect
+                    const ripple = document.createElement('div');
+                    ripple.className = 'ripple-effect';
+                    ripple.style.position = 'absolute';
+                    ripple.style.width = '20px';
+                    ripple.style.height = '20px';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.backgroundColor = 'rgba(52, 152, 219, 0.2)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.left = (e.clientX - this.getBoundingClientRect().left) + 'px';
+                    ripple.style.top = (e.clientY - this.getBoundingClientRect().top) + 'px';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.pointerEvents = 'none';
+
+                    this.style.position = 'relative';
+                    this.style.overflow = 'hidden';
+                    this.appendChild(ripple);
+
+                    // Navigate to the detail page after a small delay for the animation
+                    setTimeout(() => {
+                        window.location.href = viewLink.getAttribute('href');
+                    }, 150);
+
+                    // Remove ripple after animation
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                }
+            });
+        });
+
+        // Add staggered animation to the table rows
+        const tableRows = document.querySelectorAll('#movements-table tbody tr');
+        tableRows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(15px)';
+
+            // Stagger the animations with easing
+            setTimeout(() => {
+                row.style.transition = 'opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1)';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, 30 * index);
+        });
+
+        // Add ripple animation style
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(15);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Function to execute bulk actions
+        window.executeBulkAction = function() {
+            const selectedAction = document.getElementById('bulkAction').value;
+            if (!selectedAction) {
+                alert('يرجى اختيار إجراء');
+                return;
+            }
+            
+            const checkboxes = document.querySelectorAll('input[name="selected_ids"]:checked');
+            if (checkboxes.length === 0) {
+                alert('يرجى تحديد حركة واحدة على الأقل');
+                return;
+            }
+            
+            const selectedIds = Array.from(checkboxes).map(cb => cb.value).join(',');
+            document.getElementById('selectedIds').value = selectedIds;
+            document.getElementById('selectedAction').value = selectedAction;
+            
+            if (selectedAction === 'delete' && !confirm('هل أنت متأكد من حذف الحركات المحددة؟')) {
+                return;
+            }
+            
+            document.getElementById('bulkActionForm').submit();
+        };
+    });
+</script>
+{% endblock %}

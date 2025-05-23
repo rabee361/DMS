@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}الموردين{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="h2">الموردين</h1>
+    <a href="{% url 'create_supplier' %}" class="btn btn-primary">إضافة +</a>
+</div>
+
+<div class="table-container">
+    <div class="table-controls">
+        <div class="search-controls">
+            <input type="text" name="q" class="search-input" placeholder="ابحث..." value="{{ request.GET.q }}"/>
+        </div>
+        <div class="action-controls">
+            <select id="bulkAction" name="action" class="action-select">
+                <option value="" selected disabled>اختر الإجراء</option>
+                <option value="delete">حذف</option>
+                <option value="activate">تنشيط</option>
+                <option value="deactivate">إلغاء التنشيط</option>
+            </select>
+            <button type="button" class="do-action-btn" onclick="executeBulkAction()">تنفيذ الإجراء</button>
+        </div>
+    </div>
+    <form method="post" action="{% url 'supplier_action' %}" id="bulkActionForm">
+        {% csrf_token %}
+        <input type="hidden" name="selected_ids" id="selectedIds">
+        <input type="hidden" name="action" id="selectedAction">
+        <table class="data-table">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="select-all"></th>
+                        <th>الاسم</th>
+                        <th>جهة الاتصال</th>
+                        <th>البريد الإلكتروني</th>
+                        <th>الهاتف</th>
+                        <th>الحالة</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for supplier in suppliers %}
+                    <tr>
+                        <td><input type="checkbox" name="selected_ids" value="{{ supplier.id }}"></td>
+                        <td>{{ supplier.name }}</td>
+                        <td>{{ supplier.contact_person|default:"-" }}</td>
+                        <td>{{ supplier.email|default:"-" }}</td>
+                        <td>{{ supplier.phone|default:"-" }}</td>
+                        <td>
+                            {% if supplier.is_active %}
+                            <span class="badge bg-success">نشط</span>
+                            {% else %}
+                            <span class="badge bg-danger">غير نشط</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'supplier_detail' supplier.id %}" class="view-btn" title="عرض">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'supplier_detail' supplier.id %}" class="edit-btn" title="تعديل">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'delete_supplier' supplier.id %}" class="delete-btn" title="حذف" onclick="return confirm('هل أنت متأكد من حذف هذا المورد؟')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">لا يوجد موردين</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% include "pagination.html" with page=suppliers %}
+    </form>
+</div>
+
+</div>
+
+<div class="table-container mt-4">
+    <div class="page-header">
+        <h2 class="h3">فواتير المشتريات</h2>
+        <a href="{% url 'invoices' %}" class="btn btn-primary">
+            <i class="bi bi-receipt"></i> إدارة الفواتير
+        </a>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('select-all').addEventListener('change', function() {
+        var checkboxes = document.getElementsByName('selected_ids');
+        for (var i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].checked = this.checked;
+        }
+    });
+    
+    // Function to execute bulk actions
+    function executeBulkAction() {
+        const selectedAction = document.getElementById('bulkAction').value;
+        if (!selectedAction) {
+            alert('يرجى اختيار إجراء');
+            return;
+        }
+        
+        const checkboxes = document.querySelectorAll('input[name="selected_ids"]:checked');
+        if (checkboxes.length === 0) {
+            alert('يرجى تحديد مورد واحد على الأقل');
+            return;
+        }
+        
+        const selectedIds = Array.from(checkboxes).map(cb => cb.value).join(',');
+        document.getElementById('selectedIds').value = selectedIds;
+        document.getElementById('selectedAction').value = selectedAction;
+        
+        if (selectedAction === 'delete' && !confirm('هل أنت متأكد من حذف الموردين المحددين؟')) {
+            return;
+        }
+        
+        document.getElementById('bulkActionForm').submit();
+    }
+</script>
+{% endblock %}
